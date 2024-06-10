@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna();" class="gradient-custom">
+<body onload="aggiorna(); ridimensiona();" class="gradient-custom">
     <div class="container">
         <h1 class="d-flex justify-content-center my-2">Descrizione personaggio</h1>
 
@@ -29,8 +29,8 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-4">
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
+            <div id="col_comics" class="col d-none">
                 <h1 id="title_comics" class="d-flex justify-content-center my-3 d-none">Fumetti in cui appare</h1>
                 <div id="carousel_comics" class="carousel slide">
                     <div id="container_comics" class="carousel-inner">
@@ -62,7 +62,7 @@
                     </div>
                 </div> -->
             </div>
-            <div class="col-4">
+            <div id="col_series" class="col d-none">
                 <h1 id="title_series" class="d-flex justify-content-center my-3 d-none">Serie in cui appare</h1>
                 <div id="carousel_series" class="carousel slide">
                     <div id="container_series" class="carousel-inner">
@@ -95,7 +95,7 @@
                 </div> -->
             </div>
 
-            <div class="col-4">
+            <div id="col_events" class="col d-none">
                 <h1 id="title_events" class="d-flex justify-content-center my-3 d-none">Eventi in cui appare</h1>
                 <div id="carousel_events" class="carousel slide">
                     <div id="container_events" class="carousel-inner">
@@ -162,46 +162,45 @@
 
             // richiestaMarvel(hero.events.collectionURI, 'eventCard', 'containerEvents', 'titleEvents');
 
-            //QUANDO HAI FATTO IL carouselL
             richiestaMarvelCarousel(hero.comics.collectionURI, 'comics');
             richiestaMarvelCarousel(hero.series.collectionURI, 'series');
             richiestaMarvelCarousel(hero.events.collectionURI, 'events');
         }
 
-        function popolaMenu(data, nomeCard, nomeContainer, nomeTitolo) {
-            //console.log(series);
-            card = document.getElementById(nomeCard);
-            container = document.getElementById(nomeContainer);
-            header = document.getElementById(nomeTitolo);
-            container.innerHTML = "";
-            container.append(card);
+        // function popolaMenu(data, nomeCard, nomeContainer, nomeTitolo) {
+        //     //console.log(series);
+        //     card = document.getElementById(nomeCard);
+        //     container = document.getElementById(nomeContainer);
+        //     header = document.getElementById(nomeTitolo);
+        //     container.innerHTML = "";
+        //     container.append(card);
 
-            for (i = 0; i < data.length; i++) {
-                element = data[i];
-                clone = card.cloneNode(true);
-                clone.id = 'serieClone_' + i;
+        //     for (i = 0; i < data.length; i++) {
+        //         element = data[i];
+        //         clone = card.cloneNode(true);
+        //         clone.id = 'serieClone_' + i;
 
-                title = clone.getElementsByClassName('card-title')[0];
-                // description = clone.getElementsByClassName('card-text')[0];
-                image = clone.getElementsByClassName('card-img-top')[0];
+        //         title = clone.getElementsByClassName('card-title')[0];
+        //         // description = clone.getElementsByClassName('card-text')[0];
+        //         image = clone.getElementsByClassName('card-img-top')[0];
 
-                title.innerHTML = element.title;
-                image.src = element.thumbnail.path + "." + element.thumbnail.extension;
-                // description.innerHTML = serie.description;
+        //         title.innerHTML = element.title;
+        //         image.src = element.thumbnail.path + "." + element.thumbnail.extension;
+        //         // description.innerHTML = serie.description;
 
-                header.classList.remove('d-none');
-                clone.classList.remove('d-none');
-                card.before(clone);
-            }
-        }
+        //         header.classList.remove('d-none');
+        //         clone.classList.remove('d-none');
+        //         card.before(clone);
+        //     }
+        // }
 
-        function richiestaMarvel(URI, nomeCard, nomeContainer, nomeTitolo) {
-            URI = URI.slice(URI.indexOf(1) + 2);
-            //fetch portale marvel
-            getFromMarvel(URI, "")
-                .then((result) => popolaMenu(result.data.results, nomeCard, nomeContainer, nomeTitolo))
-                .catch((error) => console.error(error));
-        }
+        // function richiestaMarvel(URI, nomeCard, nomeContainer, nomeTitolo) {
+        //     URI = URI.slice(URI.indexOf(1) + 2);
+        //     //fetch portale marvel
+        //     getFromMarvel(URI, "")
+        //         .then((result) => popolaMenu(result.data.results, nomeCard, nomeContainer, nomeTitolo))
+        //         .catch((error) => console.error(error));
+        // }
 
         function richiestaMarvelCarousel(URI, nomeCard, nomeContainer, nomeTitolo) {
             URI = URI.slice(URI.indexOf(1) + 2);
@@ -218,6 +217,7 @@
             header = document.getElementById('title_' + type);
             btn_prev = document.getElementById('prev_' + type);
             btn_next = document.getElementById('next_' + type);
+            col = document.getElementById('col_' + type);
 
 
             container.innerHTML = "";
@@ -237,6 +237,7 @@
 
                 header.classList.remove('d-none');
                 clone.classList.remove('d-none');
+                col.classList.remove('d-none');
                 if (i === 1) {
                     btn_next.classList.remove('d-none');
                     btn_prev.classList.remove('d-none');
@@ -248,7 +249,6 @@
             }
             container.removeChild(slide);
         }
-
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
