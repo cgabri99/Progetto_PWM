@@ -183,6 +183,29 @@
         }
       }
     },
+    "/figurine/{id}": {
+      "get": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": [
