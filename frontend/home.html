@@ -25,6 +25,9 @@
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="home.html">Home</a>
                     </li>
+                    <li id="album" class="nav-item d-none">
+                        <a class="nav-link" aria-current="page" href="album.html">Album</a>
+                    </li>
                     <li id="login" class="nav-item">
                         <a class="nav-link" href="login.html">Login</a>
                     </li>
@@ -46,7 +49,7 @@
         </div>
     </nav>
 
-    <h1 class="d-flex justify-content-center mt-2"> Lista dei supereoi disponibili</h1>
+    <h1 class="text-center mt-2"> Lista dei supereoi disponibili</h1>
 
     <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
         <div id="heroCard" class="col d-none">
@@ -83,10 +86,12 @@
             var login = document.getElementById('login');
             var menu = document.getElementById('menuUtente');
             var msg = document.getElementById('benvenuto');
+            var album = document.getElementById('album');
 
             var is_logged = getLocalStorage("logged");
 
             if (is_logged) {
+                album.classList.remove('d-none');
                 var id_utente = getLocalStorage("id_utente");
                 const requestOptions = {
                     method: "GET",
@@ -116,6 +121,7 @@
             var login = document.getElementById('login');
             var menu = document.getElementById('menuUtente');
             var msg = document.getElementById('benvenuto');
+            var album = document.getElementById('album');
 
             setLocalStorage("logged", false);
             setLocalStorage("id_utente", null);
@@ -123,6 +129,7 @@
             msg.classList.add('d-none');
             login.classList.remove('d-none');
             menu.classList.add('disabled');
+            album.classList.add('d-none');
 
             location.reload();
         }
@@ -145,14 +152,12 @@
                 .catch((error) => console.error(error));
         }
 
-        // utilizziamo una funzione asincrona per evitare un brutto effetto visivo 
-        //durante la fase di loading della pagina
-        async function richiestaMarvel(npagina, limit) {
+        function richiestaMarvel(npagina, limit) {
             offset = npagina * dim_pagina;
 
             query = `offset=${offset}&limit=${limit}`;
             //fetch portale marvel
-            await getFromMarvel("public/characters", query)
+            getFromMarvel("public/characters", query)
                 .then((result) => popolaScehde(result.data.results))
                 .catch((error) => console.error(error));
         }
