@@ -276,32 +276,32 @@ async function getFigurine(res, id) {
 /**
  * 
  * @param {l'id della figurina da controllare} id_figurina 
- * @returns 
+ * @returns true se l'id é valido, false se non lo é
  */
 function isValid(id_figurina) {
+    //todo controllare che l'id della figurina sia un id valido
     return true;
 }
 /**
  * 
- * @param {la lista delle figurine (id e quantità) da inserire all'utente} figurine 
+ * @param {il body della richiesta contenete la lista delle figurine (id e quantità) da inserire all'utente} body 
  * @param {la risposta da mandare} res 
  * @param {l'id dell'utente a cui aggiungere le figurine} id 
  */
-async function addFigurine(figurine, res, id) {
+async function addFigurine(body, res, id) {
 
+    if (!body.figurine) {
+        res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
+        return;
+    }
+    var figurine = body.figurine;
     //controllo di validità dell'input
     for (var figurina in figurine) {
-        if (figurina.count <= 0) {
-            res.status(400).json({ error: "La quantità non può essere nulla o negativa!" });
-            return;
-        }
         if (!isValid(figurina.id)) {
             res.status(400).json({ error: "L'id della figurina non é valido" });
             return;
         }
     }
-
-
     const pwmClient = await client.connect();
     var user = undefined;
     try {
@@ -312,8 +312,9 @@ async function addFigurine(figurine, res, id) {
 
         // aggiorno la lista delle figurine possedute
         possedute = user.figurine;
-        for (var figurina in figurine) {
-            var found = possedute.find((element) => element.id === figurina.id);
+        for (var i = 0; i < figurine.length; i++) {
+            figurina = figurine[i];
+            var found = possedute.find((element) => element.id == figurina.id);
             if (found) {
                 found.count += figurina.count;
             } else {
