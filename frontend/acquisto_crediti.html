@@ -16,8 +16,7 @@
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div id="error"
-                        class="d-none my-3 p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3">
+                    <div id="error" class="d-none my-3 p-3 alert" role="alert">
                     </div>
                     <div class="card" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
@@ -34,10 +33,6 @@
                                     type="button">Acquista</button>
                                 <a type="button" class="btn btn-secondary btn-lg px-5 mt-4" href="home.html">Annulla</a>
                             </div>
-
-                            <div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -49,11 +44,22 @@
             err = document.getElementById('error');
             crediti = document.getElementById('crediti');
 
+            if (crediti.value <= 0) {
+                err.classList.remove('d-none');
+                err.classList.add('alert-danger');
+                err.innerHTML = 'Non puoi acquistare un numero negativo di crediti!';
+                return;
+            }
+
             is_logged = getLocalStorage("logged");
             if (!is_logged) {
                 err.classList.remove('d-none');
                 err.innerHTML = 'Utente non loggato! <a href="login.html" class="link-danger">login</a >';
             } else {
+
+                err.classList.remove('d-none', 'alert-danger');
+                err.classList.add('alert-success')
+                err.innerHTML = 'Acquisto completo! stai per essere reindirizzato alla home';
 
                 id_utente = getLocalStorage("id_utente");
                 const requestOptions = {
