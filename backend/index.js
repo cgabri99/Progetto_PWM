@@ -201,7 +201,6 @@ async function addCrediti
         });
 
         crediti += parseInt(user.credits);
-        // Cerca un utente con l'id specificate
         await pwmClient.db(DB_NAME).collection("Users")
             .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "credits": crediti } });
     } catch (e) {
@@ -274,6 +273,68 @@ async function getFigurine(res, id) {
     }
 }
 
+/**
+ * 
+ * @param {l'id della figurina da controllare} id_figurina 
+ * @returns 
+ */
+function isValid(id_figurina) {
+    return true;
+}
+/**
+ * 
+ * @param {la lista delle figurine (id e quantità) da inserire all'utente} figurine 
+ * @param {la risposta da mandare} res 
+ * @param {l'id dell'utente a cui aggiungere le figurine} id 
+ */
+async function addFigurine(figurine, res, id) {
+
+    //controllo di validità dell'input
+    for (var figurina in figurine) {
+        if (figurina.count <= 0) {
+            res.status(400).json({ error: "La quantità non può essere nulla o negativa!" });
+            return;
+        }
+        if (!isValid(figurina.id)) {
+            res.status(400).json({ error: "L'id della figurina non é valido" });
+            return;
+        }
+    }
+
+
+    const pwmClient = await client.connect();
+    var user = undefined;
+    try {
+        // Cerca utente a partire dall'id
+        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
+            _id: ObjectId.createFromHexString(id)
+        });
+
+        // aggiorno la lista delle figurine possedute
+        possedute = user.figurine;
+        for (var figurina in figurine) {
+            var found = possedute.find((element) => element.id === figurina.id);
+            if (found) {
+                found.count += figurina.count;
+            } else {
+                possedute.push(figurina);
+            }
+        }
+
+        //update del database con la nuova lista di figurine
+        await pwmClient.db(DB_NAME).collection("Users")
+            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": possedute } });
+    } catch (e) {
+        console.log(e);
+        res.status(404).json({ error: "Id non presente" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
+    res.json({ status: "ok", possedute: possedute });
+}
+
 //Effettua il login di un utente
 async function loginUser(body, res) {
     // Controlla se l'email e la password sono presenti
@@ -319,7 +380,7 @@ app.post("/users", async (req, res) => {
             }
         } 
     */
-    addUser(req.body, res);
+    await addUser(req.body, res);
 });
 
 app.put("/users/:id", async (req, res) => {
@@ -337,13 +398,13 @@ app.put("/users/:id", async (req, res) => {
     */
     id = req.params.id;
     body = req.body;
-    updateUser(res, id, body);
+    await updateUser(res, id, body);
 });
 
 app.delete("/users/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     id = req.params.id;
-    deleteUser(res, id);
+    await deleteUser(res, id);
 });
 
 app.get("/users", async (req, res) => {
@@ -363,20 +424,26 @@ app.put("/credits/:id/:qty", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
     id = req.params.id;
     crediti = parseInt(req.params.qty);
-    addCrediti(res, crediti, id);
+    await addCrediti(res, crediti, id);
 });
 
 app.get("/credits/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
     id = req.params.id;
-    getCrediti(res, id);
+    await getCrediti(res, id);
 });
 
 // *Gestione acquisto figurine
 app.get("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
-    getFigurine(res, id);
+    await getFigurine(res, id);
+});
+
+app.put("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    id = req.params.id;
+    await addFigurine(req.body, res, id);
 });
 
 // *login
