@@ -16,8 +16,7 @@
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div id="error"
-                        class="d-none my-3 p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3">
+                    <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
                     </div>
                     <div class="card text-white" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
@@ -120,8 +119,8 @@
                 email.classList.add("border", "border-danger");
                 psw.classList.add("border", "border-danger");
             } else {
-                div.classList.remove("d-none", "text-danger-emphasis", "bg-danger-subtle", "border-danger-subtle");
-                div.classList.add("text-success-emphasis", "bg-success-subtle", "border-success-subtle");
+                div.classList.remove("d-none", 'alert-danger');
+                div.classList.add('alert-success');
                 div.innerHTML = "Login effettuata";
                 // Mi sposto alla schermata home
                 setLocalStorage("logged", true);
