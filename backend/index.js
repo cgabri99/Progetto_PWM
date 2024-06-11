@@ -201,7 +201,6 @@ async function addCrediti
         });
 
         crediti += parseInt(user.credits);
-        // Cerca un utente con l'id specificate
         await pwmClient.db(DB_NAME).collection("Users")
             .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "credits": crediti } });
     } catch (e) {
@@ -246,6 +245,97 @@ async function getCrediti(res, id) {
     }
 }
 
+/**
+ * Restituisce la lista delle figurine possedute dall'utente con la relativa quantità
+ */
+async function getFigurine(res, id) {
+    const pwmClient = await client.connect();
+    var user = undefined;
+    try {
+        // Cerca un utente a partire dall'id
+        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
+            _id: ObjectId.createFromHexString(id)
+        });
+    } catch (e) {
+        res.status(404).json({ error: "Id non presente" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
+    if (user) {
+        res.json({
+            id: user._id,
+            figurine: user.figurine
+        });
+    } else {
+        res.status(404).json({ error: "Id non presente" });
+    }
+}
+
+/**
+ * 
+ * @param {l'id della figurina da controllare} id_figurina 
+ * @returns true se l'id é valido, false se non lo é
+ */
+function isValid(id_figurina) {
+    //todo controllare che l'id della figurina sia un id valido
+    return true;
+}
+/**
+ * 
+ * @param {il body della richiesta contenete la lista delle figurine (id e quantità) da inserire all'utente} body 
+ * @param {la risposta da mandare} res 
+ * @param {l'id dell'utente a cui aggiungere le figurine} id 
+ */
+async function addFigurine(body, res, id) {
+
+    if (!body.figurine) {
+        res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
+        return;
+    }
+    var figurine = body.figurine;
+    //controllo di validità dell'input
+    for (var figurina in figurine) {
+        if (!isValid(figurina.id)) {
+            res.status(400).json({ error: "L'id della figurina non é valido" });
+            return;
+        }
+    }
+    const pwmClient = await client.connect();
+    var user = undefined;
+    try {
+        // Cerca utente a partire dall'id
+        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
+            _id: ObjectId.createFromHexString(id)
+        });
+
+        // aggiorno la lista delle figurine possedute
+        possedute = user.figurine;
+        for (var i = 0; i < figurine.length; i++) {
+            figurina = figurine[i];
+            var found = possedute.find((element) => element.id == figurina.id);
+            if (found) {
+                found.count += figurina.count;
+            } else {
+                possedute.push(figurina);
+            }
+        }
+
+        //update del database con la nuova lista di figurine
+        await pwmClient.db(DB_NAME).collection("Users")
+            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": possedute } });
+    } catch (e) {
+        console.log(e);
+        res.status(404).json({ error: "Id non presente" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
+    res.json({ status: "ok", possedute: possedute });
+}
+
 //Effettua il login di un utente
 async function loginUser(body, res) {
     // Controlla se l'email e la password sono presenti
@@ -277,7 +367,7 @@ async function loginUser(body, res) {
     }
 }
 
-// Gestione utenti
+// *Gestione utenti
 app.post("/users", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     /*  #swagger.requestBody = {
@@ -291,7 +381,7 @@ app.post("/users", async (req, res) => {
             }
         } 
     */
-    addUser(req.body, res);
+    await addUser(req.body, res);
 });
 
 app.put("/users/:id", async (req, res) => {
@@ -309,13 +399,13 @@ app.put("/users/:id", async (req, res) => {
     */
     id = req.params.id;
     body = req.body;
-    updateUser(res, id, body);
+    await updateUser(res, id, body);
 });
 
 app.delete("/users/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     id = req.params.id;
-    deleteUser(res, id);
+    await deleteUser(res, id);
 });
 
 app.get("/users", async (req, res) => {
@@ -330,22 +420,34 @@ app.get("/users/:id", async (req, res) => {
     const users = await getUserById(res, id);
 });
 
-//Gestione crediti
+// *Gestione crediti
 app.put("/credits/:id/:qty", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
     id = req.params.id;
     crediti = parseInt(req.params.qty);
-    addCrediti(res, crediti, id);
+    await addCrediti(res, crediti, id);
 });
 
 app.get("/credits/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
     id = req.params.id;
-    getCrediti(res, id);
+    await getCrediti(res, id);
 });
 
+// *Gestione acquisto figurine
+app.get("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    id = req.params.id;
+    await getFigurine(res, id);
+});
 
-// login
+app.put("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    id = req.params.id;
+    await addFigurine(req.body, res, id);
+});
+
+// *login
 app.post("/login", async (req, res) => {
     // #swagger.tags = ['Login']
     /*  #swagger.requestBody = {
