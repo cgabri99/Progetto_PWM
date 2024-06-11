@@ -443,6 +443,17 @@ app.get("/figurine/:id", async (req, res) => {
 
 app.put("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/putFigurineSchema"
+                    }  
+                }
+            }
+        } 
+    */
     id = req.params.id;
     await addFigurine(req.body, res, id);
 });

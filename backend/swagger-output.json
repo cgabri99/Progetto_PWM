@@ -204,6 +204,37 @@
             "description": ""
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/putFigurineSchema"
+              }
+            }
+          }
+        }
       }
     },
     "/login": {
@@ -268,6 +299,22 @@
           "credits": {
             "type": "number",
             "example": 0
+          },
+          "figurine": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "example": 1
+                },
+                "count": {
+                  "type": "number",
+                  "example": 2
+                }
+              }
+            }
           }
         },
         "required": [
@@ -306,6 +353,30 @@
             "example": 0
           }
         }
+      },
+      "putFigurineSchema": {
+        "type": "object",
+        "properties": {
+          "figurine": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "example": 1
+                },
+                "count": {
+                  "type": "number",
+                  "example": 2
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "figurine"
+        ]
       },
       "loginSchema": {
         "type": "object",
