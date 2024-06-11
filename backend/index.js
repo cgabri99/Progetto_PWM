@@ -246,6 +246,34 @@ async function getCrediti(res, id) {
     }
 }
 
+/**
+ * Restituisce la lista delle figurine possedute dall'utente con la relativa quantità
+ */
+async function getFigurine(res, id) {
+    const pwmClient = await client.connect();
+    var user = undefined;
+    try {
+        // Cerca un utente a partire dall'id
+        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
+            _id: ObjectId.createFromHexString(id)
+        });
+    } catch (e) {
+        res.status(404).json({ error: "Id non presente" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
+    if (user) {
+        res.json({
+            id: user._id,
+            figurine: user.figurine
+        });
+    } else {
+        res.status(404).json({ error: "Id non presente" });
+    }
+}
+
 //Effettua il login di un utente
 async function loginUser(body, res) {
     // Controlla se l'email e la password sono presenti
@@ -277,7 +305,7 @@ async function loginUser(body, res) {
     }
 }
 
-// Gestione utenti
+// *Gestione utenti
 app.post("/users", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     /*  #swagger.requestBody = {
@@ -330,7 +358,7 @@ app.get("/users/:id", async (req, res) => {
     const users = await getUserById(res, id);
 });
 
-//Gestione crediti
+// *Gestione crediti
 app.put("/credits/:id/:qty", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
     id = req.params.id;
@@ -344,8 +372,14 @@ app.get("/credits/:id", async (req, res) => {
     getCrediti(res, id);
 });
 
+// *Gestione acquisto figurine
+app.get("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    id = req.params.id;
+    getFigurine(res, id);
+});
 
-// login
+// *login
 app.post("/login", async (req, res) => {
     // #swagger.tags = ['Login']
     /*  #swagger.requestBody = {
