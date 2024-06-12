@@ -163,16 +163,17 @@
                 div.classList.remove('d-none');
                 div.innerHTML = err;
 
-                if (res.includes("Password")) {
+                if (res.toLowerCase().includes("password")) {
                     psw.classList.add("border", "border-danger");
                 }
-                if (res.includes("Nome")) {
+                if (res.toLowerCase().includes("nome")) {
                     nome.classList.add("border", "border-danger");
                 }
-                if (res.includes("Cognome")) {
+                if (res.toLowerCase().includes("cognome")) {
                     surname.classList.add("border", "border-danger");
                 }
-                if (res.includes("email")) {
+
+                if (res.toLowerCase().includes("email")) {
                     email.classList.add("border", "border-danger");
                 }
             } else {
