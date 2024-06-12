@@ -24,3 +24,5 @@
 	- [ ] album (al momento caricamento singolo delle figurine)
 - [x] controllo della mail con regexp
 - [ ] controllare la validità dell'id del personaggio al momento dell'aggiunta della figurina
+- [ ] post gestione figurine 
+- [ ] put gestione figurine
