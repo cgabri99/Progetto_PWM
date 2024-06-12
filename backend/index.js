@@ -129,8 +129,18 @@ function hash(input) {
         .digest('hex');
 }
 
+// Check if the email is a valid address
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 /**
- * Aggiungi un nuovo utente al database
+ * Adds a new user to the database.
+ * 
+ * @param {Object} user - The user object containing the user's information.
+ * @param {Object} res - The response object used to send the HTTP response.
+ * @returns {Promise<void>} - A promise that resolves when the user is added to the database.
  */
 async function addUser(user, res) {
     // Controlla se tutti i campi obbligatori sono presenti
@@ -148,7 +158,10 @@ async function addUser(user, res) {
             res.status(400).json({ error: "Password troppo corta" });
             return;
         }
-        //TODO controllo email
+        if (!isValidEmail(user.email)) {
+            res.status(400).json({ error: "La email deve essere un indirizzo valido!" });
+            return;
+        }
     } else {
         res.status(400).json({ error: "Campi obbligatori assenti" });
         return;
