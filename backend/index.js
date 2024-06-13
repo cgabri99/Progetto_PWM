@@ -349,6 +349,52 @@ async function addFigurine(body, res, id) {
     res.json({ status: "ok", possedute: possedute });
 }
 
+/**
+ * Sostituisce la lista delle figurine possedute dall'utente con la nuova lista fornita.
+ * 
+ * @param {Object} body - Il body della richiesta contenente la lista delle figurine (id e quantità) da inserire all'utente.
+ * @param {Object} res - La risposta da mandare.
+ * @param {string} id - L'id dell'utente a cui aggiungere o sostituire le figurine.
+ * @returns {Promise<void>} - Una promise che si risolve quando la lista delle figurine è aggiunta o sostituita con successo.
+ */
+async function sostituisciFigurine(body, res, id) {
+
+    if (!body.figurine) {
+        res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
+        return;
+    }
+
+    var figurine = body.figurine;
+    //controllo di validità dell'input
+    for (var i = 0; i < figurine.length; i++) {
+        figurina = figurine[i];
+        if (!figurina.id || !isValid(figurina.id)) {
+            res.status(400).json({ error: `Attributo id della figurina ${JSON.stringify(figurina)} mancante o non valido!` });
+            return;
+        }
+        if (!figurina.count || figurina.count <= 0) {
+            res.status(400).json({ error: `Attributo count della figurina ${JSON.stringify(figurina)} mancante o non valido!` });
+            return;
+        }
+    }
+
+    const pwmClient = await client.connect();
+    var user = undefined;
+    try {
+        //update del database con la nuova lista di figurine
+        await pwmClient.db(DB_NAME).collection("Users")
+            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": figurine } });
+    } catch (e) {
+        console.error(e);
+        res.status(404).json({ error: "Id non presente" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
+    res.json({ status: "ok", possedute: figurine });
+}
+
 //Effettua il login di un utente
 async function loginUser(body, res) {
     // Controlla se l'email e la password sono presenti
@@ -469,6 +515,23 @@ app.put("/figurine/:id", async (req, res) => {
     */
     id = req.params.id;
     await addFigurine(req.body, res, id);
+});
+
+app.post("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/postFigurineSchema"
+                    }  
+                }
+            }
+        } 
+    */
+    id = req.params.id;
+    await sostituisciFigurine(req.body, res, id);
 });
 
 // *login

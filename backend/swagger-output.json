@@ -235,6 +235,37 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/postFigurineSchema"
+              }
+            }
+          }
+        }
       }
     },
     "/login": {
@@ -369,6 +400,30 @@
                 "count": {
                   "type": "number",
                   "example": 2
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "figurine"
+        ]
+      },
+      "postFigurineSchema": {
+        "type": "object",
+        "properties": {
+          "figurine": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "example": 2
+                },
+                "count": {
+                  "type": "number",
+                  "example": 3
                 }
               }
             }

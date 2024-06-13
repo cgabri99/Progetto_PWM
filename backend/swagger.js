@@ -31,6 +31,14 @@ const doc = {
                     id: 1,
                     count: 2
                 }]
+            }, postFigurineSchema: {
+                $figurine: [{
+                    id: 1,
+                    count: 2
+                }, {
+                    id: 2,
+                    count: 3
+                }]
             }, loginSchema: {
                 $email: "gabriele.cucchi@studenti.unimi.it",
                 $psw: "password"
