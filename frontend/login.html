@@ -36,7 +36,7 @@
                                     <input type="password" id="password" class="form-control form-control-lg">
                                 </div>
                                 <button onclick="login()" class="btn btn-outline-light btn-lg px-5"
-                                    type="button">Login</button>
+                                    type="button">Accedi</button>
 
                             </div>
 
@@ -97,8 +97,6 @@
                 .then((response) => response.text())
                 .then((result) => gestione_errori(result))
                 .catch((err) => console.log(err));
-
-            // criptare le password server e client side
         }
 
         async function gestione_errori(res) {

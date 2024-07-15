@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna(); richiestaMarvel(actual_page, dim_pagina);" class="gradient-custom">
+<body onload="aggiorna();" class="gradient-custom">
     <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand">Home portale scambio figurine</a>
@@ -163,7 +163,7 @@
         }
 
         function popolaScehde(dati) {
-            //console.log(dati)
+            console.log(dati)
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
             container.innerHTML = "";
