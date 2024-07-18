@@ -1,4 +1,5 @@
 const n_heroes = 1564;
+const dim_pagina = 30;
 
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
