@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiornaPagina(0);">
+<body onload="paginazione(0);">
     <div class="container">
         <button class="btn btn-primary m-3" type="button" onclick=" window.history.back();">Indietro</button>
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
@@ -33,16 +33,19 @@
         <nav>
             <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
                 <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
-                        onclick="aggiornaPagina(-1)">Precedente</a></li>
-                <li id="paginationNext" class="page-item"><a class="page-link" href="#"
-                        onclick="aggiornaPagina(1)">Succesiva</a>
+                        onclick="paginazione(-1)">Precedente</a></li>
+                <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
+                        onclick="paginazione(1)">Succesiva</a>
                 </li>
             </ul>
         </nav>
     </div>
     <script>
+        prev = document.getElementById('paginationPrev');
+        next = document.getElementById('paginationNext');
         var actual_page = 0;
         var max_npagina = 0;
+        var total_possedute = undefined;
         function popolaAlbum() {
             var is_logged = getLocalStorage("logged");
             if (is_logged) {
@@ -56,7 +59,13 @@
                     .then((response) => response.text())
                     .then((result) => {
                         result = JSON.parse(result);
-                        max_npagina = Math.floor(result.n_figurine / dim_pagina);
+                        if (total_possedute === undefined) {
+                            total_possedute = result.total;
+                            max_npagina = Math.floor(total_possedute / dim_pagina);
+                            if (total_possedute > dim_pagina) {
+                                next.classList.remove('disabled');
+                            }
+                        }
                         mostraFigurine(result.figurine);
                     })
                     .catch((error) => console.error(error));
@@ -88,11 +97,10 @@
                 heroCard.before(clone);
             }
         }
-
-        function aggiornaPagina(offeset) {
+        // TODO: implementare la paginazione 
+        // e rimuovere le dipendenze tra paginazione e popola album
+        function paginazione(offeset) {
             actual_page += offeset;
-            prev = document.getElementById('paginationPrev');
-            next = document.getElementById('paginationNext');
 
             prev.classList.remove('disabled');
             next.classList.remove('disabled');
