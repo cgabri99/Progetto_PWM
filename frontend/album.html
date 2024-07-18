@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="popolaAlbum();">
+<body onload="aggiornaPagina(0);">
     <div class="container">
         <button class="btn btn-primary m-3" type="button" onclick=" window.history.back();">Indietro</button>
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
@@ -23,15 +23,26 @@
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer d-flex justify-content-between">
                         <a href="scheda_personaggio.html" class="btn btn-primary">Dettagli</a>
+                        <a id="count" class="btn btn-outline-light" type="button" href="#"></a>
                     </div>
                 </div>
             </div>
         </div>
+        <nav>
+            <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
+                <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
+                        onclick="aggiornaPagina(-1)">Precedente</a></li>
+                <li id="paginationNext" class="page-item"><a class="page-link" href="#"
+                        onclick="aggiornaPagina(1)">Succesiva</a>
+                </li>
+            </ul>
+        </nav>
     </div>
     <script>
-        var n_pagina = 0;
+        var actual_page = 0;
+        var max_npagina = 0;
         function popolaAlbum() {
             var is_logged = getLocalStorage("logged");
             if (is_logged) {
@@ -40,10 +51,14 @@
                     method: "GET",
                     redirect: "follow"
                 };
-                var offeset = dim_pagina * n_pagina;
+                var offeset = dim_pagina * actual_page;
                 fetch(`http://localhost:3000/figurine/${id}/${dim_pagina}/${offeset}`, requestOptions)
                     .then((response) => response.text())
-                    .then((result) => mostraFigurine(JSON.parse(result).figurine))
+                    .then((result) => {
+                        result = JSON.parse(result);
+                        max_npagina = Math.floor(result.n_figurine / dim_pagina);
+                        mostraFigurine(result.figurine);
+                    })
                     .catch((error) => console.error(error));
             }
         }
@@ -61,15 +76,36 @@
                 title = clone.getElementsByClassName('card-title')[0];
                 image = clone.getElementsByClassName('card-img-top')[0];
                 button = clone.getElementsByClassName('btn-primary')[0];
+                count = clone.getElementsByClassName('btn-outline-light')[0];
 
                 title.innerHTML = heroData.name;
                 image.src = heroData.img_src;
                 URI = heroData.URI;
                 button.href += `?URI=${URI}`;
+                count.innerHTML = `Quantità: ${heroData.count}`;
 
                 clone.classList.remove('d-none');
                 heroCard.before(clone);
             }
+        }
+
+        function aggiornaPagina(offeset) {
+            actual_page += offeset;
+            prev = document.getElementById('paginationPrev');
+            next = document.getElementById('paginationNext');
+
+            prev.classList.remove('disabled');
+            next.classList.remove('disabled');
+
+            if (actual_page <= 0) {
+                actual_page = 0;
+                prev.classList.add('disabled');
+            }
+            if (actual_page >= max_npagina) {
+                actual_page = max_npagina;
+                next.classList.add('disabled');
+            }
+            popolaAlbum();
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
