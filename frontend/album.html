@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="popolaAlbum();">
+<body onload="paginazione(0);">
     <div class="container">
         <button class="btn btn-primary m-3" type="button" onclick=" window.history.back();">Indietro</button>
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
@@ -23,14 +23,29 @@
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer d-flex justify-content-between">
                         <a href="scheda_personaggio.html" class="btn btn-primary">Dettagli</a>
+                        <a id="count" class="btn btn-outline-light" type="button" href="#"></a>
                     </div>
                 </div>
             </div>
         </div>
+        <nav>
+            <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
+                <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
+                        onclick="paginazione(-1)">Precedente</a></li>
+                <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
+                        onclick="paginazione(1)">Succesiva</a>
+                </li>
+            </ul>
+        </nav>
     </div>
     <script>
+        prev = document.getElementById('paginationPrev');
+        next = document.getElementById('paginationNext');
+        var actual_page = 0;
+        var max_npagina = 0;
+        var total_possedute = undefined;
         function popolaAlbum() {
             var is_logged = getLocalStorage("logged");
             if (is_logged) {
@@ -39,48 +54,66 @@
                     method: "GET",
                     redirect: "follow"
                 };
-
-                fetch(`http://localhost:3000/figurine/${id}`, requestOptions)
+                var offeset = dim_pagina * actual_page;
+                fetch(`http://localhost:3000/figurine/${id}/${dim_pagina}/${offeset}`, requestOptions)
                     .then((response) => response.text())
-                    .then((result) => mostraFigurine(JSON.parse(result).figurine))
+                    .then((result) => {
+                        result = JSON.parse(result);
+                        if (total_possedute === undefined) {
+                            total_possedute = result.total;
+                            max_npagina = Math.floor(total_possedute / dim_pagina);
+                            if (total_possedute > dim_pagina) {
+                                next.classList.remove('disabled');
+                            }
+                        }
+                        mostraFigurine(result.figurine);
+                    })
                     .catch((error) => console.error(error));
             }
         }
 
         async function mostraFigurine(dati) {
-            console.log(dati);
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
             container.innerHTML = "";
             container.append(heroCard);
 
             for (i = 0; i < dati.length; i++) {
-                hero = dati[i];
-                url = `public/characters/${hero.id}`
+                heroData = dati[i];
                 clone = heroCard.cloneNode(true);
                 clone.id = 'heroClone_' + i;
-
-                var heroData = undefined;
-
-                await getFromMarvel(url, query = "")
-                    .then((result) => heroData = result.data.results[0]);
-
-                console.log(heroData);
-
-
-
                 title = clone.getElementsByClassName('card-title')[0];
                 image = clone.getElementsByClassName('card-img-top')[0];
                 button = clone.getElementsByClassName('btn-primary')[0];
+                count = clone.getElementsByClassName('btn-outline-light')[0];
 
                 title.innerHTML = heroData.name;
-                image.src = heroData.thumbnail.path + "." + heroData.thumbnail.extension;
-                URI = heroData.resourceURI.slice(heroData.resourceURI.indexOf("1") + 2);
+                image.src = heroData.img_src;
+                URI = heroData.URI;
                 button.href += `?URI=${URI}`;
+                count.innerHTML = `Quantità: ${heroData.count}`;
 
                 clone.classList.remove('d-none');
                 heroCard.before(clone);
             }
+        }
+        // TODO: implementare la paginazione 
+        // e rimuovere le dipendenze tra paginazione e popola album
+        function paginazione(offeset) {
+            actual_page += offeset;
+
+            prev.classList.remove('disabled');
+            next.classList.remove('disabled');
+
+            if (actual_page <= 0) {
+                actual_page = 0;
+                prev.classList.add('disabled');
+            }
+            if (actual_page >= max_npagina) {
+                actual_page = max_npagina;
+                next.classList.add('disabled');
+            }
+            popolaAlbum();
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

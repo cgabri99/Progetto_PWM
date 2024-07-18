@@ -261,7 +261,7 @@ async function getCrediti(res, id) {
 /**
  * Restituisce la lista delle figurine possedute dall'utente con la relativa quantità
  */
-async function getFigurine(res, id) {
+async function getFigurine(res, id, num, offset) {
     const pwmClient = await client.connect();
     var user = undefined;
     try {
@@ -277,9 +277,14 @@ async function getFigurine(res, id) {
     }
 
     if (user) {
+        var figurine = [];
+        figurine = user.figurine.slice(offset, offset + num);
+
         res.json({
             id: user._id,
-            figurine: user.figurine
+            total: user.figurine.length,
+            actual: figurine.length,
+            figurine: figurine
         });
     } else {
         res.status(404).json({ error: "Id non presente" });
@@ -494,10 +499,12 @@ app.get("/credits/:id", async (req, res) => {
 });
 
 // *Gestione acquisto figurine
-app.get("/figurine/:id", async (req, res) => {
+app.get("/figurine/:id/:dim/:offset", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
-    await getFigurine(res, id);
+    dim = parseInt(req.params.dim);
+    offset = parseInt(req.params.offset);
+    await getFigurine(res, id, dim, offset);
 });
 
 app.put("/figurine/:id", async (req, res) => {
