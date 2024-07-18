@@ -1,3 +1,7 @@
+const n_heroes = 1564;
+
+module.exports = { getRandomFigurina };
+
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
 }
@@ -29,3 +33,15 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function getRandomFigurina() {
+    var offset = getRandomInt(0, n_heroes - 1);
+    return getFromMarvel("public/characters", `limit=1&offset=${offset}`)
+        .then(data => {
+            figurina = data.data.results[0];
+            console.log(figurina);
+            return figurina;
+        });
+}
+
+// getRandomFigurina();
