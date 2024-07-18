@@ -23,9 +23,39 @@
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                     </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="scheda_personaggio.html" class="btn btn-primary">Dettagli</a>
-                        <a id="count" class="btn btn-outline-light" type="button" href="#"></a>
+                    <div class="card-footer">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+                            <a href="scheda_personaggio.html"
+                                class="btn btn-primary d-flex align-items-center">Dettagli</a>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">
+                                Vendi
+                            </button>
+                            <a id="count" class="btn btn-outline-light d-flex align-items-center" type="button"
+                                href="#"></a>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        Puoi vendere le carte in cambio di crediti,
+                                        ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
+                                        credito al tuo saldo
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Annulla</button>
+                                        <button id="buttonVendi" type="button" class="btn btn-info"
+                                            onclick="vendi();">Conferma
+                                            vendita</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -91,14 +121,13 @@
                 image.src = heroData.img_src;
                 URI = heroData.URI;
                 button.href += `?URI=${URI}`;
-                count.innerHTML = `Quantità: ${heroData.count}`;
+                count.innerHTML = `Possedute: ${heroData.count}`;
 
                 clone.classList.remove('d-none');
                 heroCard.before(clone);
             }
         }
-        // TODO: implementare la paginazione 
-        // e rimuovere le dipendenze tra paginazione e popola album
+
         function paginazione(offeset) {
             actual_page += offeset;
 
@@ -114,6 +143,10 @@
                 next.classList.add('disabled');
             }
             popolaAlbum();
+        }
+
+        function vendi() {
+            //todo : implementare vendita figurina
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
