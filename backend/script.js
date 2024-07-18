@@ -35,14 +35,22 @@ function getRandomInt(min, max) {
 
 function acquistaPacchetto(dim) {
     return new Promise((resolve, reject) => {
-        var id_figurine = [];
+        var figurine = [];
         for (let i = 0; i < dim; i++) {
             var offset = getRandomInt(0, n_heroes - 1);
             getFromMarvel("public/characters", `limit=1&offset=${offset}`)
                 .then(data => {
-                    id_figurine.push({ id: data.data.results[0].id, count: 1 });
-                    if (id_figurine.length === dim) {
-                        resolve(id_figurine);
+                    hero = data.data.results[0];
+                    dati_hero = {
+                        id: hero.id,
+                        name: hero.name,
+                        img_src: hero.thumbnail.path + "." + hero.thumbnail.extension,
+                        URI: hero.resourceURI.slice(hero.resourceURI.indexOf("1") + 2),
+                        count: 1
+                    }
+                    figurine.push(dati_hero);
+                    if (figurine.length === dim) {
+                        resolve(figurine);
                     }
                 })
                 .catch(error => reject(error));

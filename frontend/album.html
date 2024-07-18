@@ -49,28 +49,13 @@
         }
 
         async function mostraFigurine(dati) {
-            console.log(dati);
-            var datiCompleti = [];
-            for (i = 0; i < dati.length; i++) {
-                url = `public/characters/${dati[i].id}`
-                getFromMarvel(url, query = "")
-                    .then((result) => datiCompleti.push(result.data.results[0]))
-                    .then(() => {
-                        if (datiCompleti.length == dati.length) {
-                            creaCard(datiCompleti);
-                        }
-                    })
-            }
-        }
-
-        function creaCard(datiCompleti) {
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
             container.innerHTML = "";
             container.append(heroCard);
 
-            for (i = 0; i < datiCompleti.length; i++) {
-                heroData = datiCompleti[i];
+            for (i = 0; i < dati.length; i++) {
+                heroData = dati[i];
                 clone = heroCard.cloneNode(true);
                 clone.id = 'heroClone_' + i;
                 title = clone.getElementsByClassName('card-title')[0];
@@ -78,8 +63,8 @@
                 button = clone.getElementsByClassName('btn-primary')[0];
 
                 title.innerHTML = heroData.name;
-                image.src = heroData.thumbnail.path + "." + heroData.thumbnail.extension;
-                URI = heroData.resourceURI.slice(heroData.resourceURI.indexOf("1") + 2);
+                image.src = heroData.img_src;
+                URI = heroData.URI;
                 button.href += `?URI=${URI}`;
 
                 clone.classList.remove('d-none');
