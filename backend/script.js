@@ -1,7 +1,5 @@
 const n_heroes = 1564;
 
-module.exports = { getRandomFigurina };
-
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
 }
@@ -34,14 +32,19 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomFigurina() {
-    var offset = getRandomInt(0, n_heroes - 1);
-    return getFromMarvel("public/characters", `limit=1&offset=${offset}`)
-        .then(data => {
-            figurina = data.data.results[0];
-            console.log(figurina);
-            return figurina;
-        });
+function acquistaPacchetto(dim) {
+    return new Promise((resolve, reject) => {
+        var id_figurine = [];
+        for (let i = 0; i < dim; i++) {
+            var offset = getRandomInt(0, n_heroes - 1);
+            getFromMarvel("public/characters", `limit=1&offset=${offset}`)
+                .then(data => {
+                    id_figurine.push({ id: data.data.results[0].id, count: 1 });
+                    if (id_figurine.length === dim) {
+                        resolve(id_figurine);
+                    }
+                })
+                .catch(error => reject(error));
+        }
+    });
 }
-
-// getRandomFigurina();
