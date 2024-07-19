@@ -30,8 +30,8 @@
                                     <input type="number" min="1" id="bustine" class="form-control form-control-lg">
                                 </div>
 
-                                <button onclick="acquista()" class="btn btn-outline-light btn-lg px-3 mt-4"
-                                    type="button">Acquista</button>
+                                <button id="acquista" onclick="acquista()"
+                                    class="btn btn-outline-light btn-lg px-3 mt-4" type="button">Acquista</button>
                                 <button id="annulla" type="button" class="btn btn-secondary btn-lg px-3 mt-4"
                                     onclick="window.history.back();">Annulla</button>
 
@@ -84,9 +84,11 @@
                                 .then((result) => {
                                     console.log(result);
                                     err.classList.remove('d-none');
+                                    err.classList.remove('d-none', 'alert-danger', 'alert-success');
                                     err.classList.add('alert-warning');
                                     err.innerHTML = 'Acquisto in cosro attendere...';
-                                    btn = document.getElementById('annulla').classList.add('disabled');
+                                    btn_annulla = document.getElementById('annulla').classList.add('disabled');
+                                    btn_acquista = document.getElementById('acquista').classList.add('disabled');
 
                                     aggiungiBustine(id_utente);
                                 })
@@ -114,7 +116,8 @@
                             err.classList.remove('d-none', 'alert-danger', 'alert-warning');
                             err.classList.add('alert-success');
                             err.innerHTML = 'Acquisto completo!';
-                            btn = document.getElementById('annulla').classList.remove('disabled');
+                            btn_annulla = document.getElementById('annulla').classList.remove('disabled');
+                            btn_acquista = document.getElementById('acquista').classList.remove('disabled');
                         })
                         .catch((error) => console.error(error));
                 });
