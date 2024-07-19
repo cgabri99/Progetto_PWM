@@ -286,6 +286,37 @@
         }
       }
     },
+    "/figurine/{id_utente}/{id_figurina}": {
+      "put": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id_utente",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id_figurina",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": [
