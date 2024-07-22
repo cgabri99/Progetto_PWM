@@ -317,6 +317,39 @@
         }
       }
     },
+    "/scambio/{id_proprietario}": {
+      "post": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id_proprietario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/creazioneScambioSchema"
+              }
+            }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": [
@@ -481,6 +514,19 @@
         "required": [
           "figurine"
         ]
+      },
+      "creazioneScambioSchema": {
+        "type": "object",
+        "properties": {
+          "da_scambiare": {
+            "type": "number",
+            "example": 123456
+          },
+          "desiderata": {
+            "type": "number",
+            "example": 654321
+          }
+        }
       },
       "loginSchema": {
         "type": "object",

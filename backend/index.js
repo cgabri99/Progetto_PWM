@@ -716,7 +716,7 @@ app.post("/scambio/:id_proprietario", async (req, res) => {
             content: {
                 "application/json": {
                     schema: {
-                        $ref: "#/components/schemas/scambioSchema"
+                        $ref: "#/components/schemas/creazioneScambioSchema"
                     }
                 }
             }
