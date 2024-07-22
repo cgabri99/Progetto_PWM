@@ -39,6 +39,9 @@ const doc = {
                     id: 2,
                     count: 3
                 }]
+            }, creazioneScambioSchema: {
+                "da_scambiare": 123456,
+                "desiderata": 654321
             }, loginSchema: {
                 $email: "gabriele.cucchi@studenti.unimi.it",
                 $psw: "password"

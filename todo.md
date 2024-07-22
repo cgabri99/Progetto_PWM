@@ -21,3 +21,6 @@
 - [ ] modificare pagina acquisto bustine con bustine *premium*
 - [ ] paginazione scheda personaggio per serie comics e events
 - [ ] setting dei timer prima dei cambi di finestra (come in album nel caso di vendita figurine)
+- [x] controllo di consistenza durante la vendita di una figurina
+
+**Valutare bene come salvare i dati delle figurine in album, ora sono *statici* forse meglio renderli dinamici tenendo in memoria solo l'ID e caricando volta per volta i risultati dal server Marvel**
