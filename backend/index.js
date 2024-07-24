@@ -466,58 +466,49 @@ async function vendiFigurina(utente, id_figurina) {
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {Object} body - Il body della richiesta contenente i dati relativi allo scambio.
- * @param {string} proprietario - l'id dell'utente che crea la proposta di scambio.
  * @returns {Promise<number>} - Una promessa che si risolve con il codice di stato della richiesta.
 */
-async function creaScambio(res, body, proprietario) {
+async function creaScambio(res, body) {
     const pwmClient = await client.connect();
-    if (!body.da_scambiare || !body.desiderata) {
-        res.status(400).json({ error: "Il codice della figurina da scambiare e/o desiderata non è presente" });
+    if (!body.da_scambiare || !body.desiderata || !body.venditore) {
+        res.status(400).json({ error: "Richiesta errata!" });
         return;
     }
 
     try {
-        // Cerca utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(proprietario)
-        });
+        found = await pwmClient.db(DB_NAME).collection("Figurine")
+            .findOne(
+                {
+                    id: body.da_scambiare,
+                    proprietario: ObjectId.createFromHexString(body.venditore)
+                });
 
-        //controllo che la figurina da scambiare sia presente
-        var found = false;
-        for (var i = 0; i < user.figurine.length; i++) {
-            figurina = user.figurine[i];
-            if (figurina.id === body.da_scambiare) {
-                found = true;
-                if (figurina.countScambio === undefined) {
-                    //inserico il campo countScambio
-                    await pwmClient.db(DB_NAME).collection("Users")
-                        .updateOne({ _id: ObjectId.createFromHexString(proprietario), "figurine.id": body.da_scambiare },
-                            { $set: { "figurine.$.countScambio": 1 } });
-                } else {
-                    //controllo che il numero di scambi non superi il numero di copie possedute
-                    figurina.countScambio += 1;
-                    if (figurina.countScambio > figurina.count) {
-                        res.status(400).json({ error: "Non puoi avere in contemporanea più scambi che copie di figurine!" });
-                        return;
-                    }
-                    await pwmClient.db(DB_NAME).collection("Users")
-                        .updateOne({ _id: ObjectId.createFromHexString(proprietario), "figurine.id": body.da_scambiare },
-                            { $set: { "figurine.$.countScambio": figurina.countScambio } });
-                }
-                break;
-            }
-        }
-
-        if (!found) {
-            res.status(404).json({ error: "Figurina da scambiare non presente" });
+        if (found === null) {
+            res.status(404).json({ error: `Non possiedi figurine con id ${body.da_scambiare}` });
             return;
         }
+
+        if (found.disponibili <= 0) {
+            res.status(409).json({ error: `Hai già raggiunto il numero massimo di scambi creati per questa figurina!` });
+            return;
+        }
+
+        await pwmClient.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: body.da_scambiare,
+                    proprietario: ObjectId.createFromHexString(body.venditore)
+                },
+                {
+                    $inc:
+                        { disponibili: -1 }
+                });
 
         //creo il bson scambio
         scambio = {
             "_id": new ObjectId(),
             //la stringa contenente l'id dell'utente proprietario
-            "proprietario": proprietario,
+            "venditore": ObjectId.createFromHexString(body.venditore),
             //id figurina da scambiare
             "da_scambiare": body.da_scambiare,
             //id figurina desiderata
@@ -529,7 +520,10 @@ async function creaScambio(res, body, proprietario) {
         res.status(200).json({ status: "ok", scambio: scambio });
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: "Id proprietario non presente" });
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
@@ -762,7 +756,7 @@ app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
 });
 
 // *scambio figurine
-app.post("/scambio/:id_proprietario", async (req, res) => {
+app.post("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -775,8 +769,7 @@ app.post("/scambio/:id_proprietario", async (req, res) => {
             }
         } 
     */
-    proprietario = req.params.id_proprietario;
-    await creaScambio(res, req.body, proprietario);
+    await creaScambio(res, req.body);
 });
 
 app.get("/scambio/:utente", async (req, res) => {

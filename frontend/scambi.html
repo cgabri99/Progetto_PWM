@@ -70,7 +70,7 @@
                 row.classList.remove('d-none');
                 row.id = `scambioRow_${index}`;
                 row.querySelector('#count').innerHTML = index + 1;
-                getVenditotore(scambio.proprietario, row.querySelector('#venditore'));
+                getVenditotore(scambio.venditore, row.querySelector('#venditore'));
                 getCarta(scambio.da_scambiare, row.querySelector('#figurina'));
                 getCarta(scambio.desiderata, row.querySelector('#richiesta'));
                 row.querySelector('a').setAttribute('data-id', scambio._id);
