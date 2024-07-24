@@ -15,6 +15,7 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
+const { get } = require('http');
 
 const app = express();
 const port = 3000;
@@ -290,42 +291,53 @@ async function getCrediti(res, id) {
  */
 async function getFigurine(res, id, num, offset) {
     const pwmClient = await client.connect();
-    var user = undefined;
     try {
-        // Cerca un utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(id)
-        });
+        // Cerca le figurine di un utente a partire dall'id
+        figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray();
+
+        if (num !== undefined && offset !== undefined) {
+            pagina = figurine.slice(offset, offset + num);
+        }
+
+        if (figurine) {
+
+            res.json({
+                id: id,
+                total: figurine.length,
+                actual: pagina ? pagina.length : figurine.length,
+                figurine: pagina ? pagina : figurine
+            });
+        } else {
+            res.json({
+                id: id,
+                total: 0,
+                actual: 0,
+                figurine: []
+            });
+        }
     } catch (e) {
-        res.status(404).json({ error: "Id non presente" });
+        console.error(e);
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
     }
-
-    if (user) {
-        var figurine = [];
-        figurine = user.figurine.slice(offset, offset + num);
-
-        res.json({
-            id: user._id,
-            total: user.figurine.length,
-            actual: figurine.length,
-            figurine: figurine
-        });
-    } else {
-        res.status(404).json({ error: "Id non presente" });
-    }
 }
 
-/**
- * @param {number} id_figurina - l'id della figurina da controllare
- * @returns true se l'id é valido, false se non lo é
- */
-function isValid(id_figurina) {
-    //todo controllare che l'id della figurina sia un id valido
-    return true;
-}
+// /**
+//  * @param {number} id_figurina - l'id della figurina da controllare
+//  * @returns true se l'id é valido, false se non lo é
+//  */
+// function isValid(id_figurina) {
+//     //todo controllare che l'id della figurina sia un id valido
+//     return true;
+// }
+
 /**
  * Aggiunge una o più figurine all'utente con l'id specificato
  * 
@@ -335,136 +347,115 @@ function isValid(id_figurina) {
  * @returns {Promise<void>} - Una promessa che si risolve quando le figurine sono state aggiunte all'utente.
  */
 async function addFigurine(body, res, id) {
-
+    var figurine = body.figurine;
     if (!body.figurine) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
     }
-    var figurine = body.figurine;
-    //controllo di validità dell'input
-    for (var figurina in figurine) {
-        if (!isValid(figurina.id) || figurina.count <= 0) {
-            res.status(400).json({ error: "L'id, il conteggio della figurina non é valido" });
-            return;
-        }
-    }
+    // //controllo di validità dell'input
+    // for (var figurina in figurine) {
+    //     if (!isValid(figurina.id) || figurina.count <= 0) {
+    //         res.status(400).json({ error: "L'id, il conteggio della figurina non é valido" });
+    //         return;
+    //     }
+    // }
     const pwmClient = await client.connect();
-    var user = undefined;
     try {
-        // Cerca utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(id)
-        });
+        // Cerca le figurine di un utente a partire dall'id
+        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray();
 
-        // aggiorno la lista delle figurine possedute
-        possedute = user.figurine;
+        //aggiorno la lista delle figurine possedute
         for (var i = 0; i < figurine.length; i++) {
-            figurina = figurine[i];
-            var found = possedute.find((element) => element.id == figurina.id);
-            if (found) {
-                found.count += figurina.count;
+            var figurina = figurine[i];
+            if (possedute.find(f => f.id === figurina.id) === undefined) {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .insertOne({
+                        proprietario: ObjectId.createFromHexString(id),
+                        id: figurina.id,
+                        name: figurina.name,
+                        count: figurina.count,
+                        disponibili: figurina.count
+                    });
+                possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+                    proprietario: ObjectId.createFromHexString(id)
+                }).sort({ name: 1 }).toArray();
             } else {
-                possedute.push(figurina);
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .updateOne({
+                        id: figurina.id,
+                        proprietario: ObjectId.createFromHexString(id)
+                    }, {
+                        $inc: {
+                            count: figurina.count,
+                            disponibili: figurina.count
+                        }
+                    });
             }
         }
 
-        //update del database con la nuova lista di figurine
-        await pwmClient.db(DB_NAME).collection("Users")
-            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": possedute } });
-    } catch (e) {
-        console.log(e);
-        res.status(404).json({ error: "Id non presente" });
-        return;
-    } finally {
-        await pwmClient.close();
-    }
+        possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray()
 
-    res.json({ status: "ok", possedute: possedute });
-}
-
-/**
- * Sostituisce la lista delle figurine possedute dall'utente con la nuova lista fornita, utilizzata
- * solo per il testing delle API. Potrebbe tornare utile al professore in fase di convalida del progetto.
- * 
- * @param {Object} body - Il body della richiesta contenente la lista delle figurine da inserire all'utente.
- * @param {Object} res - La risposta da mandare.
- * @param {string} id - L'id dell'utente a cui aggiungere o sostituire le figurine.
- * @returns {Promise<void>} - Una promise che si risolve quando la lista delle figurine è aggiunta o sostituita con successo.
- */
-async function sostituisciFigurine(body, res, id) {
-
-    if (!body.figurine) {
-        res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
-        return;
-    }
-
-    var figurine = body.figurine;
-    //controllo di validità dell'input
-    for (var i = 0; i < figurine.length; i++) {
-        figurina = figurine[i];
-        if (!figurina.id || !isValid(figurina.id)) {
-            res.status(400).json({ error: `Attributo id della figurina ${JSON.stringify(figurina)} mancante o non valido!` });
-            return;
-        }
-        if (!figurina.count || figurina.count <= 0) {
-            res.status(400).json({ error: `Attributo count della figurina ${JSON.stringify(figurina)} mancante o non valido!` });
-            return;
-        }
-    }
-
-    const pwmClient = await client.connect();
-    var user = undefined;
-    try {
-        //update del database con la nuova lista di figurine
-        await pwmClient.db(DB_NAME).collection("Users")
-            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": figurine } });
+        res.json({
+            status: "ok",
+            possedute: possedute
+        });
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: "Id non presente" });
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
     }
-
-    res.json({ status: "ok", possedute: figurine });
 }
-
 /** 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {string} utente - l'id dell'utente
- * @param {string} venduta - l'id della figurina venduta
+ * @param {string} id_figurina - l'id della figurina da vendere
  * @returns {Promise<number>} - Una promessa che si risolve con il codice di stato della richiesta.
 */
-async function vendiFigurina(utente, venduta) {
+async function vendiFigurina(utente, id_figurina) {
     const pwmClient = await client.connect();
-    var user = undefined;
     try {
-        // Cerca utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(utente)
-        });
 
-        // aggiorno la lista delle figurine possedute
-        possedute = user.figurine;
-        for (var i = 0; i < possedute.length; i++) {
-            figurina = possedute[i];
-            if (figurina.id === venduta) {
-                if (figurina.countScambio !== undefined && figurina.count - figurina.countScambio <= 0) {
-                    return 409;
-                }
-                figurina.count -= 1;
-                if (figurina.count === 0) {
-                    possedute.splice(i, 1);
-                }
-                //update del database con la nuova lista di figurine
-                await pwmClient.db(DB_NAME).collection("Users")
-                    .updateOne({ _id: ObjectId.createFromHexString(utente) }, { $set: { "figurine": possedute } });
-                return 200;
+        // Cerca le figurine di un utente a partire dall'id
+        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(utente)
+        }).toArray();
+
+        daVendere = possedute.find(f => f.id === id_figurina);
+
+        if (daVendere === undefined) {
+            return 404;
+        } else {
+            if (daVendere.disponibili <= 0) {
+                return 409;
+            } else if (daVendere.count === 1) {
+                await pwmClient.db(DB_NAME).collection("Figurine").deleteOne({
+                    id: id_figurina,
+                    proprietario: ObjectId.createFromHexString(utente)
+                });
+            } else {
+                await pwmClient.db(DB_NAME).collection("Figurine").updateOne({
+                    id: id_figurina,
+                    proprietario: ObjectId.createFromHexString(utente)
+                }, {
+                    $inc: {
+                        count: -1,
+                        disponibili: -1
+                    }
+                });
             }
+            return 200;
         }
-        return 404;
     } catch (e) {
-        return 404;
+        return 500;
     } finally {
         await pwmClient.close();
     }
@@ -675,23 +666,6 @@ app.put("/figurine/:id", async (req, res) => {
     await addFigurine(req.body, res, id);
 });
 
-app.post("/figurine/:id", async (req, res) => {
-    // #swagger.tags = ['Gestione Figurine']
-    /*  #swagger.requestBody = {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        $ref: "#/components/schemas/postFigurineSchema"
-                    }  
-                }
-            }
-        } 
-    */
-    id = req.params.id;
-    await sostituisciFigurine(req.body, res, id);
-});
-
 //* Gestione vedita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
@@ -701,7 +675,9 @@ app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     if (code == 404) {
         res.status(code).json({ error: "Id utente o figurina non presente" });
     } else if (code == 409) {
-        res.status(code).json({ error: "Non hai abbastanza copie di figurina per venderla, considerando gli scambi che hai in atto!" });
+        res.status(code).json({ error: "Non hai abbastanza copie di figurina disponibili per venderla!" });
+    } else if (code == 500) {
+        res.status(code).json({ error: "Errore server!" });
     }
     else {
         await addCrediti(res, 1, utente);
