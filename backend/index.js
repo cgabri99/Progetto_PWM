@@ -15,6 +15,7 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
+const { get } = require('http');
 
 const app = express();
 const port = 3000;
@@ -291,7 +292,7 @@ async function getCrediti(res, id) {
 async function getFigurine(res, id, num, offset) {
     const pwmClient = await client.connect();
     try {
-        // Cerca un utente a partire dall'id
+        // Cerca le figurine di un utente a partire dall'id
         figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
         }).sort({ name: 1 }).toArray();
@@ -317,6 +318,7 @@ async function getFigurine(res, id, num, offset) {
             });
         }
     } catch (e) {
+        console.error(e);
         if (e.name === "BSONError")
             res.status(404).json({ error: "Id non valido" });
         else
@@ -327,14 +329,15 @@ async function getFigurine(res, id, num, offset) {
     }
 }
 
-/**
- * @param {number} id_figurina - l'id della figurina da controllare
- * @returns true se l'id é valido, false se non lo é
- */
-function isValid(id_figurina) {
-    //todo controllare che l'id della figurina sia un id valido
-    return true;
-}
+// /**
+//  * @param {number} id_figurina - l'id della figurina da controllare
+//  * @returns true se l'id é valido, false se non lo é
+//  */
+// function isValid(id_figurina) {
+//     //todo controllare che l'id della figurina sia un id valido
+//     return true;
+// }
+
 /**
  * Aggiunge una o più figurine all'utente con l'id specificato
  * 
@@ -344,50 +347,72 @@ function isValid(id_figurina) {
  * @returns {Promise<void>} - Una promessa che si risolve quando le figurine sono state aggiunte all'utente.
  */
 async function addFigurine(body, res, id) {
+    var figurine = body.figurine;
     if (!body.figurine) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
     }
-    var figurine = body.figurine;
-    //controllo di validità dell'input
-    for (var figurina in figurine) {
-        if (!isValid(figurina.id) || figurina.count <= 0) {
-            res.status(400).json({ error: "L'id, il conteggio della figurina non é valido" });
-            return;
-        }
-    }
+    // //controllo di validità dell'input
+    // for (var figurina in figurine) {
+    //     if (!isValid(figurina.id) || figurina.count <= 0) {
+    //         res.status(400).json({ error: "L'id, il conteggio della figurina non é valido" });
+    //         return;
+    //     }
+    // }
     const pwmClient = await client.connect();
-    var user = undefined;
     try {
-        // Cerca utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(id)
-        });
+        // Cerca le figurine di un utente a partire dall'id
+        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray();
 
-        // aggiorno la lista delle figurine possedute
-        possedute = user.figurine;
+        //aggiorno la lista delle figurine possedute
         for (var i = 0; i < figurine.length; i++) {
-            figurina = figurine[i];
-            var found = possedute.find((element) => element.id == figurina.id);
-            if (found) {
-                found.count += figurina.count;
+            var figurina = figurine[i];
+            if (possedute.find(f => f.id === figurina.id) === undefined) {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .insertOne({
+                        proprietario: ObjectId.createFromHexString(id),
+                        id: figurina.id,
+                        name: figurina.name,
+                        count: figurina.count,
+                        disponibili: figurina.count
+                    });
+                possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+                    proprietario: ObjectId.createFromHexString(id)
+                }).sort({ name: 1 }).toArray();
             } else {
-                possedute.push(figurina);
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .updateOne({
+                        id: figurina.id,
+                        proprietario: ObjectId.createFromHexString(id)
+                    }, {
+                        $inc: {
+                            count: figurina.count,
+                            disponibili: figurina.count
+                        }
+                    });
             }
         }
 
-        //update del database con la nuova lista di figurine
-        await pwmClient.db(DB_NAME).collection("Users")
-            .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "figurine": possedute } });
+        possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray()
+
+        res.json({
+            status: "ok",
+            possedute: possedute
+        });
     } catch (e) {
-        console.log(e);
-        res.status(404).json({ error: "Id non presente" });
+        console.error(e);
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
     }
-
-    res.json({ status: "ok", possedute: possedute });
 }
 
 /**
@@ -410,7 +435,7 @@ async function sostituisciFigurine(body, res, id) {
     //controllo di validità dell'input
     for (var i = 0; i < figurine.length; i++) {
         figurina = figurine[i];
-        if (!figurina.id || !isValid(figurina.id)) {
+        if (!figurina.id /*|| !isValid(figurina.id)*/) {
             res.status(400).json({ error: `Attributo id della figurina ${JSON.stringify(figurina)} mancante o non valido!` });
             return;
         }
