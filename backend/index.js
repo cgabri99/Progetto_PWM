@@ -290,31 +290,40 @@ async function getCrediti(res, id) {
  */
 async function getFigurine(res, id, num, offset) {
     const pwmClient = await client.connect();
-    var user = undefined;
     try {
         // Cerca un utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(id)
-        });
+        figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray();
+
+        if (num !== undefined && offset !== undefined) {
+            pagina = figurine.slice(offset, offset + num);
+        }
+
+        if (figurine) {
+
+            res.json({
+                id: id,
+                total: figurine.length,
+                actual: pagina ? pagina.length : figurine.length,
+                figurine: pagina ? pagina : figurine
+            });
+        } else {
+            res.json({
+                id: id,
+                total: 0,
+                actual: 0,
+                figurine: []
+            });
+        }
     } catch (e) {
-        res.status(404).json({ error: "Id non presente" });
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
-    }
-
-    if (user) {
-        var figurine = [];
-        figurine = user.figurine.slice(offset, offset + num);
-
-        res.json({
-            id: user._id,
-            total: user.figurine.length,
-            actual: figurine.length,
-            figurine: figurine
-        });
-    } else {
-        res.status(404).json({ error: "Id non presente" });
     }
 }
 
@@ -335,7 +344,6 @@ function isValid(id_figurina) {
  * @returns {Promise<void>} - Una promessa che si risolve quando le figurine sono state aggiunte all'utente.
  */
 async function addFigurine(body, res, id) {
-
     if (!body.figurine) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
