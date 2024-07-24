@@ -16,14 +16,14 @@
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
 
-        <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
+        <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-4 mt-2 mx-1">
             <div id="heroCard" class="col d-none">
                 <div class="card h-100">
                     <img src="" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer text-center">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
                             <a href="scheda_personaggio.html"
                                 class="btn btn-primary d-flex align-items-center">Dettagli</a>
@@ -100,28 +100,30 @@
         }
 
         async function mostraFigurine(dati) {
+            console.log(dati);
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
             container.innerHTML = "";
-            container.append(heroCard);
 
             for (i = 0; i < dati.length; i++) {
-                heroData = dati[i];
-                clone = heroCard.cloneNode(true);
-                clone.id = 'heroClone_' + heroData.id;
-                title = clone.getElementsByClassName('card-title')[0];
-                image = clone.getElementsByClassName('card-img-top')[0];
-                button = clone.getElementsByClassName('btn-primary')[0];
-                count = clone.getElementsByClassName('btn-outline-light')[0];
+                await getFromMarvel(`public/characters/${dati[i].id}`, "")
+                    .then((response) => {
+                        console.log(response);
+                        heroData = dati[i];
+                        clone = heroCard.cloneNode(true);
+                        clone.id = 'heroClone_' + heroData.id;
+                        title = clone.getElementsByClassName('card-title')[0];
+                        image = clone.getElementsByClassName('card-img-top')[0];
+                        button = clone.getElementsByClassName('btn-primary')[0];
+                        count = clone.getElementsByClassName('btn-outline-light')[0];
+                        image.src = response.data.results[0].thumbnail.path + "." + response.data.results[0].thumbnail.extension;
 
-                title.innerHTML = heroData.name;
-                image.src = heroData.img_src;
-                URI = heroData.URI;
-                button.href += `?URI=${URI}`;
-                count.innerHTML = `Possedute: ${heroData.count}`;
-
-                clone.classList.remove('d-none');
-                heroCard.before(clone);
+                        button.href += `?URI=public/characters/${heroData.id}`;
+                        title.innerHTML = response.data.results[0].name;
+                        count.innerHTML = `Copie: ${heroData.count}`;
+                        clone.classList.remove('d-none');
+                        container.append(clone);
+                    });
             }
         }
 

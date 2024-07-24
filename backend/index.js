@@ -295,7 +295,7 @@ async function getFigurine(res, id, num, offset) {
         // Cerca le figurine di un utente a partire dall'id
         figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ name: 1 }).toArray();
+        }).sort({ id: 1 }).toArray();
 
         if (num !== undefined && offset !== undefined) {
             pagina = figurine.slice(offset, offset + num);
@@ -364,7 +364,7 @@ async function addFigurine(body, res, id) {
         // Cerca le figurine di un utente a partire dall'id
         var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ name: 1 }).toArray();
+        }).sort({ id: 1 }).toArray();
 
         //aggiorno la lista delle figurine possedute
         for (var i = 0; i < figurine.length; i++) {
@@ -374,13 +374,12 @@ async function addFigurine(body, res, id) {
                     .insertOne({
                         proprietario: ObjectId.createFromHexString(id),
                         id: figurina.id,
-                        name: figurina.name,
                         count: figurina.count,
                         disponibili: figurina.count
                     });
                 possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
                     proprietario: ObjectId.createFromHexString(id)
-                }).sort({ name: 1 }).toArray();
+                }).sort({ id: 1 }).toArray();
             } else {
                 await pwmClient.db(DB_NAME).collection("Figurine")
                     .updateOne({
@@ -397,7 +396,7 @@ async function addFigurine(body, res, id) {
 
         possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ name: 1 }).toArray()
+        }).sort({ id: 1 }).toArray()
 
         res.json({
             status: "ok",
