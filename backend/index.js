@@ -1,7 +1,7 @@
 
 const express = require('express');
 
-//modulo gestione hash paddword
+//modulo gestione hash password
 const crypto = require('crypto');
 
 //moduli gestione MongoDB
@@ -15,7 +15,6 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
-const { get } = require('http');
 
 const app = express();
 const port = 3000;
@@ -49,6 +48,8 @@ async function getUser(res, email) {
 
 /**
  * Aggiorna le informazioni di un utente nel database.
+ * La modifica hai credits é permessa solo a scopo di testing e potrebbe tornare utile
+ * al professore in fase di convalida del progetto.
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {string} id - L'ID dell'utente da aggiornare.
@@ -535,6 +536,82 @@ async function creaScambio(res, body, proprietario) {
     }
 }
 
+async function getScambi(res, id) {
+    const pwmClient = await client.connect();
+    try {
+        // fornisce la lista degli scambi disponibili per l'utente
+        scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+            proprietario: { $ne: id }
+        }).toArray();
+
+        // todo: filtraggio degli scamvbi in base alle figurine possedute dall'utente
+        res.status(200).json({ scambi: scambi });
+    } catch (e) {
+        res.status(500).json({ error: "Errore server" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+/**
+ * Elimina uno scambio dal database.
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} id - L'ID dello scambio da eliminare.
+ * @returns {Promise<void>} - Una promessa che si risolve quando lo scambio viene eliminato dal database.
+ */
+async function deleteScambio(res, id_scambio, id_acquirente) {
+    const pwmClient = await client.connect();
+    try {
+        //cerca lo scambio con l'id specificato
+        var eliminato = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(id_scambio) });
+
+
+        var utente = await pwmClient.db(DB_NAME).collection("Users")
+            .findOne({ _id: ObjectId.createFromHexString(eliminato.proprietario) });
+
+
+        await aggiornaAcquirenti(pwmClient, eliminato.proprietario, eliminato.da_scambiare, eliminato.desiderata);
+        await aggiornaAcquirente(pwmClient, id_acquirente, eliminato.desiderata, eliminato.da_scambiare);
+
+        //elimina lo scambio con l'id specificato
+        await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(id_scambio) });
+        res.status(200).json({ status: "ok", scambio: eliminato });
+    } catch (e) {
+        console.error(e);
+        res.status(404).json({ error: e.message });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo) {
+    figurinePossedute = await client.db(DB_NAME).collection("Users")
+        .findOne({ _id: ObjectId.createFromHexString(id_utente) }).figurine;
+
+    for (var i = 0; i < figurinePossedute.length; i++) {
+        if (figurinePossedute[i].id === inUsita) {
+            figurinePossedute[i].count -= 1;
+            if (utente.figurine[i].count === 0) {
+                // todo: da completare dopo avere ristrutturato il database
+                //await client.db(DB_NAME).collection("Users").figurine.deleteOne({ _id: ObjectId.createFromHexString(id_utente), "figurine.id": inUsita });
+            }
+            break;
+        }
+    }
+
+    for (var i = 0; i < utente.figurine.length; i++) {
+        if (utente.figurine[i].id === inArrivo) {
+            utente.figurine[i].count += 1;
+            break;
+        }
+    }
+
+    await client.db(DB_NAME).collection("Users")
+        .updateOne({ _id: ObjectId.createFromHexString(id_utente) }, { $set: { "figurine": utente.figurine } });
+}
 /**
  * Effettua il login di un utente.
  * @param {Object} body - Il body della richiesta contenente le credenziali dell'utente.
@@ -649,6 +726,7 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
 });
 
 app.put("/figurine/:id", async (req, res) => {
+    // todo: sostituire countScambio con disponibili
     // #swagger.tags = ['Gestione Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -699,6 +777,20 @@ app.post("/scambio/:id_proprietario", async (req, res) => {
     */
     proprietario = req.params.id_proprietario;
     await creaScambio(res, req.body, proprietario);
+});
+
+app.get("/scambio/:utente", async (req, res) => {
+    // #swagger.tags = ['Scambio Figurine']
+
+    utente = req.params.utente;
+    await getScambi(res, utente);
+});
+
+app.delete("/scambio/:id_scambio/:id_utente", async (req, res) => {
+    // #swagger.tags = ['Scambio Figurine']
+    scambio = req.params.id_scambio;
+    utente = req.params.id_utente;
+    await deleteScambio(res, scambio, utente);
 });
 
 // *login

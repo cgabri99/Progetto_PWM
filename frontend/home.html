@@ -25,14 +25,19 @@
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="home.html">Home</a>
                     </li>
-                    <li id="album" class="nav-item d-none">
-                        <a class="nav-link" aria-current="page" href="album.html">Album</a>
-                    </li>
-                    <li id="bustine" class="nav-item d-none">
-                        <a class="nav-link" aria-current="page" href="acquisto_bustine.html">Acquisto bustine</a>
-                    </li>
                     <li id="login" class="nav-item">
                         <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a id="menuFigurine" class="nav-link dropdown-toggle disabled" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            Gestione figurine
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="album.html">Album</a></li>
+                            <li><a class="dropdown-item" href="scambi.html">Scambi disponibili</a></li>
+                            <li><a class="dropdown-item" href="acquisto_bustine.html">Acquisto bustine</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a id="menuUtente" class="nav-link dropdown-toggle disabled" href="#" role="button"
@@ -85,16 +90,13 @@
 
         function aggiorna() {
             var login = document.getElementById('login');
-            var menu = document.getElementById('menuUtente');
+            var menuUtente = document.getElementById('menuUtente');
+            var menuFigurine = document.getElementById('menuFigurine');
             var msg = document.getElementById('benvenuto');
-            var album = document.getElementById('album');
-            var bustine = document.getElementById('bustine');
 
             var is_logged = getLocalStorage("logged");
 
             if (is_logged) {
-                album.classList.remove('d-none');
-                bustine.classList.remove('d-none');
                 var id_utente = getLocalStorage("id_utente");
                 const requestOptions = {
                     method: "GET",
@@ -108,7 +110,8 @@
                         if (!result.error) {
                             msg.classList.remove('d-none');
                             login.classList.add('d-none');
-                            menu.classList.remove('disabled');
+                            menuUtente.classList.remove('disabled');
+                            menuFigurine.classList.remove('disabled');
                             msg.innerHTML = `Benvenuto ${result.nome}`;
                             mostra_salvadanaio(id_utente);
                         }
@@ -122,20 +125,17 @@
 
         function sign_out() {
             var login = document.getElementById('login');
-            var menu = document.getElementById('menuUtente');
+            var menuUtente = document.getElementById('menuUtente');
+            var menuFigurine = document.getElementById('menuFigurine');
             var msg = document.getElementById('benvenuto');
-            var album = document.getElementById('album');
-            var bustine = document.getElementById('bustine');
 
             setLocalStorage("logged", false);
             setLocalStorage("id_utente", null);
 
             msg.classList.add('d-none');
             login.classList.remove('d-none');
-            menu.classList.add('disabled');
-            album.classList.add('d-none');
-            bustine.classList.add('d-none');
-
+            menuUtente.classList.add('disabled');
+            menuFigurine.classList.add('disabled');
             location.reload();
         }
 
