@@ -15,6 +15,7 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
+const { count } = require('console');
 
 const app = express();
 const port = 3000;
@@ -555,56 +556,95 @@ async function getScambi(res, id) {
  * @param {string} id - L'ID dello scambio da eliminare.
  * @returns {Promise<void>} - Una promessa che si risolve quando lo scambio viene eliminato dal database.
  */
-async function deleteScambio(res, id_scambio, id_acquirente) {
+async function deleteScambio(res, body) {
+    if (!body.id_scambio || !body.id_acquirente) {
+        res.status(400).json({ error: "Richiesta errata!" });
+        return;
+    }
+
     const pwmClient = await client.connect();
     try {
         //cerca lo scambio con l'id specificato
-        var eliminato = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(id_scambio) });
+        var scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+        if (scambio === null) {
+            res.status(404).json({ error: "Scambio non presente" });
+            return;
+        }
 
-
-        var utente = await pwmClient.db(DB_NAME).collection("Users")
-            .findOne({ _id: ObjectId.createFromHexString(eliminato.proprietario) });
-
-
-        await aggiornaAcquirenti(pwmClient, eliminato.proprietario, eliminato.da_scambiare, eliminato.desiderata);
-        await aggiornaAcquirente(pwmClient, id_acquirente, eliminato.desiderata, eliminato.da_scambiare);
+        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio.da_scambiare, scambio.desiderata, false);
+        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio.desiderata, scambio.da_scambiare, true);
 
         //elimina lo scambio con l'id specificato
-        await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(id_scambio) });
-        res.status(200).json({ status: "ok", scambio: eliminato });
+        await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+        res.status(200).json({ status: "ok", scambio_effettuato: scambio });
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: e.message });
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
     }
 }
 
-async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo) {
-    figurinePossedute = await client.db(DB_NAME).collection("Users")
-        .findOne({ _id: ObjectId.createFromHexString(id_utente) }).figurine;
+async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquirente) {
+    var posseduta = await client.db(DB_NAME).collection("Figurine")
+        .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inUsita });
 
-    for (var i = 0; i < figurinePossedute.length; i++) {
-        if (figurinePossedute[i].id === inUsita) {
-            figurinePossedute[i].count -= 1;
-            if (utente.figurine[i].count === 0) {
-                // todo: da completare dopo avere ristrutturato il database
-                //await client.db(DB_NAME).collection("Users").figurine.deleteOne({ _id: ObjectId.createFromHexString(id_utente), "figurine.id": inUsita });
-            }
-            break;
-        }
+    if (posseduta.count === 1) {
+        // possiedo solo una copia della carta da scambiare
+        await client.db(DB_NAME).collection("Figurine")
+            .deleteOne({
+                proprietario: ObjectId.createFromHexString(id_utente),
+                id: inUsita
+            });
+    } else {
+        var count = isAcquirente ? -1 : 0;
+        //possiedo più copie della carta da scambiare
+        await client.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: inUsita,
+                    proprietario: ObjectId.createFromHexString(id_utente)
+                },
+                {
+                    $inc:
+                    {
+                        disponibili: count,
+                        count: -1
+                    }
+                });
     }
 
-    for (var i = 0; i < utente.figurine.length; i++) {
-        if (utente.figurine[i].id === inArrivo) {
-            utente.figurine[i].count += 1;
-            break;
-        }
-    }
+    posseduta = await client.db(DB_NAME).collection("Figurine")
+        .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inArrivo });
 
-    await client.db(DB_NAME).collection("Users")
-        .updateOne({ _id: ObjectId.createFromHexString(id_utente) }, { $set: { "figurine": utente.figurine } });
+    if (posseduta === null) {
+        //non possiedo la carta che mi serve
+        await client.db(DB_NAME).collection("Figurine")
+            .insertOne({
+                proprietario: ObjectId.createFromHexString(id_utente),
+                id: inArrivo,
+                count: 1,
+                disponibili: 1
+            });
+    } else {
+        await client.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: inArrivo,
+                    proprietario: ObjectId.createFromHexString(id_utente)
+                },
+                {
+                    $inc:
+                    {
+                        count: 1,
+                        disponibili: 1
+                    }
+                });
+    }
 }
 /**
  * Effettua il login di un utente.
@@ -779,11 +819,9 @@ app.get("/scambio/:utente", async (req, res) => {
     await getScambi(res, utente);
 });
 
-app.delete("/scambio/:id_scambio/:id_utente", async (req, res) => {
+app.delete("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
-    scambio = req.params.id_scambio;
-    utente = req.params.id_utente;
-    await deleteScambio(res, scambio, utente);
+    await deleteScambio(res, req.body);
 });
 
 // *login
