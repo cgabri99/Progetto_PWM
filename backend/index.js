@@ -1,7 +1,7 @@
 
 const express = require('express');
 
-//modulo gestione hash paddword
+//modulo gestione hash password
 const crypto = require('crypto');
 
 //moduli gestione MongoDB
@@ -15,7 +15,7 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
-const { get } = require('http');
+const { count } = require('console');
 
 const app = express();
 const port = 3000;
@@ -49,6 +49,8 @@ async function getUser(res, email) {
 
 /**
  * Aggiorna le informazioni di un utente nel database.
+ * La modifica hai credits é permessa solo a scopo di testing e potrebbe tornare utile
+ * al professore in fase di convalida del progetto.
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {string} id - L'ID dell'utente da aggiornare.
@@ -465,58 +467,54 @@ async function vendiFigurina(utente, id_figurina) {
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {Object} body - Il body della richiesta contenente i dati relativi allo scambio.
- * @param {string} proprietario - l'id dell'utente che crea la proposta di scambio.
  * @returns {Promise<number>} - Una promessa che si risolve con il codice di stato della richiesta.
 */
-async function creaScambio(res, body, proprietario) {
+async function creaScambio(res, body) {
     const pwmClient = await client.connect();
-    if (!body.da_scambiare || !body.desiderata) {
-        res.status(400).json({ error: "Il codice della figurina da scambiare e/o desiderata non è presente" });
+    if (!body.da_scambiare || !body.desiderata || !body.venditore) {
+        res.status(400).json({ error: "Richiesta errata!" });
+        return;
+    }
+
+    if (body.da_scambiare === body.desiderata) {
+        res.status(400).json({ error: "Non puoi scambiare una carta con se stessa!" });
         return;
     }
 
     try {
-        // Cerca utente a partire dall'id
-        user = await pwmClient.db(DB_NAME).collection("Users").findOne({
-            _id: ObjectId.createFromHexString(proprietario)
-        });
+        found = await pwmClient.db(DB_NAME).collection("Figurine")
+            .findOne(
+                {
+                    id: body.da_scambiare,
+                    proprietario: ObjectId.createFromHexString(body.venditore)
+                });
 
-        //controllo che la figurina da scambiare sia presente
-        var found = false;
-        for (var i = 0; i < user.figurine.length; i++) {
-            figurina = user.figurine[i];
-            if (figurina.id === body.da_scambiare) {
-                found = true;
-                if (figurina.countScambio === undefined) {
-                    //inserico il campo countScambio
-                    await pwmClient.db(DB_NAME).collection("Users")
-                        .updateOne({ _id: ObjectId.createFromHexString(proprietario), "figurine.id": body.da_scambiare },
-                            { $set: { "figurine.$.countScambio": 1 } });
-                } else {
-                    //controllo che il numero di scambi non superi il numero di copie possedute
-                    figurina.countScambio += 1;
-                    if (figurina.countScambio > figurina.count) {
-                        res.status(400).json({ error: "Non puoi avere in contemporanea più scambi che copie di figurine!" });
-                        return;
-                    }
-                    await pwmClient.db(DB_NAME).collection("Users")
-                        .updateOne({ _id: ObjectId.createFromHexString(proprietario), "figurine.id": body.da_scambiare },
-                            { $set: { "figurine.$.countScambio": figurina.countScambio } });
-                }
-                break;
-            }
-        }
-
-        if (!found) {
-            res.status(404).json({ error: "Figurina da scambiare non presente" });
+        if (found === null) {
+            res.status(404).json({ error: `Non possiedi figurine con id ${body.da_scambiare}` });
             return;
         }
+
+        if (found.disponibili <= 0) {
+            res.status(409).json({ error: `Hai già raggiunto il numero massimo di scambi creati per questa figurina!` });
+            return;
+        }
+
+        await pwmClient.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: body.da_scambiare,
+                    proprietario: ObjectId.createFromHexString(body.venditore)
+                },
+                {
+                    $inc:
+                        { disponibili: -1 }
+                });
 
         //creo il bson scambio
         scambio = {
             "_id": new ObjectId(),
             //la stringa contenente l'id dell'utente proprietario
-            "proprietario": proprietario,
+            "venditore": ObjectId.createFromHexString(body.venditore),
             //id figurina da scambiare
             "da_scambiare": body.da_scambiare,
             //id figurina desiderata
@@ -528,13 +526,136 @@ async function creaScambio(res, body, proprietario) {
         res.status(200).json({ status: "ok", scambio: scambio });
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: "Id proprietario non presente" });
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function getScambi(res, id) {
+    const pwmClient = await client.connect();
+    try {
+        // fornisce la lista degli scambi disponibili per l'utente
+        var scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+            venditore: { $ne: ObjectId.createFromHexString(id) }
+        }).toArray();
+
+        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).toArray();
+
+        scambi = scambi.filter((s) => {
+            return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
+        });
+
+        res.status(200).json({ scambi: scambi });
+    } catch (e) {
+        res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+/**
+ * Elimina uno scambio dal database.
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} id - L'ID dello scambio da eliminare.
+ * @returns {Promise<void>} - Una promessa che si risolve quando lo scambio viene eliminato dal database.
+ */
+async function deleteScambio(res, body) {
+    if (!body.id_scambio || !body.id_acquirente) {
+        res.status(400).json({ error: "Richiesta errata!" });
+        return;
+    }
+
+    const pwmClient = await client.connect();
+    try {
+        //cerca lo scambio con l'id specificato
+        var scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+        if (scambio === null) {
+            res.status(404).json({ error: "Scambio non presente" });
+            return;
+        }
+
+        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio.da_scambiare, scambio.desiderata, false);
+        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio.desiderata, scambio.da_scambiare, true);
+
+        //elimina lo scambio con l'id specificato
+        await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+        res.status(200).json({ status: "ok", scambio_effettuato: scambio });
+    } catch (e) {
+        console.error(e);
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
     }
 }
 
+async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquirente) {
+    var posseduta = await client.db(DB_NAME).collection("Figurine")
+        .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inUsita });
+
+    if (posseduta.count === 1) {
+        // possiedo solo una copia della carta da scambiare
+        await client.db(DB_NAME).collection("Figurine")
+            .deleteOne({
+                proprietario: ObjectId.createFromHexString(id_utente),
+                id: inUsita
+            });
+    } else {
+        var count = isAcquirente ? -1 : 0;
+        //possiedo più copie della carta da scambiare
+        await client.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: inUsita,
+                    proprietario: ObjectId.createFromHexString(id_utente)
+                },
+                {
+                    $inc:
+                    {
+                        disponibili: count,
+                        count: -1
+                    }
+                });
+    }
+
+    posseduta = await client.db(DB_NAME).collection("Figurine")
+        .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inArrivo });
+
+    if (posseduta === null) {
+        //non possiedo la carta che mi serve
+        await client.db(DB_NAME).collection("Figurine")
+            .insertOne({
+                proprietario: ObjectId.createFromHexString(id_utente),
+                id: inArrivo,
+                count: 1,
+                disponibili: 1
+            });
+    } else {
+        await client.db(DB_NAME).collection("Figurine")
+            .updateOne(
+                {
+                    id: inArrivo,
+                    proprietario: ObjectId.createFromHexString(id_utente)
+                },
+                {
+                    $inc:
+                    {
+                        count: 1,
+                        disponibili: 1
+                    }
+                });
+    }
+}
 /**
  * Effettua il login di un utente.
  * @param {Object} body - Il body della richiesta contenente le credenziali dell'utente.
@@ -649,6 +770,7 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
 });
 
 app.put("/figurine/:id", async (req, res) => {
+    // todo: sostituire countScambio con disponibili
     // #swagger.tags = ['Gestione Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -684,7 +806,7 @@ app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
 });
 
 // *scambio figurine
-app.post("/scambio/:id_proprietario", async (req, res) => {
+app.post("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -697,8 +819,19 @@ app.post("/scambio/:id_proprietario", async (req, res) => {
             }
         } 
     */
-    proprietario = req.params.id_proprietario;
-    await creaScambio(res, req.body, proprietario);
+    await creaScambio(res, req.body);
+});
+
+app.get("/scambio/:utente", async (req, res) => {
+    // #swagger.tags = ['Scambio Figurine']
+
+    utente = req.params.utente;
+    await getScambi(res, utente);
+});
+
+app.delete("/scambio", async (req, res) => {
+    // #swagger.tags = ['Scambio Figurine']
+    await deleteScambio(res, req.body);
 });
 
 // *login

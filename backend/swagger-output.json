@@ -350,6 +350,29 @@
         }
       }
     },
+    "/scambio/{utente}": {
+      "get": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "utente",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": [
