@@ -536,7 +536,7 @@ async function getScambi(res, id) {
     try {
         // fornisce la lista degli scambi disponibili per l'utente
         scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
-            proprietario: { $ne: id }
+            venditore: { $ne: ObjectId.createFromHexString(id) }
         }).toArray();
 
         // todo: filtraggio degli scamvbi in base alle figurine possedute dall'utente

@@ -41,21 +41,14 @@
     </div>
     <script>
         function getScambi() {
-            if (!getLocalStorage("logged")) {
-                err = document.getElementById('error');
-                err.classList.remove('d-none');
-                err.innerHTML = 'Utente non loggato!';
-                window.setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
-            }
+            checkLoggedInUser();
 
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
             };
 
-            fetch(`http://localhost:3000/scambio/${/*getLocalStorage("id_utente");*/"test"}`, requestOptions)
+            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")} `, requestOptions)
                 .then((response) => response.text())
                 .then((result) => popolaTabella(JSON.parse(result).scambi))
                 .catch((error) => console.error(error));
@@ -68,12 +61,12 @@
             scambi.forEach((scambio, index) => {
                 var row = document.getElementById('scambioRow').cloneNode(true);
                 row.classList.remove('d-none');
-                row.id = `scambioRow_${index}`;
+                row.id = `scambioRow_${index} `;
                 row.querySelector('#count').innerHTML = index + 1;
                 getVenditotore(scambio.venditore, row.querySelector('#venditore'));
                 getCarta(scambio.da_scambiare, row.querySelector('#figurina'));
                 getCarta(scambio.desiderata, row.querySelector('#richiesta'));
-                row.querySelector('a').setAttribute('data-id', scambio._id);
+                row.querySelector('a').setAttribute('scambio-id', scambio._id);
                 document.querySelector('tbody').appendChild(row);
             });
         }
@@ -106,25 +99,39 @@
         }
 
         function accettaScambio(button) {
-            var id = button.getAttribute('data-id');
+            checkLoggedInUser();
+
+            var id_scambio = button.getAttribute('scambio-id');
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({
+                "id_scambio": id_scambio,
+                "id_acquirente": getLocalStorage("id_utente")
+            });
+
             const requestOptions = {
-                method: "PUT",
+                method: "DELETE",
+                headers: myHeaders,
+                body: raw,
                 redirect: "follow"
             };
 
-            fetch(`http://localhost:3000/scambio/${id}`, requestOptions)
+            fetch("http://localhost:3000/scambio", requestOptions)
                 .then((response) => response.text())
-                .then((result) => {
-                    result = JSON.parse(result);
-                    if (result.error) {
-                        err = document.getElementById('error');
-                        err.classList.remove('d-none');
-                        err.innerHTML = result.error;
-                        return;
-                    }
-                    window.location.reload();
-                })
+                .then((result) => console.log(result))
                 .catch((error) => console.error(error));
+        }
+
+        function checkLoggedInUser() {
+            if (!getLocalStorage("logged")) {
+                const err = document.getElementById('error');
+                err.classList.remove('d-none');
+                err.innerHTML = 'Utente non loggato!';
+                window.setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
