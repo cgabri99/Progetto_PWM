@@ -476,6 +476,11 @@ async function creaScambio(res, body) {
         return;
     }
 
+    if (body.da_scambiare === body.desiderata) {
+        res.status(400).json({ error: "Non puoi scambiare una carta con se stessa!" });
+        return;
+    }
+
     try {
         found = await pwmClient.db(DB_NAME).collection("Figurine")
             .findOne(
