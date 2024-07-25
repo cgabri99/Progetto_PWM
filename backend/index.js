@@ -525,7 +525,6 @@ async function creaScambio(res, body) {
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
-        return;
     } finally {
         await pwmClient.close();
     }
@@ -535,15 +534,21 @@ async function getScambi(res, id) {
     const pwmClient = await client.connect();
     try {
         // fornisce la lista degli scambi disponibili per l'utente
-        scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+        var scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
             venditore: { $ne: ObjectId.createFromHexString(id) }
         }).toArray();
 
-        // todo: filtraggio degli scamvbi in base alle figurine possedute dall'utente
+        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).toArray();
+
+        scambi = scambi.filter((s) => {
+            return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
+        });
+
         res.status(200).json({ scambi: scambi });
     } catch (e) {
         res.status(500).json({ error: "Errore server" });
-        return;
     } finally {
         await pwmClient.close();
     }
