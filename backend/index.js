@@ -590,6 +590,10 @@ async function deleteScambio(res, body) {
 }
 
 async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquirente) {
+<<<<<<< HEAD
+=======
+    //todo: da testatre in caso di più copie della stessa carta sia in entrata che in uscita
+>>>>>>> a09e93228507d9e991ce17217120a500ce23a1b0
     var posseduta = await client.db(DB_NAME).collection("Figurine")
         .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inUsita });
 
