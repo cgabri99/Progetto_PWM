@@ -11,11 +11,35 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="getScambi();">
+<body onload="aggiornaPagina();">
     <div class="container">
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
+        <button class="btn btn-primary m-3" type="button" onclick="mostraForm()">Inserisci nuovo scambio</button>
         <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
         </div>
+
+        <div id="formScambio" class="d-none">
+            <h1 class="text-center">Inserisci Scambio</h1>
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="selectDaCedere">Nome carta da cedere </label>
+                <select class="form-select" id="selectDaCedere">
+                    <option selected>Choose...</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="selectDaRicevere">Nome carta da ricevere</label>
+                <select class="form-select" id="selectDaRicevere">
+                    <option selected>Choose...</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+        </div>
+
         <h1 id="msg" class="text-center mt-2"> Lista degli scambi disponibili</h1>
         <table id="scambiTable" class="table">
             <thead>
@@ -40,21 +64,25 @@
         </table>
     </div>
     <script>
-        function getScambi() {
+        function aggiornaPagina() {
             checkLoggedInUser();
+            getScambi();
+            getListeCarte();
+        }
 
+        async function getScambi() {
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
             };
 
-            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")} `, requestOptions)
+            await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")} `, requestOptions)
                 .then((response) => response.text())
                 .then((result) => popolaTabella(JSON.parse(result).scambi))
                 .catch((error) => console.error(error));
         }
 
-        async function popolaTabella(scambi) {
+        function popolaTabella(scambi) {
             if (scambi.length === 0) {
                 document.getElementById('msg').innerHTML = 'Nessuno scambio disponibile';
                 document.getElementById('scambiTable').classList.add('d-none');
@@ -101,8 +129,6 @@
         }
 
         function accettaScambio(button) {
-            checkLoggedInUser();
-
             var id_scambio = button.getAttribute('scambio-id');
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
@@ -123,6 +149,40 @@
                 .then((response) => response.text())
                 .then((result) => console.log(result))
                 .catch((error) => console.error(error));
+        }
+
+        function mostraForm() {
+            document.getElementById('formScambio').classList.remove('d-none');
+        }
+
+        function getListeCarte() {
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+
+            };
+
+            fetch("http://localhost:3000/figurine/6655c92fbfd3008190d30378", requestOptions)
+                .then((response) => response.text())
+                .then((result) => console.log(result))
+                .catch((error) => console.error(error));
+            /*const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
+                .then((response) => response.text())
+                .then((result) => {
+                    console.log(getLocalStorage("id_utente"));
+                    result.figurine.forEach((figurina) => {
+                        var option = document.createElement('option');
+                        option.value = carta.id;
+                        option.innerHTML = carta.nome;
+                        document.getElementById('selectDaCedere').appendChild(option);
+                    });
+                })
+                .catch((error) => console.error(error));*/
         }
 
         function checkLoggedInUser() {

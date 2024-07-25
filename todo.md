@@ -27,4 +27,7 @@
 - [x] filtraggio degli scambi disponibli
 - [x] modifica struttura delle figurine con inserimento di disponibili al posto di countScambio
 - [x] spostare figurine in una collection a parte
-- [x] **Valutare bene come salvare i dati delle figurine in album, ora sono *statici* forse meglio renderli dinamici tenendo in memoria solo l'ID e caricando volta per volta i risultati dal server Marvel**
+- [x] **Valutare bene come salvare i dati delle figurine in album, ora sono *statici* forse meglio
+- [ ] Visualizzare lista a aprte per gli scambi inseriti dall'utente
+- [ ] Completare form selezione figurine
+renderli dinamici tenendo in memoria solo l'ID e caricando volta per volta i risultati dal server Marvel**
