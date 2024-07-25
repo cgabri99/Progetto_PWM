@@ -16,8 +16,8 @@
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
         <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
         </div>
-        <h1 class="text-center mt-2"> Lista degli scambi disponibili</h1>
-        <table class="table">
+        <h1 id="msg" class="text-center mt-2"> Lista degli scambi disponibili</h1>
+        <table id="scambiTable" class="table">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -56,6 +56,8 @@
 
         async function popolaTabella(scambi) {
             if (scambi.length === 0) {
+                document.getElementById('msg').innerHTML = 'Nessuno scambio disponibile';
+                document.getElementById('scambiTable').classList.add('d-none');
                 return;
             }
             scambi.forEach((scambio, index) => {
