@@ -875,7 +875,6 @@ app.post("/scambio", async (req, res) => {
 
 app.get("/scambio/:utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
-
     utente = req.params.utente;
     creati = req.query.creati === 'true';
     await getScambi(res, creati, utente, 5);
