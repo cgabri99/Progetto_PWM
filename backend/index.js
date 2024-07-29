@@ -5,7 +5,7 @@ const express = require('express');
 const crypto = require('crypto');
 
 //moduli gestione MongoDB
-const { MongoClient, ObjectId, BSON } = require('mongodb');
+const { MongoClient, ObjectId, BSON, MongoTopologyClosedError } = require('mongodb');
 const DB_NAME = "PWM";
 const uri = "mongodb+srv://cgabri:yaud2eer@cluster0.osp8vca.mongodb.net/";
 const client = new MongoClient(uri);
@@ -568,7 +568,7 @@ async function creaScambio(res, body) {
     }
 }
 
-async function getScambi(res, creati, id) {
+async function getScambi(res, creati, id, countReconncetion) {
     const pwmClient = await client.connect();
     try {
         var scambi = [];
@@ -594,7 +594,12 @@ async function getScambi(res, creati, id) {
         res.status(200).json({ scambi: scambi });
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: "Errore server" });
+        if (e instanceof MongoTopologyClosedError) {
+            if (countReconncetion > 0)
+                getScambi(res, creati, id, countReconncetion--);
+        } else {
+            res.status(500).json({ error: "Errore server" });
+        }
     } finally {
         await pwmClient.close();
     }
@@ -873,7 +878,7 @@ app.get("/scambio/:utente", async (req, res) => {
 
     utente = req.params.utente;
     creati = req.query.creati === 'true';
-    await getScambi(res, creati, utente);
+    await getScambi(res, creati, utente, 5);
 });
 
 app.delete("/scambio", async (req, res) => {
