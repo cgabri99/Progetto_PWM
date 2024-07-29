@@ -568,25 +568,32 @@ async function creaScambio(res, body) {
     }
 }
 
-async function getScambi(res, id) {
+async function getScambi(res, creati, id) {
     const pwmClient = await client.connect();
     try {
         var scambi = [];
-        // fornisce la lista degli scambi disponibili per l'utente
-        scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
-            venditore: { $ne: ObjectId.createFromHexString(id) }
-        }).toArray();
+        if (creati === true) {
+            // fornisce la lista degli scambi creati dall'utente
+            scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+                venditore: ObjectId.createFromHexString(id)
+            }).toArray();
+        } else {
+            // fornisce la lista degli scambi disponibili per l'utente
+            scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+                venditore: { $ne: ObjectId.createFromHexString(id) }
+            }).toArray();
 
-        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
-            proprietario: ObjectId.createFromHexString(id)
-        }).toArray();
+            var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+                proprietario: ObjectId.createFromHexString(id)
+            }).toArray();
 
-        scambi = scambi.filter((s) => {
-            return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
-        });
-
+            scambi = scambi.filter((s) => {
+                return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
+            });
+        }
         res.status(200).json({ scambi: scambi });
     } catch (e) {
+        console.error(e);
         res.status(500).json({ error: "Errore server" });
     } finally {
         await pwmClient.close();
@@ -810,7 +817,6 @@ app.get("/figurine/:id", async (req, res) => {
 });
 
 app.put("/figurine/:id", async (req, res) => {
-    // todo: sostituire countScambio con disponibili
     // #swagger.tags = ['Gestione Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -827,7 +833,7 @@ app.put("/figurine/:id", async (req, res) => {
     await addFigurine(req.body, res, id);
 });
 
-//* Gestione vedita figurine
+//* Gestione vendita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     utente = req.params.id_utente;
@@ -866,7 +872,8 @@ app.get("/scambio/:utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
 
     utente = req.params.utente;
-    await getScambi(res, utente);
+    creati = req.query.creati === 'true';
+    await getScambi(res, creati, utente);
 });
 
 app.delete("/scambio", async (req, res) => {
