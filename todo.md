@@ -32,3 +32,4 @@
 - [x] Completare form selezione figurine
 - [ ] Sistemare pagina acquisto bustine
 - [ ] Inserire visualizzazione [caricamenti](https://getbootstrap.com/docs/5.3/components/spinners/) o  [placeolders](https://getbootstrap.com/docs/5.3/components/placeholders/)
+- [ ] controllare se il problema di connessione (getScambi) al db é stato risolto correttamente
