@@ -14,44 +14,8 @@
 <body onload="aggiornaPagina();">
     <div class="container">
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
-        <button class="btn btn-primary m-3" type="button" onclick="mostraForm()">Inserisci nuovo scambio</button>
         <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
         </div>
-
-        <div id="formScambio" class="d-none">
-            <form>
-                <h1 class="text-center">Inserisci Scambio</h1>
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="selectDaCedere">Nome carta da cedere </label>
-                    <select class="form-select" id="selectDaCedere">
-                        <option selected>Choose...</option>
-                    </select>
-                </div>
-
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="nomeSupereroe">Nome carta da ricevere</label>
-                    <select class="form-select" id="selectDaRicevere">
-                        <option selected>Choose...</option>
-                    </select>
-                    <input id="nomeSupereroe" class="input-group-text" type="text" placeholder="Nome supereroe"></input>
-                    <button class="btn btn-outline-secondary" type="button" id="buttonCerca"
-                        onclick="cercaSuperheroe()">Cerca</button>
-                </div>
-                <button type="button" class="btn btn-primary" onclick="creaScambio()">Crea scambio</button>
-            </form>
-        </div>
-
-        <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="toastScambio" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto">Aggiornamento scambio</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-                </div>
-                <div class="toast-body">
-                </div>
-            </div>
-        </div>
-
         <div class="row row-cols-1 row-cols-lg-2 ">
             <div class="col">
                 <h1 id="msgDisponibili" class="text-center mt-2"> Lista degli scambi disponibili</h1>
@@ -104,12 +68,12 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        function aggiornaPagina() {
+        async function aggiornaPagina() {
             checkLoggedInUser();
-            getScambi();
+            await getScambi();
         }
 
-        async function getScambi(query) {
+        async function getScambi() {
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
@@ -117,18 +81,18 @@
 
             await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => popolaDisponibili(JSON.parse(result).scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
+                .then((result) => popolaTabella(JSON.parse(result).scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
                 .catch((error) => console.error(error));
 
             await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => popolaDisponibili(JSON.parse(result).scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
+                .then((result) => popolaTabella(JSON.parse(result).scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
                 .catch((error) => console.error(error));
         }
 
-        function popolaDisponibili(scambi, msg, table, creati) {
+        function popolaTabella(scambi, msg, table, creati) {
             if (scambi.length === 0) {
-                msg.innerHTML = 'Nessuno scambio disponibile';
+                msg.innerHTML = `Nessuno scambio ${creati ? 'creato' : 'disponibile'}`;
                 table.classList.add('d-none');
                 return;
             }
@@ -137,7 +101,7 @@
             scambi.forEach((scambio, index) => {
                 var row = document.getElementById(idRow).cloneNode(true);
                 row.classList.remove('d-none');
-                row.id = `${idRow}_${index} `;
+                row.id = `${idRow}_${index}`;
                 row.querySelector('#count').innerHTML = index + 1;
                 getVenditotore(scambio.venditore, row.querySelector('#venditore'));
                 getCarta(scambio.da_scambiare, row.querySelector('#figurina'));
@@ -196,104 +160,6 @@
             fetch("http://localhost:3000/scambio", requestOptions)
                 .then((response) => response.text())
                 .then((result) => console.log(result))
-                .catch((error) => console.error(error));
-        }
-
-        function mostraForm() {
-            document.getElementById('formScambio').classList.remove('d-none');
-            getListeCarte();
-        }
-
-        function getListeCarte() {
-            const requestOptions = {
-                method: "GET",
-                redirect: "follow"
-            };
-
-            fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => {
-                    result = JSON.parse(result);
-                    console.log(result);
-                    result.figurine.forEach((figurina) => {
-                        var option = document.createElement('option');
-                        option.value = figurina.id;
-                        option.innerHTML = figurina.name;
-                        document.getElementById('selectDaCedere').appendChild(option);
-                    });
-                })
-                .catch((error) => console.error(error));
-        }
-
-        function cercaSuperheroe() {
-            var nome = document.getElementById('nomeSupereroe');
-            if (!nome.value) {
-                nome.classList.add('border-danger');
-                return;
-            } else {
-                nome.classList.remove('border-danger');
-            }
-            getFromMarvel("public/characters", `nameStartsWith=${nome.value}&orderBy=name&limit=100`)
-                .then((result) => {
-                    console.log(result);
-                    data = result.data.results;
-                    data.forEach((supereroe) => {
-                        var option = document.createElement('option');
-                        option.value = supereroe.id;
-                        option.innerHTML = supereroe.name;
-                        document.getElementById('selectDaRicevere').appendChild(option);
-                    });
-                })
-        }
-
-        function creaScambio() {
-            var cedere = document.getElementById('selectDaCedere');
-            var ricevere = document.getElementById('selectDaRicevere');
-            if (cedere.value === 'Choose...') {
-                cedere.classList.add('border-danger');
-                return;
-            } else {
-                cedere.classList.remove('border-danger');
-            }
-            if (ricevere.value === 'Choose...') {
-                ricevere.classList.add('border-danger');
-                return;
-            } else {
-                ricevere.classList.remove('border-danger');
-            }
-            console.log(cedere.value, ricevere.value);
-
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            const raw = JSON.stringify({
-                "venditore": getLocalStorage("id_utente"),
-                "da_scambiare": parseInt(cedere.value),
-                "desiderata": parseInt(ricevere.value)
-            });
-
-            const requestOptions = {
-                method: "POST",
-                headers: myHeaders,
-                body: raw,
-                redirect: "follow"
-            };
-
-            fetch("http://localhost:3000/scambio", requestOptions)
-                .then((response) => response.text())
-                .then((result) => {
-                    result = JSON.parse(result);
-                    console.log(result);
-                    const toastLiveExample = document.getElementById('toastScambio');
-                    if (result.error) {
-                        toastLiveExample.querySelector('.toast-body').innerHTML = result.error;
-                    } else {
-                        toastLiveExample.querySelector('.toast-body').innerHTML = 'Scambio creato con successo!';
-                        // aggiornaScambiCreati();
-                    }
-                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
-                    toastBootstrap.show();
-                })
                 .catch((error) => console.error(error));
         }
 
