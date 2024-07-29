@@ -44,8 +44,6 @@ function acquistaPacchetto(dim) {
                     dati_hero = {
                         id: hero.id,
                         name: hero.name,
-                        img_src: hero.thumbnail.path + "." + hero.thumbnail.extension,
-                        URI: hero.resourceURI.slice(hero.resourceURI.indexOf("1") + 2),
                         count: 1
                     }
                     figurine.push(dati_hero);

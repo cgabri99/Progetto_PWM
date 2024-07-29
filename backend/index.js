@@ -5,7 +5,7 @@ const express = require('express');
 const crypto = require('crypto');
 
 //moduli gestione MongoDB
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient, ObjectId, BSON, MongoTopologyClosedError } = require('mongodb');
 const DB_NAME = "PWM";
 const uri = "mongodb+srv://cgabri:yaud2eer@cluster0.osp8vca.mongodb.net/";
 const client = new MongoClient(uri);
@@ -297,7 +297,7 @@ async function getFigurine(res, id, num, offset) {
         // Cerca le figurine di un utente a partire dall'id
         figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ id: 1 }).toArray();
+        }).sort({ name: 1 }).toArray();
 
         if (num !== undefined && offset !== undefined) {
             pagina = figurine.slice(offset, offset + num);
@@ -326,6 +326,38 @@ async function getFigurine(res, id, num, offset) {
         else
             res.status(500).json({ error: "Errore server" });
         return;
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function getTotalFigurine(res, id) {
+    const pwmClient = await client.connect();
+    try {
+        // Cerca le figurine di un utente a partire dall'id
+        figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
+            proprietario: ObjectId.createFromHexString(id)
+        }).sort({ name: 1 }).toArray();
+
+        if (figurine) {
+            res.json({
+                id: id,
+                total: figurine.length,
+                figurine: figurine
+            });
+        } else {
+            res.json({
+                id: id,
+                total: 0,
+                figurine: []
+            });
+        }
+    } catch (e) {
+        console.error(e);
+        if (e.name === "BSONError")
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
     } finally {
         await pwmClient.close();
     }
@@ -366,7 +398,7 @@ async function addFigurine(body, res, id) {
         // Cerca le figurine di un utente a partire dall'id
         var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ id: 1 }).toArray();
+        }).sort({ name: 1 }).toArray();
 
         //aggiorno la lista delle figurine possedute
         for (var i = 0; i < figurine.length; i++) {
@@ -376,12 +408,13 @@ async function addFigurine(body, res, id) {
                     .insertOne({
                         proprietario: ObjectId.createFromHexString(id),
                         id: figurina.id,
+                        name: figurina.name,
                         count: figurina.count,
                         disponibili: figurina.count
                     });
                 possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
                     proprietario: ObjectId.createFromHexString(id)
-                }).sort({ id: 1 }).toArray();
+                }).sort({ name: 1 }).toArray();
             } else {
                 await pwmClient.db(DB_NAME).collection("Figurine")
                     .updateOne({
@@ -398,7 +431,7 @@ async function addFigurine(body, res, id) {
 
         possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
-        }).sort({ id: 1 }).toArray()
+        }).sort({ name: 1 }).toArray()
 
         res.json({
             status: "ok",
@@ -535,25 +568,38 @@ async function creaScambio(res, body) {
     }
 }
 
-async function getScambi(res, id) {
+async function getScambi(res, creati, id, countReconncetion) {
     const pwmClient = await client.connect();
     try {
-        // fornisce la lista degli scambi disponibili per l'utente
-        var scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
-            venditore: { $ne: ObjectId.createFromHexString(id) }
-        }).toArray();
+        var scambi = [];
+        if (creati === true) {
+            // fornisce la lista degli scambi creati dall'utente
+            scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+                venditore: ObjectId.createFromHexString(id)
+            }).toArray();
+        } else {
+            // fornisce la lista degli scambi disponibili per l'utente
+            scambi = await pwmClient.db(DB_NAME).collection("Scambi").find({
+                venditore: { $ne: ObjectId.createFromHexString(id) }
+            }).toArray();
 
-        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
-            proprietario: ObjectId.createFromHexString(id)
-        }).toArray();
+            var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+                proprietario: ObjectId.createFromHexString(id)
+            }).toArray();
 
-        scambi = scambi.filter((s) => {
-            return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
-        });
-
+            scambi = scambi.filter((s) => {
+                return possedute.find(f => (f.id === s.desiderata && f.disponibili >= 1)) !== undefined;
+            });
+        }
         res.status(200).json({ scambi: scambi });
     } catch (e) {
-        res.status(500).json({ error: "Errore server" });
+        console.error(e);
+        if (e instanceof MongoTopologyClosedError) {
+            if (countReconncetion > 0)
+                getScambi(res, creati, id, countReconncetion--);
+        } else {
+            res.status(500).json({ error: "Errore server" });
+        }
     } finally {
         await pwmClient.close();
     }
@@ -760,7 +806,7 @@ app.get("/credits/:id", async (req, res) => {
     await getCrediti(res, id);
 });
 
-// *Gestione acquisto figurine
+// *Gestione figurine
 app.get("/figurine/:id/:dim/:offset", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
@@ -769,8 +815,13 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
     await getFigurine(res, id, dim, offset);
 });
 
+app.get("/figurine/:id", async (req, res) => {
+    // #swagger.tags = ['Gestione Figurine']
+    id = req.params.id;
+    await getTotalFigurine(res, id);
+});
+
 app.put("/figurine/:id", async (req, res) => {
-    // todo: sostituire countScambio con disponibili
     // #swagger.tags = ['Gestione Figurine']
     /*  #swagger.requestBody = {
             required: true,
@@ -787,7 +838,7 @@ app.put("/figurine/:id", async (req, res) => {
     await addFigurine(req.body, res, id);
 });
 
-//* Gestione vedita figurine
+//* Gestione vendita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     utente = req.params.id_utente;
@@ -826,7 +877,8 @@ app.get("/scambio/:utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
 
     utente = req.params.utente;
-    await getScambi(res, utente);
+    creati = req.query.creati === 'true';
+    await getScambi(res, creati, utente, 5);
 });
 
 app.delete("/scambio", async (req, res) => {

@@ -23,8 +23,13 @@
 - [ ] setting dei timer prima dei cambi di finestra (come in album nel caso di vendita figurine)
 - [x] controllo di consistenza durante la vendita di una figurina
 - [x] sistemare dispaly bottone possedute in album
-- [ ] sostituire gli splice con deleteOne in index.js
+- [x] sostituire gli splice con deleteOne in index.js
 - [x] filtraggio degli scambi disponibli
 - [x] modifica struttura delle figurine con inserimento di disponibili al posto di countScambio
 - [x] spostare figurine in una collection a parte
 - [x] **Valutare bene come salvare i dati delle figurine in album, ora sono *statici* forse meglio renderli dinamici tenendo in memoria solo l'ID e caricando volta per volta i risultati dal server Marvel**
+- [ ] Visualizzare lista a aprte per gli scambi inseriti dall'utente
+- [x] Completare form selezione figurine
+- [ ] Sistemare pagina acquisto bustine
+- [ ] Inserire visualizzazione [caricamenti](https://getbootstrap.com/docs/5.3/components/spinners/) o  [placeolders](https://getbootstrap.com/docs/5.3/components/placeholders/)
+- [ ] controllare se il problema di connessione (getScambi) al db é stato risolto correttamente
