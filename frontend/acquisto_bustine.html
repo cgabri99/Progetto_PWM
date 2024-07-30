@@ -28,8 +28,8 @@
                                 figurine ad un prezzo speciale.</p>
                             <button id="acquista" onclick="acquista()" class="btn btn-outline-light btn-lg px-3 mt-4"
                                 type="button">Acquista</button>
-                            <button id="annulla" type="button" class="btn btn-secondary btn-lg px-3 mt-4"
-                                onclick="window.history.back();">Annulla</button>
+                            <a id="annulla" class="btn btn-secondary btn-lg px-3 mt-4" type="button"
+                                href="home.html">Home</a>
                         </div>
                     </div>
                 </div>
@@ -39,14 +39,6 @@
     <script>
         async function acquista() {
             err = document.getElementById('error');
-            bustine = document.getElementById('bustine');
-
-            if (bustine.value <= 0) {
-                err.classList.remove('d-none');
-                err.classList.add('alert-danger');
-                err.innerHTML = 'Non puoi acquistare un numero negativo di bustine!';
-                return;
-            }
 
             is_logged = getLocalStorage("logged");
             if (!is_logged) {
@@ -62,7 +54,7 @@
                     .then((response) => response.json())
                     .then((data) => {
                         console.log(data);
-                        if (data.crediti < bustine.value) {
+                        if (data.crediti < 1) {
                             err.classList.remove('d-none');
                             err.classList.add('alert-danger');
                             err.innerHTML = 'Non hai abbastanza crediti per acquistare tutte queste bustine!';
@@ -73,7 +65,7 @@
                                 redirect: "follow"
                             };
 
-                            fetch(`http://localhost:3000/credits/${id_utente}/${-bustine.value}`, requestOptions)
+                            fetch(`http://localhost:3000/credits/${id_utente}/-1`, requestOptions)
                                 .then((response) => response.text())
                                 .then((result) => {
                                     console.log(result);
