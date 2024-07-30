@@ -80,19 +80,19 @@
             };
 
             try {
-                const response_1 = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions);
-                const result_1 = await response_1.text();
-                const resj_1 = JSON.parse(result_1);
-                popolaTabella(resj_1.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false)
+                const response_disp = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions);
+                const result_disp = await response_disp.text();
+                const resj_disp = JSON.parse(result_disp);
+                popolaTabella(resj_disp.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false)
             } catch (error) {
                 console.error(error);
             }
 
             try {
-                const response_2 = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions);
-                const result_2 = await response_2.text();
-                const resj_2 = JSON.parse(result_2);
-                popolaTabella(resj_2.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true)
+                const response_create = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions);
+                const result_create = await response_create.text();
+                const resj_create = JSON.parse(result_create);
+                popolaTabella(resj_create.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true)
             } catch (error) {
                 console.error(error);
             }
