@@ -25,7 +25,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Venditore</th>
                             <th scope="col">Figurina messa in scambio</th>
-                            <th scope="col">Figurina richiesta</th>
+                            <th scope="col">Figurina desiderata</th>
                             <th scope="col">Accetta richiesta</th>
                         </tr>
                     </thead>
@@ -70,23 +70,25 @@
     <script>
         async function aggiornaPagina() {
             checkLoggedInUser();
-            await getScambi();
+            getScambi();
         }
 
-        async function getScambi() {
+        function getScambi() {
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
             };
 
-            await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
+            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => popolaTabella(JSON.parse(result).scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
+                .then((result) => result = JSON.parse(result))
+                .then((result) => popolaTabella(result.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
                 .catch((error) => console.error(error));
 
-            await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
+            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => popolaTabella(JSON.parse(result).scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
+                .then((result) => result = JSON.parse(result))
+                .then((result) => popolaTabella(result.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
                 .catch((error) => console.error(error));
         }
 
@@ -103,9 +105,9 @@
                 row.classList.remove('d-none');
                 row.id = `${idRow}_${index}`;
                 row.querySelector('#count').innerHTML = index + 1;
-                getVenditotore(scambio.venditore, row.querySelector('#venditore'));
-                getCarta(scambio.da_scambiare, row.querySelector('#figurina'));
-                getCarta(scambio.desiderata, row.querySelector('#richiesta'));
+                row.querySelector('#venditore').innerHTML = scambio.nome_venditore;
+                row.querySelector('#figurina').innerHTML = scambio.nome_da_scambiare;
+                row.querySelector('#richiesta').innerHTML = scambio.nome_desiderata;
                 if (!creati) {
                     row.querySelector('a').setAttribute('scambio-id', scambio._id);
                 }
@@ -121,23 +123,9 @@
 
             fetch(`http://localhost:3000/users/${id}`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => {
-                    result = JSON.parse(result);
-                    venditore.innerHTML = result.nome;
-                })
+                .then((result) => result = JSON.parse(result))
+                .then((result) => venditore.innerHTML = result.nome)
                 .catch((error) => console.error(error));
-        }
-
-        function getCarta(id, carta) {
-            //fetch portale marvel
-            getFromMarvel("public/characters", `id=${id}`)
-                .then((result) => {
-                    carta.innerHTML = result.data.results[0].name;
-                })
-                .catch((error) => {
-                    console.error(error);
-                    carta.innerHTML = "Carta non trovata";
-                });
         }
 
         function accettaScambio(button) {
@@ -161,16 +149,6 @@
                 .then((response) => response.text())
                 .then((result) => console.log(result))
                 .catch((error) => console.error(error));
-        }
-        function checkLoggedInUser() {
-            if (!getLocalStorage("logged")) {
-                const err = document.getElementById('error');
-                err.classList.remove('d-none');
-                err.innerHTML = 'Utente non loggato!';
-                window.setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
-            }
         }
     </script>
 </body>

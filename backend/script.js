@@ -55,3 +55,14 @@ function acquistaPacchetto(dim) {
         }
     });
 }
+
+function checkLoggedInUser() {
+    if (!getLocalStorage("logged")) {
+        const err = document.getElementById('error');
+        err.classList.remove('d-none');
+        err.innerHTML = 'Utente non loggato!';
+        window.setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+    }
+}

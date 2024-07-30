@@ -331,7 +331,7 @@ async function getFigurine(res, id, num, offset) {
     }
 }
 
-async function getTotalFigurine(res, id) {
+async function getTotalFigurine(res, id, countReconncetion) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
@@ -354,10 +354,14 @@ async function getTotalFigurine(res, id) {
         }
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e.name === "BSONError") {
             res.status(404).json({ error: "Id non valido" });
-        else
+            // } else if (e instanceof MongoTopologyClosedError) {
+            //     if (countReconncetion > 0)
+            //         getScambi(res, creati, id, countReconncetion--);
+        } else {
             res.status(500).json({ error: "Errore server" });
+        }
     } finally {
         await pwmClient.close();
     }
@@ -504,7 +508,7 @@ async function vendiFigurina(utente, id_figurina) {
 */
 async function creaScambio(res, body) {
     const pwmClient = await client.connect();
-    if (!body.da_scambiare || !body.desiderata || !body.venditore) {
+    if (!body.da_scambiare || !body.desiderata || !body.venditore || !body.nome_da_scambiare || !body.nome_desiderata || !body.nome_venditore) {
         res.status(400).json({ error: "Richiesta errata!" });
         return;
     }
@@ -548,10 +552,13 @@ async function creaScambio(res, body) {
             "_id": new ObjectId(),
             //la stringa contenente l'id dell'utente proprietario
             "venditore": ObjectId.createFromHexString(body.venditore),
+            "nome_venditore": body.nome_venditore,
             //id figurina da scambiare
             "da_scambiare": body.da_scambiare,
+            "nome_da_scambiare": body.nome_da_scambiare,
             //id figurina desiderata
-            "desiderata": body.desiderata
+            "desiderata": body.desiderata,
+            "nome_desiderata": body.nome_desiderata
         }
 
         //insert nel database
@@ -732,7 +739,7 @@ async function loginUser(body, res) {
     await pwmClient.close();
 
     if (user) {
-        res.json({ id: user._id });
+        res.json({ id: user._id, nome: user.name, cognome: user.surname });
     } else {
         res.status(404).json({ error: "Credenziali Errate" });
     }
@@ -818,7 +825,7 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
 app.get("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
-    await getTotalFigurine(res, id);
+    await getTotalFigurine(res, id, 5);
 });
 
 app.put("/figurine/:id", async (req, res) => {

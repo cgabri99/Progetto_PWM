@@ -15,9 +15,9 @@
     <div class="vh-100">
         <div class="container  py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
-                <div id="error" class="col d-none my-3 p-3 alert alert-danger" role="alert">
-                </div>
                 <div class="col">
+                    <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
+                    </div>
                     <div class="card" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
                             <div id="formScambio" class="my-3">
@@ -89,41 +89,6 @@
                 .catch((error) => console.error(error));
         }
 
-        function getCarta(id, carta) {
-            //fetch portale marvel
-            getFromMarvel("public/characters", `id=${id}`)
-                .then((result) => {
-                    carta.innerHTML = result.data.results[0].name;
-                })
-                .catch((error) => {
-                    console.error(error);
-                    carta.innerHTML = "Carta non trovata";
-                });
-        }
-
-        function accettaScambio(button) {
-            var id_scambio = button.getAttribute('scambio-id');
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            const raw = JSON.stringify({
-                "id_scambio": id_scambio,
-                "id_acquirente": getLocalStorage("id_utente")
-            });
-
-            const requestOptions = {
-                method: "DELETE",
-                headers: myHeaders,
-                body: raw,
-                redirect: "follow"
-            };
-
-            fetch("http://localhost:3000/scambio", requestOptions)
-                .then((response) => response.text())
-                .then((result) => console.log(result))
-                .catch((error) => console.error(error));
-        }
-
         function getListaDaCedere() {
             var listaDaCedere = document.getElementById('selectDaCedere');
             listaDaCedere.innerHTML = "<option selected>Choose...</option>";
@@ -189,15 +154,18 @@
             } else {
                 ricevere.classList.remove('border-danger');
             }
-            console.log(cedere.value, ricevere.value);
+            console.log(cedere.value, cedere[cedere.selectedIndex].text, ricevere.value, ricevere[ricevere.selectedIndex].text);
 
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
             const raw = JSON.stringify({
                 "venditore": getLocalStorage("id_utente"),
+                "nome_venditore": getLocalStorage("nome_utente"),
                 "da_scambiare": parseInt(cedere.value),
-                "desiderata": parseInt(ricevere.value)
+                "nome_da_scambiare": cedere[cedere.selectedIndex].text,
+                "desiderata": parseInt(ricevere.value),
+                "nome_desiderata": ricevere[ricevere.selectedIndex].text
             });
 
             const requestOptions = {
@@ -224,17 +192,6 @@
                     getListaDaCedere();
                 })
                 .catch((error) => console.error(error));
-        }
-
-        function checkLoggedInUser() {
-            if (!getLocalStorage("logged")) {
-                const err = document.getElementById('error');
-                err.classList.remove('d-none');
-                err.innerHTML = 'Utente non loggato!';
-                window.setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2000);
-            }
         }
     </script>
 </body>
