@@ -70,26 +70,47 @@
     <script>
         async function aggiornaPagina() {
             checkLoggedInUser();
-            getScambi();
+            await getScambi();
         }
 
-        function getScambi() {
+        async function getScambi() {
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
             };
 
-            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => result = JSON.parse(result))
-                .then((result) => popolaTabella(result.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
-                .catch((error) => console.error(error));
+            try {
+                const response_1 = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions);
+                const result_1 = await response_1.text();
+                const resj_1 = JSON.parse(result_1);
+                popolaTabella(resj_1.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false)
+            } catch (error) {
+                console.error(error);
+            }
 
-            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => result = JSON.parse(result))
-                .then((result) => popolaTabella(result.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
-                .catch((error) => console.error(error));
+            try {
+                const response_2 = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions);
+                const result_2 = await response_2.text();
+                const resj_2 = JSON.parse(result_2);
+                popolaTabella(resj_2.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true)
+            } catch (error) {
+                console.error(error);
+            }
+
+
+
+
+            // fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
+            //     .then((response) => response.text())
+            //     .then((result) => result = JSON.parse(result))
+            //     .then((result) => popolaTabella(result.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
+            //     .catch((error) => console.error(error));
+
+            // fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
+            //     .then((response) => response.text())
+            //     .then((result) => result = JSON.parse(result))
+            //     .then((result) => popolaTabella(result.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
+            //     .catch((error) => console.error(error));
         }
 
         function popolaTabella(scambi, msg, table, creati) {

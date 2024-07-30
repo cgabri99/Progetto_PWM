@@ -331,7 +331,7 @@ async function getFigurine(res, id, num, offset) {
     }
 }
 
-async function getTotalFigurine(res, id, countReconncetion) {
+async function getTotalFigurine(res, id) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
@@ -356,9 +356,6 @@ async function getTotalFigurine(res, id, countReconncetion) {
         console.error(e);
         if (e.name === "BSONError") {
             res.status(404).json({ error: "Id non valido" });
-            // } else if (e instanceof MongoTopologyClosedError) {
-            //     if (countReconncetion > 0)
-            //         getScambi(res, creati, id, countReconncetion--);
         } else {
             res.status(500).json({ error: "Errore server" });
         }
@@ -575,7 +572,7 @@ async function creaScambio(res, body) {
     }
 }
 
-async function getScambi(res, creati, id, countReconncetion) {
+async function getScambi(res, creati, id) {
     const pwmClient = await client.connect();
     try {
         var scambi = [];
@@ -601,12 +598,8 @@ async function getScambi(res, creati, id, countReconncetion) {
         res.status(200).json({ scambi: scambi });
     } catch (e) {
         console.error(e);
-        if (e instanceof MongoTopologyClosedError) {
-            if (countReconncetion > 0)
-                getScambi(res, creati, id, countReconncetion--);
-        } else {
-            res.status(500).json({ error: "Errore server" });
-        }
+        res.status(500).json({ error: "Errore server" });
+
     } finally {
         await pwmClient.close();
     }
@@ -634,8 +627,8 @@ async function deleteScambio(res, body) {
             return;
         }
 
-        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio.da_scambiare, scambio.desiderata, false);
-        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio.desiderata, scambio.da_scambiare, true);
+        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio, false);
+        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio, true);
 
         //elimina lo scambio con l'id specificato
         await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
@@ -652,7 +645,10 @@ async function deleteScambio(res, body) {
     }
 }
 
-async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquirente) {
+async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
+    var inUsita = isAcquirente ? scambio.desiderata : scambio.da_scambiare;
+    var inArrivo = isAcquirente ? scambio.da_scambiare : scambio.desiderata;
+
     var posseduta = await client.db(DB_NAME).collection("Figurine")
         .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inUsita });
 
@@ -690,6 +686,7 @@ async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquir
             .insertOne({
                 proprietario: ObjectId.createFromHexString(id_utente),
                 id: inArrivo,
+                name: isAcquirente ? scambio.nome_da_scambiare : scambio.nome_desiderata,
                 count: 1,
                 disponibili: 1
             });
@@ -825,7 +822,7 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
 app.get("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
-    await getTotalFigurine(res, id, 5);
+    await getTotalFigurine(res, id);
 });
 
 app.put("/figurine/:id", async (req, res) => {
@@ -884,7 +881,7 @@ app.get("/scambio/:utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     utente = req.params.utente;
     creati = req.query.creati === 'true';
-    await getScambi(res, creati, utente, 5);
+    await getScambi(res, creati, utente);
 });
 
 app.delete("/scambio", async (req, res) => {
