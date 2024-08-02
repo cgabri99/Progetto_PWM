@@ -85,6 +85,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        const error = document.getElementById("error");
         function aggiornaPagina() {
             checkLoggedInUser();
             checkIsAdmin();
@@ -116,31 +117,98 @@
                 redirect: "follow"
             };
 
-            const request = await fetch("http://localhost:3000/maxiPacchetti", requestOptions)
+            const request = await fetch("http://localhost:3000/maxiPacchetti", requestOptions);
             const response = await request.text();
             const offerte = await JSON.parse(response).offerte;
             console.log(offerte);
-            offerte.forEach((offerta, index) => {
-                const offerteBody = document.getElementById("offerteBody");
-                const offerteRow = document.getElementById("offerteRow").cloneNode(true);
-                offerteRow.id = `offerteRow${index}`;
-                offerteRow.classList.remove("d-none");
-                offerteRow.querySelector("#count").innerHTML = index + 1;
-                offerteRow.querySelector("#price").innerHTML = offerta.price;
-                offerteRow.querySelector("#qty").innerHTML = offerta.n_figurine;
-                offerteRow.querySelector("#accetta").querySelector("button").setAttribute("data-id", offerta._id);
-                offerteBody.appendChild(offerteRow);
-            });
+            if (offerte.length === 0) {
+                document.getElementById("offerte").classList.add("d-none");
+                document.getElementById("user").innerHTML += "<h4>Non ci sono offerte disponibili al momento</h4>";
+                return;
+            } else {
+                offerte.forEach((offerta, index) => {
+                    const offerteBody = document.getElementById("offerteBody");
+                    const offerteRow = document.getElementById("offerteRow").cloneNode(true);
+                    offerteRow.id = `offerteRow${index}`;
+                    offerteRow.classList.remove("d-none");
+                    offerteRow.querySelector("#count").innerHTML = index + 1;
+                    offerteRow.querySelector("#price").innerHTML = offerta.price;
+                    offerteRow.querySelector("#qty").innerHTML = offerta.n_figurine;
+                    offerteRow.querySelector("#accetta").querySelector("button").setAttribute("data-id", offerta._id);
+                    offerteBody.appendChild(offerteRow);
+                });
+            }
         }
 
         function accettaOfferta(btn) {
-            console.log(btn);
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({
+                "id_offerta": btn.getAttribute("data-id"),
+                "id_acquirente": getLocalStorage("id_utente")
+            });
+
+            const requestOptions = {
+                method: "DELETE",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow"
+            };
+
+            fetch("http://localhost:3000/maxiPacchetti", requestOptions)
+                .then((response) => response.text())
+                .then((result) => JSON.parse(result))
+                .then((offerta) => {
+                    const bottoni = document.getElementsByClassName("btn");
+                    for (let i = 0; i < bottoni.length; i++) {
+                        bottoni[i].classList.add("disabled");
+                    }
+                    error.classList.remove("d-none", "alert-danger", "alert-success");
+                    error.classList.add("alert-warning");
+                    error.innerHTML = "Acquisto in corso attendere...";
+                    console.log(offerta);
+                    aggiungiFigurine(offerta.offerta.n_figurine);
+                })
+                .catch((e) => {
+                    console.error(e);
+                    error.classList.remove("d-none");
+                    error.classList.add("alert-danger");
+                    error.innerHTML = "Non hai abbastanza crediti per acquistare questa bustina!";
+                });
+        }
+
+        function aggiungiFigurine(nFigurine) {
+            acquistaPacchetto(nFigurine)
+                .then((figurine) => {
+                    const requestOptions = {
+                        method: "PUT",
+                        redirect: "follow",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: `{"figurine": ${JSON.stringify(figurine)}}`
+                    };
+                    fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
+                        .then((response) => response.text())
+                        .then(() => {
+                            error.classList.remove('d-none', 'alert-danger', 'alert-warning');
+                            error.classList.add('alert-success');
+                            error.innerHTML = 'Acquisto completato!';
+                            const bottoni = document.getElementsByClassName("btn");
+                            for (let i = 0; i < bottoni.length; i++) {
+                                bottoni[i].classList.remove("disabled");
+                            }
+                            getOfferte();
+                        })
+                        .catch((e) => console.error(e));
+                });
+
         }
 
         function creaOfferta() {
             const price = document.getElementById("price");
             const nFigurine = document.getElementById("nFigurine");
-            const error = document.getElementById("error");
 
             if (!price.checkValidity() || !price.value) {
                 error.classList.remove("d-none");
