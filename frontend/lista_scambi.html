@@ -14,7 +14,7 @@
 <body onload="aggiornaPagina();">
     <div class="container">
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
-        <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
+        <div id="msg" class="d-none my-3 p-3 alert alert-success" role="alert">
         </div>
         <div class="row row-cols-1 row-cols-lg-2 ">
             <div class="col">
@@ -70,26 +70,32 @@
     <script>
         async function aggiornaPagina() {
             checkLoggedInUser();
-            getScambi();
+            await getScambi();
         }
 
-        function getScambi() {
+        async function getScambi() {
             const requestOptions = {
                 method: "GET",
                 redirect: "follow"
             };
 
-            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => result = JSON.parse(result))
-                .then((result) => popolaTabella(result.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false))
-                .catch((error) => console.error(error));
+            try {
+                const response_disp = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}`, requestOptions);
+                const result_disp = await response_disp.text();
+                const resj_disp = JSON.parse(result_disp);
+                popolaTabella(resj_disp.scambi, document.getElementById('msgDisponibili'), document.getElementById('disponibili'), false)
+            } catch (error) {
+                console.error(error);
+            }
 
-            fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => result = JSON.parse(result))
-                .then((result) => popolaTabella(result.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true))
-                .catch((error) => console.error(error));
+            try {
+                const response_create = await fetch(`http://localhost:3000/scambio/${getLocalStorage("id_utente")}?creati=true`, requestOptions);
+                const result_create = await response_create.text();
+                const resj_create = JSON.parse(result_create);
+                popolaTabella(resj_create.scambi, document.getElementById('msgCreati'), document.getElementById('creati'), true)
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         function popolaTabella(scambi, msg, table, creati) {
@@ -147,7 +153,16 @@
 
             fetch("http://localhost:3000/scambio", requestOptions)
                 .then((response) => response.text())
-                .then((result) => console.log(result))
+                .then((result) => {
+                    console.log(result);
+                    document.getElementById('msg').classList.remove('d-none');
+                    document.getElementById('msg').innerHTML = 'Scambio accettato con successo!';
+                    // todo: disabilitare non solo questo, ma tutti i pulsanti di accettazione
+                    button.classList.add('diasbled');
+                    window.setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                })
                 .catch((error) => console.error(error));
         }
     </script>

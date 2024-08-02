@@ -1,4 +1,3 @@
-
 const express = require('express');
 
 //modulo gestione hash password
@@ -20,6 +19,8 @@ const { count } = require('console');
 const app = express();
 const port = 3000;
 
+const adminID = "6655c92fbfd3008190d30378";
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -27,10 +28,12 @@ app.use(express.json());
 app.use(cors());
 
 /**
- * Restituisce l'id associato alla mail se presente, 
- * altrimenti email non presente
+ * Restituisce l'id associato alla mail se presente, altrimenti email non presente
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} email - L'email dell'utente da cercare.
 */
-async function getUser(res, email) {
+async function getUserId(res, email) {
     const pwmClient = await client.connect();
 
     // Cerca un utente con l'email e la password specificate
@@ -59,7 +62,7 @@ async function getUser(res, email) {
  */
 async function updateUser(res, id, body) {
     //controllo che le modifiche presenti nel body siano legittime
-    const modificeAutorizzate = ["name", "surname", "age", "hero", "psw", "credits"];
+    const modificeAutorizzate = ["name", "surname", "age", "hero", "psw"];
     for (const [key, _] of Object.entries(body)) {
         if (modificeAutorizzate.indexOf(key) === -1) {
             res.status(400).json({ "errore": `La chiave ${key} non è accettata` });
@@ -129,6 +132,7 @@ async function getUserById(res, id) {
         res.json({
             nome: user.name,
             cognome: user.surname,
+            email: user.email
         });
     } else {
         res.status(404).json({ error: "Id non presente" });
@@ -321,7 +325,7 @@ async function getFigurine(res, id, num, offset) {
         }
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -331,7 +335,14 @@ async function getFigurine(res, id, num, offset) {
     }
 }
 
-async function getTotalFigurine(res, id, countReconncetion) {
+/*
+* Restituisce il totale delle figurine possedute dall'utente con l'id specificato
+*
+* @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+* @param {string} id - L'ID dell'utente di cui si vogliono conoscere le figurine possedute.
+* @returns {Promise<void>} - Una promessa che si risolve quando il totale delle figurine dell'utente è stato restituito.
+*/
+async function getTotalFigurine(res, id) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
@@ -354,11 +365,8 @@ async function getTotalFigurine(res, id, countReconncetion) {
         }
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError") {
+        if (e instanceof BSON.BSONError) {
             res.status(404).json({ error: "Id non valido" });
-            // } else if (e instanceof MongoTopologyClosedError) {
-            //     if (countReconncetion > 0)
-            //         getScambi(res, creati, id, countReconncetion--);
         } else {
             res.status(500).json({ error: "Errore server" });
         }
@@ -389,6 +397,23 @@ async function addFigurine(body, res, id) {
     if (!body.figurine) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
+    }
+    for (var i = 0; i < figurine.length; i++) {
+        if (!figurine[i].id) {
+            res.status(400).json({ error: "Campo id figurina mancante!" });
+            return;
+        }
+        if (!figurine[i].count) {
+            res.status(400).json({ error: "Campo count figurina mancante!" });
+            return;
+        } if (figurine[i].count <= 0) {
+            res.status(400).json({ error: "Campo count non valido!" });
+            return;
+        }
+        if (!figurine[i].name) {
+            res.status(400).json({ error: "Campo name figurina mancante!" });
+            return;
+        }
     }
     // //controllo di validità dell'input
     // for (var figurina in figurine) {
@@ -443,7 +468,7 @@ async function addFigurine(body, res, id) {
         });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -508,12 +533,25 @@ async function vendiFigurina(utente, id_figurina) {
 */
 async function creaScambio(res, body) {
     const pwmClient = await client.connect();
-    if (!body.da_scambiare || !body.desiderata || !body.venditore || !body.nome_da_scambiare || !body.nome_desiderata || !body.nome_venditore) {
-        res.status(400).json({ error: "Richiesta errata!" });
+    if (!body.da_scambiare) {
+        res.status(400).json({ error: "Campo id figurina da scambiare mancante!" });
         return;
-    }
-
-    if (body.da_scambiare === body.desiderata) {
+    } else if (!body.desiderata) {
+        res.status(400).json({ error: "Campo id figurina desiderata mancante!" });
+        return;
+    } else if (!body.venditore) {
+        res.status(400).json({ error: "Campo id venditore mancante!" });
+        return;
+    } else if (!body.nome_da_scambiare) {
+        res.status(400).json({ error: "Campo nome figurina da scambiare mancante!" });
+        return;
+    } else if (!body.nome_desiderata) {
+        res.status(400).json({ error: "Campo nome figurina desiderata mancante!" });
+        return;
+    } else if (!body.nome_venditore) {
+        res.status(400).json({ error: "Campo nome venditore mancante!" });
+        return;
+    } else if (body.da_scambiare === body.desiderata) {
         res.status(400).json({ error: "Non puoi scambiare una carta con se stessa!" });
         return;
     }
@@ -566,7 +604,7 @@ async function creaScambio(res, body) {
         res.status(200).json({ status: "ok", scambio: scambio });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -575,7 +613,15 @@ async function creaScambio(res, body) {
     }
 }
 
-async function getScambi(res, creati, id, countReconncetion) {
+/**
+ * Restituisce la lista degli scambi creati o disponibili per l'utente con l'id specificato.
+ *  
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {boolean} creati - Indica se si vogliono ottenere gli scambi creati o disponibili per l'utente.
+ * @param {string} id - L'ID dell'utente di cui si vogliono ottenere gli scambi.
+ * @returns {Promise<void>} - Una promessa che si risolve quando la lista degli scambi viene restituita.
+ * */
+async function getScambi(res, creati, id) {
     const pwmClient = await client.connect();
     try {
         var scambi = [];
@@ -601,12 +647,8 @@ async function getScambi(res, creati, id, countReconncetion) {
         res.status(200).json({ scambi: scambi });
     } catch (e) {
         console.error(e);
-        if (e instanceof MongoTopologyClosedError) {
-            if (countReconncetion > 0)
-                getScambi(res, creati, id, countReconncetion--);
-        } else {
-            res.status(500).json({ error: "Errore server" });
-        }
+        res.status(500).json({ error: "Errore server" });
+
     } finally {
         await pwmClient.close();
     }
@@ -634,15 +676,15 @@ async function deleteScambio(res, body) {
             return;
         }
 
-        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio.da_scambiare, scambio.desiderata, false);
-        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio.desiderata, scambio.da_scambiare, true);
+        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio, false);
+        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio, true);
 
         //elimina lo scambio con l'id specificato
         await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
         res.status(200).json({ status: "ok", scambio_effettuato: scambio });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -652,7 +694,20 @@ async function deleteScambio(res, body) {
     }
 }
 
-async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquirente) {
+/**
+ * Aggiorna le informazioni degli acquirenti nel database.
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} id_utente - L'ID dell'utente da aggiornare.
+ * @param {Object} scambio - L'oggetto contenente le informazioni relative allo scambio.
+ * @param {boolean} isAcquirente - Descrive se l'utente e' l'acquirente o il venditore.
+ * @returns {Promise<void>} - Una promessa che si risolve quando l'acquirente viene aggiornato nel database.
+ */
+
+async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
+    var inUsita = isAcquirente ? scambio.desiderata : scambio.da_scambiare;
+    var inArrivo = isAcquirente ? scambio.da_scambiare : scambio.desiderata;
+
     var posseduta = await client.db(DB_NAME).collection("Figurine")
         .findOne({ proprietario: ObjectId.createFromHexString(id_utente), id: inUsita });
 
@@ -690,6 +745,7 @@ async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquir
             .insertOne({
                 proprietario: ObjectId.createFromHexString(id_utente),
                 id: inArrivo,
+                name: isAcquirente ? scambio.nome_da_scambiare : scambio.nome_desiderata,
                 count: 1,
                 disponibili: 1
             });
@@ -708,6 +764,104 @@ async function aggiornaAcquirenti(client, id_utente, inUsita, inArrivo, isAcquir
                     }
                 });
     }
+}
+
+async function creaOffertaMaxiPacchetto(res, body) {
+    if (!body.admin) {
+        res.status(400).json({ error: "Manca l'id dell'utente!" });
+        return;
+    }
+    if (body.admin !== adminID) {
+        res.status(401).json({ error: "Solo l'admin può creare offerte per maxi pacchetti!" });
+        return;
+    }
+    if (!body.n_figurine) {
+        res.status(400).json({ error: "Manca il numero di figurine dell'offerta!" });
+        return;
+    } if (!body.price) {
+        res.status(400).json({ error: "Manca il prezzo dell'offerta!" });
+        return;
+    }
+    if (body.price <= 0 || body.price > 5) {
+        res.status(400).json({ error: "Il prezzo deve essere compreso tra 1 e 5!" });
+        return;
+    }
+    if (body.n_figurine <= 0 || body.n_figurine > 30) {
+        res.status(400).json({ error: "Il numero delle figurine deve essere compreso tra 1 e 30!" });
+        return;
+    }
+
+    const pwmClient = await client.connect();
+    try {
+        //creo il bson offerta
+        offerta = {
+            "_id": new ObjectId(),
+            "n_figurine": body.n_figurine,
+            "price": body.price
+        }
+
+        //insert nel database
+        await pwmClient.db(DB_NAME).collection("MaxiPacchetti").insertOne(offerta);
+        res.status(200).json({ status: "ok", offerta: offerta });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function getOfferteMaxiPacchetti(res) {
+    const pwmClient = await client.connect();
+    try {
+        var offerte = await pwmClient.db(DB_NAME).collection("MaxiPacchetti").find().toArray();
+        res.status(200).json({ offerte: offerte });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function accettaOffertaMaxiPacchetto(res, body) {
+    if (!body.id_offerta || !body.id_acquirente) {
+        res.status(400).json({ error: "Richiesta errata!" });
+        return;
+    }
+
+    const pwmClient = await client.connect();
+    try {
+        //cerca l'offerta con l'id specificato
+        const offerta = await pwmClient.db(DB_NAME).collection("MaxiPacchetti").findOne({ _id: ObjectId.createFromHexString(body.id_offerta) });
+        if (offerta === null) {
+            res.status(404).json({ error: "Offerta non presente" });
+            return;
+        }
+
+        const credits = await pwmClient.db(DB_NAME).collection("Users").findOne({ _id: ObjectId.createFromHexString(body.id_acquirente) }).credits;
+
+        if (credits < offerta.price) {
+            res.status(409).json({ error: "Crediti insufficienti" });
+            return;
+        } else {
+            await pwmClient.db(DB_NAME).collection("Users").updateOne({ _id: ObjectId.createFromHexString(body.id_acquirente) }, { $inc: { credits: -offerta.price } });
+        }
+
+        //elimina l'offerta con l'id specificato
+        await pwmClient.db(DB_NAME).collection("MaxiPacchetti").deleteOne({ _id: ObjectId.createFromHexString(body.id_offerta) });
+        res.status(200).json({ status: "ok", offerta: offerta });
+    } catch (e) {
+        console.error(e);
+        if (e instanceof BSON.BSONError)
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
+        return;
+    } finally {
+        await pwmClient.close();
+    }
+
 }
 /**
  * Effettua il login di un utente.
@@ -790,7 +944,7 @@ app.delete("/users/:id", async (req, res) => {
 app.get("/users", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     email = req.query.email;
-    const users = await getUser(res, email);
+    const users = await getUserId(res, email);
 });
 
 app.get("/users/:id", async (req, res) => {
@@ -825,7 +979,7 @@ app.get("/figurine/:id/:dim/:offset", async (req, res) => {
 app.get("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
     id = req.params.id;
-    await getTotalFigurine(res, id, 5);
+    await getTotalFigurine(res, id);
 });
 
 app.put("/figurine/:id", async (req, res) => {
@@ -847,7 +1001,7 @@ app.put("/figurine/:id", async (req, res) => {
 
 //* Gestione vendita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
-    // #swagger.tags = ['Gestione Figurine']
+    // #swagger.tags = ['Vendita figurine']
     utente = req.params.id_utente;
     figurina = parseInt(req.params.id_figurina);
     code = await vendiFigurina(utente, figurina);
@@ -880,16 +1034,56 @@ app.post("/scambio", async (req, res) => {
     await creaScambio(res, req.body);
 });
 
-app.get("/scambio/:utente", async (req, res) => {
+app.get("/scambio/:id_utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
-    utente = req.params.utente;
+    utente = req.params.id_utente;
     creati = req.query.creati === 'true';
-    await getScambi(res, creati, utente, 5);
+    await getScambi(res, creati, utente);
 });
 
 app.delete("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     await deleteScambio(res, req.body);
+});
+
+// *Gestione offerte maxi pacchetti
+app.post("/maxiPacchetti", async (req, res) => {
+    // #swagger.tags = ['Offerte Maxi Pacchetti']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/creaOffertaSchema"
+                    }
+                }
+            }
+        } 
+    */
+    await creaOffertaMaxiPacchetto(res, req.body);
+});
+
+
+app.get("/maxiPacchetti", async (req, res) => {
+    // #swagger.tags = ['Offerte Maxi Pacchetti']
+    await getOfferteMaxiPacchetti(res);
+});
+
+app.delete("/maxiPacchetti", async (req, res) => {
+    // #swagger.tags = ['Offerte Maxi Pacchetti']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/accettaOffertaSchema"
+                    }
+                }
+            }
+        } 
+    */
+    id = req.params.id;
+    await accettaOffertaMaxiPacchetto(res, req.body);
 });
 
 // *login

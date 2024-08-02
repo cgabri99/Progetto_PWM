@@ -223,6 +223,27 @@
       }
     },
     "/figurine/{id}": {
+      "get": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "put": {
         "tags": [
           "Gestione Figurine"
@@ -253,43 +274,12 @@
             }
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Gestione Figurine"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/postFigurineSchema"
-              }
-            }
-          }
-        }
       }
     },
     "/figurine/{id_utente}/{id_figurina}": {
       "put": {
         "tags": [
-          "Gestione Figurine"
+          "Vendita figurine"
         ],
         "description": "",
         "parameters": [
@@ -317,22 +307,12 @@
         }
       }
     },
-    "/scambio/{id_proprietario}": {
+    "/scambio": {
       "post": {
         "tags": [
           "Scambio Figurine"
         ],
         "description": "",
-        "parameters": [
-          {
-            "name": "id_proprietario",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -348,9 +328,20 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
       }
     },
-    "/scambio/{utente}": {
+    "/scambio/{id_utente}": {
       "get": {
         "tags": [
           "Scambio Figurine"
@@ -358,9 +349,16 @@
         "description": "",
         "parameters": [
           {
-            "name": "utente",
+            "name": "id_utente",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "creati",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -369,6 +367,61 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/maxiPacchetti": {
+      "post": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/creaOffertaSchema"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/accettaOffertaSchema"
+              }
+            }
           }
         }
       }
@@ -435,22 +488,6 @@
           "credits": {
             "type": "number",
             "example": 0
-          },
-          "figurine": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number",
-                  "example": 1
-                },
-                "count": {
-                  "type": "number",
-                  "example": 2
-                }
-              }
-            }
           }
         },
         "required": [
@@ -500,35 +537,15 @@
               "properties": {
                 "id": {
                   "type": "number",
+                  "example": 123456
+                },
+                "name": {
+                  "type": "string",
+                  "example": "figurina1"
+                },
+                "count": {
+                  "type": "number",
                   "example": 1
-                },
-                "count": {
-                  "type": "number",
-                  "example": 2
-                }
-              }
-            }
-          }
-        },
-        "required": [
-          "figurine"
-        ]
-      },
-      "postFigurineSchema": {
-        "type": "object",
-        "properties": {
-          "figurine": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number",
-                  "example": 2
-                },
-                "count": {
-                  "type": "number",
-                  "example": 3
                 }
               }
             }
@@ -541,13 +558,59 @@
       "creazioneScambioSchema": {
         "type": "object",
         "properties": {
+          "venditore": {
+            "type": "string",
+            "example": "id_venditore"
+          },
+          "nome_venditore": {
+            "type": "string",
+            "example": "nome_venditore"
+          },
           "da_scambiare": {
             "type": "number",
-            "example": 123456
+            "example": 1010831
+          },
+          "nome_da_scambiare": {
+            "type": "string",
+            "example": "figurina_da_scambiare"
           },
           "desiderata": {
             "type": "number",
-            "example": 654321
+            "example": 1011200
+          },
+          "nome_desiderata": {
+            "type": "string",
+            "example": "figurina_desiderata"
+          }
+        }
+      },
+      "accettaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "id_offerta": {
+            "type": "string",
+            "example": "id_offerta"
+          },
+          "id_acquirente": {
+            "type": "string",
+            "example": "id_utente"
+          }
+        }
+      },
+      "creaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "string",
+            "example": "6655c92fbfd3008190d30378"
+          },
+          "n_figurine": {
+            "type": "number",
+            "example": 6
+          },
+          "price": {
+            "type": "number",
+            "example": 1
           }
         }
       },
