@@ -433,22 +433,6 @@
           "credits": {
             "type": "number",
             "example": 0
-          },
-          "figurine": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number",
-                  "example": 1
-                },
-                "count": {
-                  "type": "number",
-                  "example": 2
-                }
-              }
-            }
           }
         },
         "required": [

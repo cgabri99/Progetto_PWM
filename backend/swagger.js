@@ -14,11 +14,7 @@ const doc = {
                 hero: "Batman",
                 $email: "gabriele.cucchi@studenti.unimi.it",
                 $psw: "password",
-                $credits: 0,
-                figurine: [{
-                    id: 1,
-                    count: 2
-                }]
+                $credits: 0
             }, updateUserSchema: {
                 name: "Gabriele",
                 surname: "Cucchi",
