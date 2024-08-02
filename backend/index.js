@@ -1,4 +1,3 @@
-
 const express = require('express');
 
 //modulo gestione hash password
@@ -27,10 +26,12 @@ app.use(express.json());
 app.use(cors());
 
 /**
- * Restituisce l'id associato alla mail se presente, 
- * altrimenti email non presente
+ * Restituisce l'id associato alla mail se presente, altrimenti email non presente
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} email - L'email dell'utente da cercare.
 */
-async function getUser(res, email) {
+async function getUserId(res, email) {
     const pwmClient = await client.connect();
 
     // Cerca un utente con l'email e la password specificate
@@ -321,7 +322,7 @@ async function getFigurine(res, id, num, offset) {
         }
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -331,6 +332,13 @@ async function getFigurine(res, id, num, offset) {
     }
 }
 
+/*
+* Restituisce il totale delle figurine possedute dall'utente con l'id specificato
+*
+* @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+* @param {string} id - L'ID dell'utente di cui si vogliono conoscere le figurine possedute.
+* @returns {Promise<void>} - Una promessa che si risolve quando il totale delle figurine dell'utente è stato restituito.
+*/
 async function getTotalFigurine(res, id) {
     const pwmClient = await client.connect();
     try {
@@ -354,7 +362,7 @@ async function getTotalFigurine(res, id) {
         }
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError") {
+        if (e instanceof BSON.BSONError) {
             res.status(404).json({ error: "Id non valido" });
         } else {
             res.status(500).json({ error: "Errore server" });
@@ -386,6 +394,23 @@ async function addFigurine(body, res, id) {
     if (!body.figurine) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
+    }
+    for (var i = 0; i < figurine.length; i++) {
+        if (!figurine[i].id) {
+            res.status(400).json({ error: "Campo id figurina mancante!" });
+            return;
+        }
+        if (!figurine[i].count) {
+            res.status(400).json({ error: "Campo count figurina mancante!" });
+            return;
+        } if (figurine[i].count <= 0) {
+            res.status(400).json({ error: "Campo count non valido!" });
+            return;
+        }
+        if (!figurine[i].name) {
+            res.status(400).json({ error: "Campo name figurina mancante!" });
+            return;
+        }
     }
     // //controllo di validità dell'input
     // for (var figurina in figurine) {
@@ -440,7 +465,7 @@ async function addFigurine(body, res, id) {
         });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -505,12 +530,25 @@ async function vendiFigurina(utente, id_figurina) {
 */
 async function creaScambio(res, body) {
     const pwmClient = await client.connect();
-    if (!body.da_scambiare || !body.desiderata || !body.venditore || !body.nome_da_scambiare || !body.nome_desiderata || !body.nome_venditore) {
-        res.status(400).json({ error: "Richiesta errata!" });
+    if (!body.da_scambiare) {
+        res.status(400).json({ error: "Campo id figurina da scambiare mancante!" });
         return;
-    }
-
-    if (body.da_scambiare === body.desiderata) {
+    } else if (!body.desiderata) {
+        res.status(400).json({ error: "Campo id figurina desiderata mancante!" });
+        return;
+    } else if (!body.venditore) {
+        res.status(400).json({ error: "Campo id venditore mancante!" });
+        return;
+    } else if (!body.nome_da_scambiare) {
+        res.status(400).json({ error: "Campo nome figurina da scambiare mancante!" });
+        return;
+    } else if (!body.nome_desiderata) {
+        res.status(400).json({ error: "Campo nome figurina desiderata mancante!" });
+        return;
+    } else if (!body.nome_venditore) {
+        res.status(400).json({ error: "Campo nome venditore mancante!" });
+        return;
+    } else if (body.da_scambiare === body.desiderata) {
         res.status(400).json({ error: "Non puoi scambiare una carta con se stessa!" });
         return;
     }
@@ -563,7 +601,7 @@ async function creaScambio(res, body) {
         res.status(200).json({ status: "ok", scambio: scambio });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -572,6 +610,14 @@ async function creaScambio(res, body) {
     }
 }
 
+/**
+ * Restituisce la lista degli scambi creati o disponibili per l'utente con l'id specificato.
+ *  
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {boolean} creati - Indica se si vogliono ottenere gli scambi creati o disponibili per l'utente.
+ * @param {string} id - L'ID dell'utente di cui si vogliono ottenere gli scambi.
+ * @returns {Promise<void>} - Una promessa che si risolve quando la lista degli scambi viene restituita.
+ * */
 async function getScambi(res, creati, id) {
     const pwmClient = await client.connect();
     try {
@@ -635,7 +681,7 @@ async function deleteScambio(res, body) {
         res.status(200).json({ status: "ok", scambio_effettuato: scambio });
     } catch (e) {
         console.error(e);
-        if (e.name === "BSONError")
+        if (e instanceof BSON.BSONError)
             res.status(404).json({ error: "Id non valido" });
         else
             res.status(500).json({ error: "Errore server" });
@@ -644,6 +690,16 @@ async function deleteScambio(res, body) {
         await pwmClient.close();
     }
 }
+
+/**
+ * Aggiorna le informazioni degli acquirenti nel database.
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} id_utente - L'ID dell'utente da aggiornare.
+ * @param {Object} scambio - L'oggetto contenente le informazioni relative allo scambio.
+ * @param {boolean} isAcquirente - Descrive se l'utente e' l'acquirente o il venditore.
+ * @returns {Promise<void>} - Una promessa che si risolve quando l'acquirente viene aggiornato nel database.
+ */
 
 async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
     var inUsita = isAcquirente ? scambio.desiderata : scambio.da_scambiare;
@@ -787,7 +843,7 @@ app.delete("/users/:id", async (req, res) => {
 app.get("/users", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
     email = req.query.email;
-    const users = await getUser(res, email);
+    const users = await getUserId(res, email);
 });
 
 app.get("/users/:id", async (req, res) => {
@@ -844,7 +900,7 @@ app.put("/figurine/:id", async (req, res) => {
 
 //* Gestione vendita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
-    // #swagger.tags = ['Gestione Figurine']
+    // #swagger.tags = ['Vendita figurine']
     utente = req.params.id_utente;
     figurina = parseInt(req.params.id_figurina);
     code = await vendiFigurina(utente, figurina);
@@ -877,9 +933,9 @@ app.post("/scambio", async (req, res) => {
     await creaScambio(res, req.body);
 });
 
-app.get("/scambio/:utente", async (req, res) => {
+app.get("/scambio/:id_utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
-    utente = req.params.utente;
+    utente = req.params.id_utente;
     creati = req.query.creati === 'true';
     await getScambi(res, creati, utente);
 });
