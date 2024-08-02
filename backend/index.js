@@ -763,6 +763,48 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
                 });
     }
 }
+
+async function creaOffertaMaxiPacchetto(res, body) {
+    if (!body.n_figurine) {
+        res.status(400).json({ error: "Manca il numero di figurine dell'offerta!" });
+        return;
+    } if (!body.price) {
+        res.status(400).json({ error: "Manca il prezzo dell'offerta!" });
+        return;
+    }
+
+    const pwmClient = await client.connect();
+    try {
+        //creo il bson offerta
+        offerta = {
+            "_id": new ObjectId(),
+            "n_figurine": body.n_figurine,
+            "price": body.price
+        }
+
+        //insert nel database
+        await pwmClient.db(DB_NAME).collection("MaxiPacchetti").insertOne(offerta);
+        res.status(200).json({ status: "ok", offerta: offerta });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
+
+async function getOfferteMaxiPacchetti(res) {
+    const pwmClient = await client.connect();
+    try {
+        var offerte = await pwmClient.db(DB_NAME).collection("MaxiPacchetti").find().toArray();
+        res.status(200).json({ offerte: offerte });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Errore server" });
+    } finally {
+        await pwmClient.close();
+    }
+}
 /**
  * Effettua il login di un utente.
  * @param {Object} body - Il body della richiesta contenente le credenziali dell'utente.
@@ -944,6 +986,40 @@ app.get("/scambio/:id_utente", async (req, res) => {
 app.delete("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     await deleteScambio(res, req.body);
+});
+
+// *Gestione offerte maxi pacchetti
+app.post("/maxiPacchetti", async (req, res) => {
+    // #swagger.tags = ['Offerte Maxi Pacchetti']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/creazioneOffertaSchema"
+                    }
+                }
+            }
+        } 
+    */
+    await creaOffertaMaxiPacchetto(res, req.body);
+});
+
+
+app.get("/maxiPacchetti", async (req, res) => {
+    // #swagger.tags = ['Offerte Maxi Pacchetti']
+    /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/creazioneOffertaSchema"
+                    }
+                }
+            }
+        } 
+    */
+    await getOfferteMaxiPacchetti(res);
 });
 
 // *login
