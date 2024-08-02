@@ -19,6 +19,8 @@ const { count } = require('console');
 const app = express();
 const port = 3000;
 
+const adminID = "6655c92fbfd3008190d30378";
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -765,6 +767,14 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
 }
 
 async function creaOffertaMaxiPacchetto(res, body) {
+    if (!body.admin) {
+        res.status(400).json({ error: "Manca l'id dell'utente!" });
+        return;
+    }
+    if (body.admin !== adminID) {
+        res.status(401).json({ error: "Solo l'admin può creare offerte per maxi pacchetti!" });
+        return;
+    }
     if (!body.n_figurine) {
         res.status(400).json({ error: "Manca il numero di figurine dell'offerta!" });
         return;
