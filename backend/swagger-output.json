@@ -591,7 +591,7 @@
             "type": "string",
             "example": "id_offerta"
           },
-          "id_utente": {
+          "id_acquirente": {
             "type": "string",
             "example": "id_utente"
           }
@@ -602,7 +602,7 @@
         "properties": {
           "admin": {
             "type": "string",
-            "example": "id_admin"
+            "example": "6655c92fbfd3008190d30378"
           },
           "n_figurine": {
             "type": "number",
@@ -610,7 +610,7 @@
           },
           "price": {
             "type": "number",
-            "example": 10
+            "example": 1
           }
         }
       },
