@@ -199,7 +199,10 @@
                             for (let i = 0; i < bottoni.length; i++) {
                                 bottoni[i].classList.remove("disabled");
                             }
-                            getOfferte();
+
+                            window.setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
                         })
                         .catch((e) => console.error(e));
                 });
