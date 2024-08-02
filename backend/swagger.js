@@ -39,6 +39,7 @@ const doc = {
                 id_offerta: "id_offerta",
                 id_utente: "id_utente"
             }, creaOffertaSchema: {
+                "admin": "id_admin",
                 "n_figurine": 6,
                 "price": 10
             }, loginSchema: {

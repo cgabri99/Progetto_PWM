@@ -371,6 +371,61 @@
         }
       }
     },
+    "/maxiPacchetti": {
+      "post": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/creaOffertaSchema"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/accettaOffertaSchema"
+              }
+            }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": [
@@ -526,6 +581,36 @@
           "nome_desiderata": {
             "type": "string",
             "example": "figurina_desiderata"
+          }
+        }
+      },
+      "accettaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "id_offerta": {
+            "type": "string",
+            "example": "id_offerta"
+          },
+          "id_utente": {
+            "type": "string",
+            "example": "id_utente"
+          }
+        }
+      },
+      "creaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "string",
+            "example": "id_admin"
+          },
+          "n_figurine": {
+            "type": "number",
+            "example": 6
+          },
+          "price": {
+            "type": "number",
+            "example": 10
           }
         }
       },
