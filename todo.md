@@ -18,7 +18,7 @@
 - [x] post gestione figurine 
 - [x] put gestione figurine
 - [ ] rimuovere tutte le stampe di debug
-- [ ] dare la possibilità ad admin di creare offerte per bustine **premium**
+- [x] dare la possibilità ad admin di creare offerte per bustine **premium**
 - [ ] paginazione scheda personaggio per serie comics e events
 - [ ] setting dei timer prima dei cambi di finestra (come in album nel caso di vendita figurine)
 - [x] controllo di consistenza durante la vendita di una figurina
