@@ -35,7 +35,12 @@ const doc = {
                 nome_da_scambiare: "figurina_da_scambiare",
                 desiderata: 1011200,
                 nome_desiderata: "figurina_desiderata"
-
+            }, accettaOffertaSchema: {
+                id_offerta: "id_offerta",
+                id_utente: "id_utente"
+            }, creaOffertaSchema: {
+                "n_figurine": 6,
+                "price": 10
             }, loginSchema: {
                 $email: "gabriele.cucchi@studenti.unimi.it",
                 $psw: "password"
