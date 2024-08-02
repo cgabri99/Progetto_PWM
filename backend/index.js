@@ -60,7 +60,7 @@ async function getUserId(res, email) {
  */
 async function updateUser(res, id, body) {
     //controllo che le modifiche presenti nel body siano legittime
-    const modificeAutorizzate = ["name", "surname", "age", "hero", "psw", "credits"];
+    const modificeAutorizzate = ["name", "surname", "age", "hero", "psw"];
     for (const [key, _] of Object.entries(body)) {
         if (modificeAutorizzate.indexOf(key) === -1) {
             res.status(400).json({ "errore": `La chiave ${key} non è accettata` });
@@ -130,6 +130,7 @@ async function getUserById(res, id) {
         res.json({
             nome: user.name,
             cognome: user.surname,
+            email: user.email
         });
     } else {
         res.status(404).json({ error: "Id non presente" });
