@@ -28,20 +28,18 @@ const doc = {
                 credits: 0
             }, putFigurineSchema: {
                 $figurine: [{
-                    id: 1,
-                    count: 2
-                }]
-            }, postFigurineSchema: {
-                $figurine: [{
-                    id: 1,
-                    count: 2
-                }, {
-                    id: 2,
-                    count: 3
+                    id: 123456,
+                    name: "figurina1",
+                    count: 1
                 }]
             }, creazioneScambioSchema: {
-                "da_scambiare": 123456,
-                "desiderata": 654321
+                venditore: "id_venditore",
+                nome_venditore: "nome_venditore",
+                da_scambiare: 1010831,
+                nome_da_scambiare: "figurina_da_scambiare",
+                desiderata: 1011200,
+                nome_desiderata: "figurina_desiderata"
+
             }, loginSchema: {
                 $email: "gabriele.cucchi@studenti.unimi.it",
                 $psw: "password"
