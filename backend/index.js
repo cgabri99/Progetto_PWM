@@ -782,6 +782,14 @@ async function creaOffertaMaxiPacchetto(res, body) {
         res.status(400).json({ error: "Manca il prezzo dell'offerta!" });
         return;
     }
+    if (body.price <= 0 || body.price > 5) {
+        res.status(400).json({ error: "Il prezzo deve essere compreso tra 1 e 5!" });
+        return;
+    }
+    if (body.n_figurine <= 0 || body.n_figurine > 30) {
+        res.status(400).json({ error: "Il numero delle figurine deve essere compreso tra 1 e 30!" });
+        return;
+    }
 
     const pwmClient = await client.connect();
     try {
