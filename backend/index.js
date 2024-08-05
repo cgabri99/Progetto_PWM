@@ -670,9 +670,17 @@ async function deleteScambio(res, body) {
     const pwmClient = await client.connect();
     try {
         //cerca lo scambio con l'id specificato
-        var scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+        const scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
         if (scambio === null) {
             res.status(404).json({ error: "Scambio non presente" });
+            return;
+        }
+
+        const posseduteAcquirente = await pwmClient.db(DB_NAME).collection("Figurine")
+            .find({ proprietario: ObjectId.createFromHexString(body.id_acquirente) }).toArray();
+
+        if (posseduteAcquirente.find(f => f.id === scambio.da_scambiare) !== undefined) {
+            res.status(409).json({ error: "L'acquirente possiede già la figurina messa in scambio!" });
             return;
         }
 
@@ -695,7 +703,7 @@ async function deleteScambio(res, body) {
 }
 
 /**
- * Aggiorna le informazioni degli acquirenti nel database.
+ * Aggiorna le informazioni degli acquirenti nel database a seguito di uno scambio riuscito.
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {string} id_utente - L'ID dell'utente da aggiornare.
