@@ -123,6 +123,7 @@ async function getUserById(res, id) {
             _id: ObjectId.createFromHexString(id)
         });
     } catch (e) {
+        console.error(e);
         res.status(404).json({ error: "Id non presente" });
         return;
     } finally {
@@ -272,6 +273,7 @@ async function getCrediti(res, id) {
             _id: ObjectId.createFromHexString(id)
         });
     } catch (e) {
+        console.error(e);
         res.status(404).json({ error: "Id non presente" });
         return;
     } finally {
