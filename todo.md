@@ -33,5 +33,6 @@
 - [x] Sistemare pagina acquisto bustine
 - [ ] Inserire visualizzazione [caricamenti](https://getbootstrap.com/docs/5.3/components/spinners/) o  [placeolders](https://getbootstrap.com/docs/5.3/components/placeholders/)
 - [x] controllare se il problema di connessione (getScambi) al db é stato risolto correttamente
-- [ ] aggiungere disabled a tutti i pulsanti quando si accetta uno scambio
-- [ ] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
+- [x] aggiungere disabled a tutti i pulsanti quando si accetta uno scambio
+- [x] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
+- [ ] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe

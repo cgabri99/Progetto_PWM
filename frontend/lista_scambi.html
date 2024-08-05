@@ -135,6 +135,10 @@
         }
 
         function accettaScambio(button) {
+            const bottoni = document.getElementsByClassName("btn");
+            for (let i = 0; i < bottoni.length; i++) {
+                bottoni[i].classList.add("disabled");
+            }
             var id_scambio = button.getAttribute('scambio-id');
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
@@ -153,17 +157,30 @@
 
             fetch("http://localhost:3000/scambio", requestOptions)
                 .then((response) => response.text())
+                .then((result) => result = JSON.parse(result))
                 .then((result) => {
                     console.log(result);
-                    document.getElementById('msg').classList.remove('d-none');
+                    if (result.error) {
+                        document.getElementById('msg').classList.remove('d-none', 'alert-success');
+                        document.getElementById('msg').classList.add('alert-danger');
+                        document.getElementById('msg').innerHTML = result.error;
+                        return;
+                    }
+                    document.getElementById('msg').classList.remove('d-none', 'alert-danger');
+                    document.getElementById('msg').classList.add('alert-success');
                     document.getElementById('msg').innerHTML = 'Scambio accettato con successo!';
-                    // todo: disabilitare non solo questo, ma tutti i pulsanti di accettazione
-                    button.classList.add('diasbled');
                     window.setTimeout(() => {
                         window.location.reload();
                     }, 3000);
+
                 })
-                .catch((error) => console.error(error));
+                .catch((error) => {
+                    console.error(error);
+                }).finally(() => {
+                    for (let i = 0; i < bottoni.length; i++) {
+                        bottoni[i].classList.remove("disabled");
+                    }
+                });
         }
     </script>
 </body>
