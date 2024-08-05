@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna();" class="gradient-custom">
+<body onload="aggiorna(); clonePlaceholder(29);" class="gradient-custom">
     <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand">Home portale scambio figurine</a>
@@ -141,7 +141,6 @@
                     .catch((error) => console.error(error));
 
                 aggiornaPagina(0);
-                clonePlaceholder(29);
             }
 
         }

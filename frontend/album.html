@@ -17,22 +17,6 @@
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
 
         <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-4 mt-2 mx-1">
-            <div id="placeholder" class="col d-none" aria-hidden="true">
-                <div class="card">
-                    <div style="width:100%;height: 20vw;; padding-top:50%;position:relative;">
-                        <img src="" style="position:absolute; top:0; left:0; width:100%;">
-                    </div>
-                    <div class="card-body">
-                        <h3 class="card-title placeholder-glow">
-                            <span class="placeholder col-8"></span>
-                        </h3>
-                    </div>
-                    <div class="card-footer text-center">
-                        <a class="btn btn-primary disabled placeholder col-10" aria-disabled="true"></a>
-                    </div>
-                </div>
-            </div>
-
             <div id="heroCard" class="col d-none">
                 <div class="card h-100">
                     <img src="" class="card-img-top" alt="...">
@@ -50,6 +34,21 @@
                                 href="#"></a>
                         </div>
 
+                    </div>
+                </div>
+            </div>
+            <div id="placeholder" class="col d-none" aria-hidden="true">
+                <div class="card">
+                    <div style="width:100%;height: 20vw;; padding-top:50%;position:relative;">
+                        <img src="" style="position:absolute; top:0; left:0; width:100%;">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title placeholder-glow">
+                            <span class="placeholder col-8"></span>
+                        </h3>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a class="btn btn-primary disabled placeholder col-10" aria-disabled="true"></a>
                     </div>
                 </div>
             </div>
@@ -129,7 +128,6 @@
             console.log(dati);
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
-            // container.innerHTML = "";
 
             for (i = 0; i < dati.length; i++) {
                 await getFromMarvel(`public/characters/${dati[i].id}`, "")
@@ -148,8 +146,7 @@
                         title.innerHTML = response.data.results[0].name;
                         count.innerHTML = `Copie: ${heroData.count}`;
                         clone.classList.remove('d-none');
-                        container.append(clone);
-                        document.getElementById('container').removeChild(document.getElementById('placeholder_' + i));
+                        container.replaceChild(clone, document.getElementById('placeholder_' + i));
                     });
             }
         }
