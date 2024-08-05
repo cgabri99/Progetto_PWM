@@ -4,7 +4,7 @@ const express = require('express');
 const crypto = require('crypto');
 
 //moduli gestione MongoDB
-const { MongoClient, ObjectId, BSON, MongoTopologyClosedError } = require('mongodb');
+const { MongoClient, ObjectId, BSON } = require('mongodb');
 const DB_NAME = "PWM";
 const uri = "mongodb+srv://cgabri:yaud2eer@cluster0.osp8vca.mongodb.net/";
 const client = new MongoClient(uri);
@@ -14,7 +14,7 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
-const { count } = require('console');
+// const { count } = require('console');
 
 const app = express();
 const port = 3000;
@@ -63,7 +63,7 @@ async function getUserId(res, email) {
 async function updateUser(res, id, body) {
     //controllo che le modifiche presenti nel body siano legittime
     const modificeAutorizzate = ["name", "surname", "age", "hero", "psw"];
-    for (const [key, _] of Object.entries(body)) {
+    for (const [key] of Object.entries(body)) {
         if (modificeAutorizzate.indexOf(key) === -1) {
             res.status(400).json({ "errore": `La chiave ${key} non è accettata` });
             return;
@@ -97,6 +97,7 @@ async function updateUser(res, id, body) {
         await pwmClient.db(DB_NAME).collection("Users")
             .updateOne(myQuery, newValues);
     } catch (e) {
+        console.error(e);
         res.status(404).json({ error: "Id non presente" });
         return;
     } finally {
@@ -241,6 +242,7 @@ async function addCrediti(res, crediti, id) {
         await pwmClient.db(DB_NAME).collection("Users")
             .updateOne({ _id: ObjectId.createFromHexString(id) }, { $set: { "credits": crediti } });
     } catch (e) {
+        console.error(e);
         res.status(404).json({ error: "Id non presente" });
         return;
     } finally {
@@ -299,12 +301,12 @@ async function getFigurine(res, id, num, offset) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
-        figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
+        const figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
         }).sort({ name: 1 }).toArray();
 
         if (num !== undefined && offset !== undefined) {
-            pagina = figurine.slice(offset, offset + num);
+            var pagina = figurine.slice(offset, offset + num);
         }
 
         if (figurine) {
@@ -346,7 +348,7 @@ async function getTotalFigurine(res, id) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
-        figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
+        const figurine = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
         }).sort({ name: 1 }).toArray();
 
@@ -398,7 +400,7 @@ async function addFigurine(body, res, id) {
         res.status(400).json({ error: "Campo figurine della richiesta mancante!" });
         return;
     }
-    for (var i = 0; i < figurine.length; i++) {
+    for (let i = 0; i < figurine.length; i++) {
         if (!figurine[i].id) {
             res.status(400).json({ error: "Campo id figurina mancante!" });
             return;
@@ -430,7 +432,7 @@ async function addFigurine(body, res, id) {
         }).sort({ name: 1 }).toArray();
 
         //aggiorno la lista delle figurine possedute
-        for (var i = 0; i < figurine.length; i++) {
+        for (let i = 0; i < figurine.length; i++) {
             var figurina = figurine[i];
             if (possedute.find(f => f.id === figurina.id) === undefined) {
                 await pwmClient.db(DB_NAME).collection("Figurine")
@@ -492,7 +494,7 @@ async function vendiFigurina(utente, id_figurina) {
             proprietario: ObjectId.createFromHexString(utente)
         }).toArray();
 
-        daVendere = possedute.find(f => f.id === id_figurina);
+        var daVendere = possedute.find(f => f.id === id_figurina);
 
         if (daVendere === undefined) {
             return 404;
@@ -518,6 +520,7 @@ async function vendiFigurina(utente, id_figurina) {
             return 200;
         }
     } catch (e) {
+        console.error(e);
         return 500;
     } finally {
         await pwmClient.close();
@@ -557,7 +560,7 @@ async function creaScambio(res, body) {
     }
 
     try {
-        found = await pwmClient.db(DB_NAME).collection("Figurine")
+        const found = await pwmClient.db(DB_NAME).collection("Figurine")
             .findOne(
                 {
                     id: body.da_scambiare,
@@ -586,7 +589,7 @@ async function creaScambio(res, body) {
                 });
 
         //creo il bson scambio
-        scambio = {
+        const scambio = {
             "_id": new ObjectId(),
             //la stringa contenente l'id dell'utente proprietario
             "venditore": ObjectId.createFromHexString(body.venditore),
@@ -802,7 +805,7 @@ async function creaOffertaMaxiPacchetto(res, body) {
     const pwmClient = await client.connect();
     try {
         //creo il bson offerta
-        offerta = {
+        var offerta = {
             "_id": new ObjectId(),
             "n_figurine": body.n_figurine,
             "price": body.price
@@ -938,55 +941,55 @@ app.put("/users/:id", async (req, res) => {
             }
         } 
     */
-    id = req.params.id;
-    body = req.body;
+    var id = req.params.id;
+    var body = req.body;
     await updateUser(res, id, body);
 });
 
 app.delete("/users/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
-    id = req.params.id;
+    var id = req.params.id;
     await deleteUser(res, id);
 });
 
 app.get("/users", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
-    email = req.query.email;
-    const users = await getUserId(res, email);
+    var email = req.query.email;
+    await getUserId(res, email);
 });
 
 app.get("/users/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Utenti']
-    id = req.params.id;
-    const users = await getUserById(res, id);
+    var id = req.params.id;
+    await getUserById(res, id);
 });
 
 // *Gestione crediti
 app.put("/credits/:id/:qty", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
-    id = req.params.id;
-    crediti = parseInt(req.params.qty);
+    var id = req.params.id;
+    var crediti = parseInt(req.params.qty);
     await addCrediti(res, crediti, id);
 });
 
 app.get("/credits/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Crediti Utente']
-    id = req.params.id;
+    var id = req.params.id;
     await getCrediti(res, id);
 });
 
 // *Gestione figurine
 app.get("/figurine/:id/:dim/:offset", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
-    id = req.params.id;
-    dim = parseInt(req.params.dim);
-    offset = parseInt(req.params.offset);
+    var id = req.params.id;
+    var dim = parseInt(req.params.dim);
+    var offset = parseInt(req.params.offset);
     await getFigurine(res, id, dim, offset);
 });
 
 app.get("/figurine/:id", async (req, res) => {
     // #swagger.tags = ['Gestione Figurine']
-    id = req.params.id;
+    var id = req.params.id;
     await getTotalFigurine(res, id);
 });
 
@@ -1003,16 +1006,16 @@ app.put("/figurine/:id", async (req, res) => {
             }
         } 
     */
-    id = req.params.id;
+    var id = req.params.id;
     await addFigurine(req.body, res, id);
 });
 
 //* Gestione vendita figurine
 app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     // #swagger.tags = ['Vendita figurine']
-    utente = req.params.id_utente;
-    figurina = parseInt(req.params.id_figurina);
-    code = await vendiFigurina(utente, figurina);
+    var utente = req.params.id_utente;
+    var figurina = parseInt(req.params.id_figurina);
+    var code = await vendiFigurina(utente, figurina);
     if (code == 404) {
         res.status(code).json({ error: "Id utente o figurina non presente" });
     } else if (code == 409) {
@@ -1044,8 +1047,8 @@ app.post("/scambio", async (req, res) => {
 
 app.get("/scambio/:id_utente", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
-    utente = req.params.id_utente;
-    creati = req.query.creati === 'true';
+    var utente = req.params.id_utente;
+    var creati = req.query.creati === 'true';
     await getScambi(res, creati, utente);
 });
 
@@ -1090,7 +1093,6 @@ app.delete("/maxiPacchetti", async (req, res) => {
             }
         } 
     */
-    id = req.params.id;
     await accettaOffertaMaxiPacchetto(res, req.body);
 });
 

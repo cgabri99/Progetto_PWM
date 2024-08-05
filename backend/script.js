@@ -1,13 +1,15 @@
 const n_heroes = 1564;
+// eslint-disable-next-line no-unused-vars
 const dim_pagina = 30;
 
+// eslint-disable-next-line no-unused-vars
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
 }
 
 function getLocalStorage(item) {
     if (item === 'logged') {
-        string_item = localStorage.getItem(item);
+        var string_item = localStorage.getItem(item);
         return string_item === 'true';
     }
     else {
@@ -33,6 +35,7 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// eslint-disable-next-line no-unused-vars
 function acquistaPacchetto(dim) {
     return new Promise((resolve, reject) => {
         var figurine = [];
@@ -40,8 +43,8 @@ function acquistaPacchetto(dim) {
             var offset = getRandomInt(0, n_heroes - 1);
             getFromMarvel("public/characters", `limit=1&offset=${offset}`)
                 .then(data => {
-                    hero = data.data.results[0];
-                    dati_hero = {
+                    var hero = data.data.results[0];
+                    var dati_hero = {
                         id: hero.id,
                         name: hero.name,
                         count: 1
@@ -56,6 +59,7 @@ function acquistaPacchetto(dim) {
     });
 }
 
+// eslint-disable-next-line no-unused-vars
 function checkLoggedInUser() {
     if (!getLocalStorage("logged")) {
         const err = document.getElementById('error');
