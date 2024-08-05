@@ -35,4 +35,4 @@
 - [x] controllare se il problema di connessione (getScambi) al db é stato risolto correttamente
 - [x] aggiungere disabled a tutti i pulsanti quando si accetta uno scambio
 - [x] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
-- [ ] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe
+- [x] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe

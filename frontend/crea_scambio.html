@@ -39,7 +39,7 @@
                                     <input id="nomeSupereroe" class="input-group-text" type="text"
                                         placeholder="Nome supereroe"></input>
                                     <button class="btn btn-outline-secondary" type="button" id="buttonCerca"
-                                        onclick="getListaDaRicevere()">Cerca</button>
+                                        onclick="getListaDaRicevere(this)">Cerca</button>
                                 </div>
                                 <button type="button" class="btn btn-lg btn-primary" onclick="creaScambio()">Crea
                                     scambio</button>
@@ -101,9 +101,11 @@
             fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
                 .then((response) => response.text())
                 .then((result) => {
-                    result = JSON.parse(result);
-                    console.log(result);
-                    result.figurine.forEach((figurina) => {
+                    result = JSON.parse(result).figurine;
+                })
+                .then((figurine) => {
+                    console.log(figurine);
+                    figurine.forEach((figurina) => {
                         if (figurina.disponibili > 0) {
                             var option = document.createElement('option');
                             option.value = figurina.id;
@@ -115,7 +117,8 @@
                 .catch((error) => console.error(error));
         }
 
-        function getListaDaRicevere() {
+        function getListaDaRicevere(btn) {
+
             var nome = document.getElementById('nomeSupereroe');
             if (!nome.value) {
                 nome.classList.add('border-danger');
@@ -123,6 +126,9 @@
             } else {
                 nome.classList.remove('border-danger');
             }
+            btn.innerHTML = `<span id="caricamento"><span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+            <span role="status">Caricamento...</span></span>`;
+            btn.classList.add('disabled');
             var listaDaRicevere = document.getElementById('selectDaRicevere');
             listaDaRicevere.innerHTML = "<option selected>Choose...</option>";
 
@@ -130,12 +136,20 @@
                 .then((result) => {
                     console.log(result);
                     data = result.data.results;
-                    data.forEach((supereroe) => {
-                        var option = document.createElement('option');
-                        option.value = supereroe.id;
-                        option.innerHTML = supereroe.name;
-                        listaDaRicevere.appendChild(option);
-                    });
+                    if (data.length === 0) {
+                        document.getElementById('error').classList.remove('d-none');
+                        document.getElementById('error').innerHTML = 'Nessun supereroe trovato';
+                    } else {
+                        document.getElementById('error').classList.add('d-none');
+                        data.forEach((supereroe) => {
+                            var option = document.createElement('option');
+                            option.value = supereroe.id;
+                            option.innerHTML = supereroe.name;
+                            listaDaRicevere.appendChild(option);
+                        });
+                    }
+                    btn.innerHTML = 'Cerca';
+                    btn.classList.remove('disabled');
                 })
         }
 
