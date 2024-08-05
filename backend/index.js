@@ -71,15 +71,15 @@ async function updateUser(res, id, body) {
     }
 
     // Controlla se i campi soddisfano i requisiti di lunghezza
-    if (user.name.length < 3) {
+    if (body.name && body.name.length < 3) {
         res.status(400).json({ error: "Nome troppo corto" });
         return;
     }
-    if (user.surname.length < 3) {
+    if (body.surname && body.surname.length < 3) {
         res.status(400).json({ error: "Cognome troppo corto" });
         return;
     }
-    if (user.psw.length < 8) {
+    if (body.psw && body.psw.length < 8) {
         res.status(400).json({ error: "Password troppo corta" });
         return;
     }
