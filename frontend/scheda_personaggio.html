@@ -12,11 +12,36 @@
 </head>
 
 <body onload="aggiorna();" class="gradient-custom">
-    <div class="container">
+    <div id="container" class="container">
         <button class="btn btn-primary m-3" type="button" onclick=" window.history.back();">Indietro</button>
         <h1 class="text-center my-2">Descrizione personaggio</h1>
 
-        <div id="heroCard" class="card m-3">
+        <div id="placeholder" class="card m-3">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <div style="width:100%;height: 360px;">
+                        <img class="rounded-start" src="">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="placeholder col-6"></span>
+                        </h5>
+                        <p class="card-text">
+                        <p class="card-text placeholder-glow">
+                            <span class="placeholder col-7"></span>
+                            <span class="placeholder col-4"></span>
+                            <span class="placeholder col-4"></span>
+                            <span class="placeholder col-6"></span>
+                            <span class="placeholder col-8"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="heroCard" class="card d-none m-3">
             <div class="row g-0">
                 <div class="col-md-4">
                     <img class="img-fluid rounded-start" alt="...">
@@ -146,6 +171,7 @@
         function popolaScehda(dati) {
             console.log(dati);
             heroCard = document.getElementById('heroCard');
+            heroCard.classList.remove('d-none');
 
             hero = dati[0];
 
@@ -156,6 +182,7 @@
             title.innerHTML = hero.name;
             image.src = hero.thumbnail.path + "." + hero.thumbnail.extension;
             description.innerHTML = hero.description;
+            document.getElementById('container').replaceChild(heroCard, document.getElementById('placeholder'));
 
             // richiestaMarvel(hero.comics.collectionURI, 'comicCard', 'containerComics', 'titleComics');
 
