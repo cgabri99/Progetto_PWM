@@ -17,6 +17,22 @@
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
 
         <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-4 mt-2 mx-1">
+            <div id="placeholder" class="col d-none" aria-hidden="true">
+                <div class="card">
+                    <div style="width:100%;height: 20vw;; padding-top:50%;position:relative;">
+                        <img src="" style="position:absolute; top:0; left:0; width:100%;">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title placeholder-glow">
+                            <span class="placeholder col-8"></span>
+                        </h3>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a class="btn btn-primary disabled placeholder col-10" aria-disabled="true"></a>
+                    </div>
+                </div>
+            </div>
+
             <div id="heroCard" class="col d-none">
                 <div class="card h-100">
                     <img src="" class="card-img-top" alt="...">
@@ -24,7 +40,7 @@
                         <h5 class="card-title"></h5>
                     </div>
                     <div class="card-footer text-center">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+                        <div class="btn-group btn-group-sm" role="group">
                             <a href="scheda_personaggio.html"
                                 class="btn btn-primary d-flex align-items-center">Dettagli</a>
                             <!-- Button trigger modal -->
@@ -34,25 +50,23 @@
                                 href="#"></a>
                         </div>
 
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div id="msg" class="modal-body">
-                                        Puoi vendere le carte in cambio di crediti,
-                                        ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
-                                        credito al tuo saldo
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Annulla</button>
-                                        <button id="buttonVendi" type="button" class="btn btn-info"
-                                            onclick="vendi(this);">Conferma
-                                            vendita</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div id="msg" class="modal-body">
+                        Puoi vendere le carte in cambio di crediti,
+                        ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
+                        credito al tuo saldo
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button id="buttonVendi" type="button" class="btn btn-info" onclick="vendi(this);">Conferma
+                            vendita</button>
                     </div>
                 </div>
             </div>
@@ -84,8 +98,8 @@
                 var offeset = dim_pagina * actual_page;
                 fetch(`http://localhost:3000/figurine/${id}/${dim_pagina}/${offeset}`, requestOptions)
                     .then((response) => response.text())
+                    .then((result) => result = JSON.parse(result))
                     .then((result) => {
-                        result = JSON.parse(result);
                         if (total_possedute === undefined) {
                             total_possedute = result.total;
                             max_npagina = Math.floor(total_possedute / dim_pagina);
@@ -93,9 +107,21 @@
                                 next.classList.remove('disabled');
                             }
                         }
+                        clonaPlaceholder(result.figurine.length);
                         mostraFigurine(result.figurine);
                     })
                     .catch((error) => console.error(error));
+            }
+        }
+
+        function clonaPlaceholder(n) {
+            placeholder = document.getElementById('placeholder');
+            container = document.getElementById('container');
+            for (i = 0; i < n; i++) {
+                clone = placeholder.cloneNode(true);
+                clone.id = 'placeholder_' + i;
+                clone.classList.remove('d-none');
+                container.append(clone);
             }
         }
 
@@ -103,7 +129,7 @@
             console.log(dati);
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
-            container.innerHTML = "";
+            // container.innerHTML = "";
 
             for (i = 0; i < dati.length; i++) {
                 await getFromMarvel(`public/characters/${dati[i].id}`, "")
@@ -123,6 +149,7 @@
                         count.innerHTML = `Copie: ${heroData.count}`;
                         clone.classList.remove('d-none');
                         container.append(clone);
+                        document.getElementById('container').removeChild(document.getElementById('placeholder_' + i));
                     });
             }
         }
