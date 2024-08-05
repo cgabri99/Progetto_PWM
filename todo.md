@@ -38,5 +38,5 @@
 - [x] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe
 - [ ] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
 - [ ] aggiornare readme
-- [ ] placeolder scheda personaggio
+- [x] placeolder scheda personaggio
 - [ ] inserire btn group in modifica dati

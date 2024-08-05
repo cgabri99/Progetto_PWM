@@ -15,77 +15,79 @@
     <div class="container">
         <a class="btn btn-primary m-3" type="button" href="home.html">Home</a>
         <h1 class="text-center mt-2"> Lista delle figurine possedute</h1>
-
         <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-4 mt-2 mx-1">
-            <div id="heroCard" class="col d-none">
-                <div class="card h-100">
-                    <img src="" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title"></h5>
-                    </div>
-                    <div class="card-footer text-center">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a href="scheda_personaggio.html"
-                                class="btn btn-primary d-flex align-items-center">Dettagli</a>
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal" onclick="recuperaID(this)">Vendi</button>
-                            <a id="count" class="btn btn-outline-light d-flex align-items-center" type="button"
-                                href="#"></a>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div id="placeholder" class="col d-none" aria-hidden="true">
-                <div class="card">
-                    <div style="width:100%;height: 20vw;; padding-top:50%;position:relative;">
-                        <img src="">
-                    </div>
-                    <div class="card-body">
-                        <h3 class="card-title placeholder-glow">
-                            <span class="placeholder col-8"></span>
-                        </h3>
-                    </div>
-                    <div class="card-footer text-center">
-                        <a class="btn btn-primary disabled placeholder col-10" aria-disabled="true"></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div id="msg" class="modal-body">
-                        Puoi vendere le carte in cambio di crediti,
-                        ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
-                        credito al tuo saldo
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                        <button id="buttonVendi" type="button" class="btn btn-info" onclick="vendi(this);">Conferma
-                            vendita</button>
-                    </div>
-                </div>
-            </div>
         </div>
         <nav>
             <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
                 <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
-                        onclick="paginazione(-1)">Precedente</a></li>
+                        onclick="paginazione(-1)">Precedente</a>
+                </li>
                 <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
                         onclick="paginazione(1)">Succesiva</a>
                 </li>
             </ul>
         </nav>
+        <div id="heroCard" class="col d-none">
+            <div class="card h-100">
+                <img src="" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title"></h5>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="scheda_personaggio.html" class="btn btn-primary d-flex align-items-center">Dettagli</a>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            onclick="recuperaID(this)">Vendi</button>
+                        <a id="count" class="btn btn-outline-light d-flex align-items-center" type="button"
+                            href="#"></a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div id="placeholder" class="col d-none" aria-hidden="true">
+            <div class="card">
+                <div style="width:100%;height: 20vw;; padding-top:50%;position:relative;">
+                    <img src="" style="position:absolute; top:0; left:0; width:100%;">
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title placeholder-glow">
+                        <span class="placeholder col-8"></span>
+                    </h3>
+                </div>
+                <div class="card-footer text-center">
+                    <a class="btn btn-primary disabled placeholder col-10" aria-disabled="true"></a>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="msg" class="modal-body">
+                    Puoi vendere le carte in cambio di crediti,
+                    ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
+                    credito al tuo saldo
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button id="buttonVendi" type="button" class="btn btn-info" onclick="vendi(this);">Conferma
+                        vendita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         prev = document.getElementById('paginationPrev');
         next = document.getElementById('paginationNext');
         var actual_page = 0;
         var max_npagina = 0;
         var total_possedute = undefined;
+        var prevEnabled = false;
+        var nextEnabled = false;
         function popolaAlbum() {
             var is_logged = getLocalStorage("logged");
             if (is_logged) {
@@ -106,6 +108,7 @@
                                 next.classList.remove('disabled');
                             }
                         }
+                        document.getElementById('container').innerHTML = "";
                         clonaPlaceholder(result.figurine.length);
                         mostraFigurine(result.figurine);
                     })
@@ -130,40 +133,53 @@
             container = document.getElementById('container');
 
             for (i = 0; i < dati.length; i++) {
-                await getFromMarvel(`public/characters/${dati[i].id}`, "")
-                    .then((response) => {
-                        console.log(response);
-                        heroData = dati[i];
-                        clone = heroCard.cloneNode(true);
-                        clone.id = 'heroClone_' + heroData.id;
-                        title = clone.getElementsByClassName('card-title')[0];
-                        image = clone.getElementsByClassName('card-img-top')[0];
-                        button = clone.getElementsByClassName('btn-primary')[0];
-                        count = clone.getElementsByClassName('btn-outline-light')[0];
-                        image.src = response.data.results[0].thumbnail.path + "." + response.data.results[0].thumbnail.extension;
+                try {
+                    var response = await getFromMarvel(`public/characters/${dati[i].id}`, "");
 
-                        button.href += `?URI=public/characters/${heroData.id}`;
-                        title.innerHTML = response.data.results[0].name;
-                        count.innerHTML = `Copie: ${heroData.count}`;
-                        clone.classList.remove('d-none');
-                        container.replaceChild(clone, document.getElementById('placeholder_' + i));
-                    });
+                    console.log(response);
+                    heroData = dati[i];
+                    clone = heroCard.cloneNode(true);
+                    clone.id = 'heroClone_' + heroData.id;
+                    title = clone.getElementsByClassName('card-title')[0];
+                    image = clone.getElementsByClassName('card-img-top')[0];
+                    button = clone.getElementsByClassName('btn-primary')[0];
+                    count = clone.getElementsByClassName('btn-outline-light')[0];
+                    image.src = response.data.results[0].thumbnail.path + "." + response.data.results[0].thumbnail.extension;
+
+                    button.href += `?URI=public/characters/${heroData.id}`;
+                    title.innerHTML = response.data.results[0].name;
+                    count.innerHTML = `Copie: ${heroData.count}`;
+                    clone.classList.remove('d-none');
+                    container.replaceChild(clone, document.getElementById('placeholder_' + i));
+                    if (i === dati.length - 1) {
+                        if (prevEnabled) {
+                            prev.classList.remove('disabled');
+                        } else {
+                            prev.classList.add('disabled');
+                        }
+
+                        if (nextEnabled) {
+                            next.classList.remove('disabled');
+                        } else {
+                            next.classList.add('disabled');
+                        }
+                    }
+                } catch (error) {
+                    onsole.error(error);
+                }
             }
         }
 
         function paginazione(offeset) {
             actual_page += offeset;
 
-            prev.classList.remove('disabled');
-            next.classList.remove('disabled');
-
             if (actual_page <= 0) {
                 actual_page = 0;
-                prev.classList.add('disabled');
+                prevEnabled = false;
             }
             if (actual_page >= max_npagina) {
                 actual_page = max_npagina;
-                next.classList.add('disabled');
+                prevEnabled = true;
             }
             popolaAlbum();
         }
