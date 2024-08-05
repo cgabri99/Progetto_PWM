@@ -37,3 +37,4 @@
 - [x] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
 - [x] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe
 - [ ] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
+- [ ] aggiornare readme
