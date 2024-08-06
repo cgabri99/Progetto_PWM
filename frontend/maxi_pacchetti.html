@@ -53,7 +53,7 @@
                                     figurine. Un <strong>maxi pacchetto</strong> può contenere da 6 a 30 figurine, e
                                     il suo prezzo può andare da 1 a 5 crediti
                                 </p>
-                                <table id="offerte" class="table">
+                                <table id="offerte" class="table d-none">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
@@ -122,10 +122,10 @@
             const offerte = await JSON.parse(response).offerte;
             console.log(offerte);
             if (offerte.length === 0) {
-                document.getElementById("offerte").classList.add("d-none");
                 document.getElementById("user").innerHTML += "<h4>Non ci sono offerte disponibili al momento</h4>";
                 return;
             } else {
+                document.getElementById("offerte").classList.remove("d-none");
                 offerte.forEach((offerta, index) => {
                     const offerteBody = document.getElementById("offerteBody");
                     const offerteRow = document.getElementById("offerteRow").cloneNode(true);
