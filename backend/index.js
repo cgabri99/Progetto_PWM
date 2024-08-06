@@ -126,7 +126,10 @@ async function getUserById(res, id) {
         user = await pwmClient.db(DB_NAME).collection("Users").findOne({
             _id: ObjectId.createFromHexString(id)
         });
-
+        if (user === null) {
+            res.status(404).json({ error: "Id non presente" });
+            return;
+        }
         res.json({
             nome: user.name,
             cognome: user.surname,
