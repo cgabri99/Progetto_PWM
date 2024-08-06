@@ -2,7 +2,7 @@
 Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consist in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
 
 ## Diagramma
-![diagramma](images/diagramma%20progetto.excalidraw.png)
+![diagramma](images/diagramma%20progetto.excalidraw.png )
 
 ## Schema database
 ![schema database](images/schemaDatabase.png)
