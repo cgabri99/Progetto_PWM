@@ -61,8 +61,8 @@
     </div>
 
     <script>
+        var msg = document.getElementById('msg');
         function riempi_msg() {
-            msg = document.getElementById('msg');
 
             if (!getLocalStorage("logged")) {
                 msg.innerHTML = 'Utente non loggato! <a href="login.html">login</a>';
@@ -95,10 +95,12 @@
                     //logout
                     setLocalStorage("logged", false);
                     setLocalStorage("id_utente", null);
+                    msg.innerHTML = 'Account eliminato con successo!';
                     //torno alla home
-                    window.location.replace(
-                        "home.html"
-                    );
+                    window.setTimeout(() => {
+
+                        window.location.href = "home.html";
+                    }, 2000);
 
                 })
                 .catch((error) => console.error(error));
