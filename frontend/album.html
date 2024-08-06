@@ -19,11 +19,11 @@
         </div>
         <nav>
             <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
-                <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
-                        onclick="paginazione(-1)">Precedente</a>
+                <li id="paginationPrev" class="page-item disabled"><a class="page-link" href="#"
+                        onclick="controller.abort();paginazione(-1);">Precedente</a>
                 </li>
                 <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
-                        onclick="paginazione(1)">Succesiva</a>
+                        onclick="controller.abort(); paginazione(1);">Succesiva</a>
                 </li>
             </ul>
         </nav>
@@ -81,6 +81,7 @@
     </div>
 
     <script>
+        // Variabili globali paginazione    
         prev = document.getElementById('paginationPrev');
         next = document.getElementById('paginationNext');
         var actual_page = 0;
@@ -88,6 +89,13 @@
         var total_possedute = undefined;
         var prevEnabled = false;
         var nextEnabled = false;
+
+        // Create an AbortController instance
+        const controller = new AbortController();
+
+        // Obtain a reference to the AbortSignal
+        const signal = controller.signal;
+
         function popolaAlbum() {
             var is_logged = getLocalStorage("logged");
             if (is_logged) {
@@ -117,10 +125,10 @@
         }
 
         function clonaPlaceholder(n) {
-            placeholder = document.getElementById('placeholder');
-            container = document.getElementById('container');
+            var placeholder = document.getElementById('placeholder');
+            var container = document.getElementById('container');
             for (i = 0; i < n; i++) {
-                clone = placeholder.cloneNode(true);
+                var clone = placeholder.cloneNode(true);
                 clone.id = 'placeholder_' + i;
                 clone.classList.remove('d-none');
                 container.append(clone);
@@ -132,42 +140,44 @@
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
 
-            for (i = 0; i < dati.length; i++) {
-                try {
-                    var response = await getFromMarvel(`public/characters/${dati[i].id}`, "");
-
-                    console.log(response);
-                    heroData = dati[i];
-                    clone = heroCard.cloneNode(true);
-                    clone.id = 'heroClone_' + heroData.id;
-                    title = clone.getElementsByClassName('card-title')[0];
-                    image = clone.getElementsByClassName('card-img-top')[0];
-                    button = clone.getElementsByClassName('btn-primary')[0];
-                    count = clone.getElementsByClassName('btn-outline-light')[0];
-                    image.src = response.data.results[0].thumbnail.path + "." + response.data.results[0].thumbnail.extension;
-
-                    button.href += `?URI=public/characters/${heroData.id}`;
-                    title.innerHTML = response.data.results[0].name;
-                    count.innerHTML = `Copie: ${heroData.count}`;
-                    clone.classList.remove('d-none');
-                    container.replaceChild(clone, document.getElementById('placeholder_' + i));
-                    if (i === dati.length - 1) {
-                        if (prevEnabled) {
-                            prev.classList.remove('disabled');
-                        } else {
-                            prev.classList.add('disabled');
-                        }
-
-                        if (nextEnabled) {
-                            next.classList.remove('disabled');
-                        } else {
-                            next.classList.add('disabled');
-                        }
-                    }
-                } catch (error) {
-                    onsole.error(error);
-                }
+            var urls = [];
+            for (var i = 0; i < dati.length; i++) {
+                urls.push(`public/characters/${dati[i].id}`);
             }
+
+            var responses = await getMultipleMarvel(urls, "");
+            console.log(responses);
+            for (var i = 0; i < responses.length; i++) {
+                var response = responses[i];
+                var heroData = dati[i];
+                var placeholder = document.getElementById('placeholder_' + i);
+                var clone = heroCard.cloneNode(true);
+                clone.id = 'heroClone_' + heroData.id;
+                var title = clone.getElementsByClassName('card-title')[0];
+                var image = clone.getElementsByClassName('card-img-top')[0];
+                var button = clone.getElementsByClassName('btn-primary')[0];
+                var count = clone.getElementsByClassName('btn-outline-light')[0];
+                image.src = response.data.results[0].thumbnail.path + "." + response.data.results[0].thumbnail.extension;
+
+                button.href += `?URI=public/characters/${heroData.id}`;
+                title.innerHTML = response.data.results[0].name;
+                count.innerHTML = `Copie: ${heroData.count}`;
+                clone.classList.remove('d-none');
+                container.replaceChild(clone, placeholder);
+            }
+
+            if (prevEnabled) {
+                prev.classList.remove('disabled');
+            } else {
+                prev.classList.add('disabled');
+            }
+
+            if (nextEnabled) {
+                next.classList.remove('disabled');
+            } else {
+                next.classList.add('disabled');
+            }
+
         }
 
         function paginazione(offeset) {
@@ -176,10 +186,14 @@
             if (actual_page <= 0) {
                 actual_page = 0;
                 prevEnabled = false;
+            } else {
+                prevEnabled = true;
             }
             if (actual_page >= max_npagina) {
                 actual_page = max_npagina;
-                prevEnabled = true;
+                nextEnabled = false;
+            } else {
+                nextEnabled = true;
             }
             popolaAlbum();
         }
