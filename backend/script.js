@@ -29,6 +29,15 @@ function getFromMarvel(url, query = "") {
         .catch(error => console.log('error', error));
 }
 
+// eslint-disable-next-line no-unused-vars
+async function getMultipleMarvel(urls) {
+    var promises = [];
+    for (let i = 0; i < urls.length; i++) {
+        promises.push(await getFromMarvel(urls[i], " "));
+    }
+    return Promise.all(promises);
+}
+
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
