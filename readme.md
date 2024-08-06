@@ -1,6 +1,9 @@
 # Progetto
 Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto e delle istruzioni su come utilizzare le funzionalità.
 
+## Diagramma
+![diagramma](diagramma%20progetto.excalidraw.png)
+
 ## Descrizione
 Il progetto è un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel. L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
 - dalla sezione album ogni utente può [vendere](readme.md#vendita-figurine) le sue figurine in cambio di crediti
