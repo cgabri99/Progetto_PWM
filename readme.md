@@ -1,6 +1,12 @@
 # Progetto
 Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto e delle istruzioni su come utilizzare le funzionalità.
 
+## Diagramma
+![diagramma](images/diagramma%20progetto.excalidraw.png)
+
+## Schema database
+![schema database](images/schemaDatabase.png)
+
 ## Descrizione
 Il progetto è un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel. L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
 - dalla sezione album ogni utente può [vendere](readme.md#vendita-figurine) le sue figurine in cambio di crediti
@@ -30,6 +36,10 @@ Per essere in consizione di accettare uno scambio un utente deve essere in posse
 
 **N.B.** Un utente può scambiare una figurina anche se ne possiede solo una copia.
 
+### Creazione di uno scambio
+La lista delle carte che possono essere messe in scambio viene automaticamente generata a partire da quelle disponibili, mentre per la figurina desiderata la lista viene reperita da quella dei supereroi disponibili sul serve. In particolare va inserito il nome che si vuole ricercare nell'apposito input e la lista viene popolata in seguito alla rispsota del server.
+
+
 #### Copie disponibili di una figurina
 Le copie disponibili di una figurina sono definite secondo la seguente formula:
 
@@ -45,3 +55,6 @@ In particolare:
 - [index.js](backend/index.js) $\to$ contiene le istruzioni realtive al server e va eseguito tramite Node
 - [script.js](backend/script.js) $\to$ contiene le funzioni comuni a più parti del progetto
 - [swagger.js](backend/swagger.js) $\to$ contiene le istruzioni realtive alla creazione dello swagger
+
+# Considerazioni sulle prestazioni
+Si vuole sottolineare che durante la realizzazione del progetto (lugio/Agosto 2024) il server marvel incaricato della Gestione delle chiamte API è notevolmente rallenatato e al momento l'esperienza dell'utente finale è altamente compromessa, d'altraparte si è scelto di continuare a usufruire del server e non trovare altre soluzioni (per esempio "congelando" i dati in un file statico dal quale attingere) a fini didattici e per attenersi alle richieste del docente. 

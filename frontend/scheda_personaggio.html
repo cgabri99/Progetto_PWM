@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna();" class="gradient-custom">
+<body onload="aggiorna();">
     <div id="container" class="container">
         <button class="btn btn-primary m-3" type="button" onclick=" window.history.back();">Indietro</button>
         <h1 class="text-center my-2">Descrizione personaggio</h1>
@@ -56,12 +56,12 @@
         </div>
 
         <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
-            <div id="col_comics" class="col d-none">
+            <div id="col_comics" class="col">
                 <h1 id="title_comics" class="text-center my-3 d-none">Fumetti in cui appare</h1>
                 <div id="carousel_comics" class="carousel slide">
                     <div id="container_comics" class="carousel-inner">
                         <div id="item_comics" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel" onmouseover="">
+                            <img src="" class="d-block img-carousel">
                         </div>
                     </div>
                     <button id="prev_comics" class="carousel-control-prev d-none" type="button"
@@ -88,12 +88,12 @@
                     </div>
                 </div> -->
             </div>
-            <div id="col_series" class="col d-none">
+            <div id="col_series" class="col">
                 <h1 id="title_series" class="text-center my-3 d-none">Serie in cui appare</h1>
                 <div id="carousel_series" class="carousel slide">
                     <div id="container_series" class="carousel-inner">
                         <div id="item_series" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel" onmouseover="">
+                            <img src="" class="d-block img-carousel">
                         </div>
                     </div>
                     <button id="prev_series" class="carousel-control-prev d-none" type="button"
@@ -121,12 +121,12 @@
                 </div> -->
             </div>
 
-            <div id="col_events" class="col d-none">
+            <div id="col_events" class="col">
                 <h1 id="title_events" class="text-center my-3 d-none">Eventi in cui appare</h1>
                 <div id="carousel_events" class="carousel slide">
                     <div id="container_events" class="carousel-inner">
                         <div id="item_events" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel" onmouseover="">
+                            <img src="" class="d-block img-carousel">
                         </div>
                     </div>
                     <button id="prev_events" class="carousel-control-prev d-none" type="button"
@@ -230,11 +230,19 @@
         //         .catch((error) => console.error(error));
         // }
 
-        function richiestaMarvelCarousel(URI, nomeCard, nomeContainer, nomeTitolo) {
+        function richiestaMarvelCarousel(URI, type) {
             URI = URI.slice(URI.indexOf(1) + 2);
             //fetch portale marvel
             getFromMarvel(URI, "")
-                .then((result) => popolacarousel(result.data.results, nomeCard, nomeContainer, nomeTitolo))
+                .then((result) => {
+                    if (result.data.results.length === 0) {
+                        var title = document.getElementById('title_' + type);
+                        title.classList.remove('d-none');
+                        title.innerHTML = `Nessun ${type} trovato`;
+                    } else {
+                        popolacarousel(result.data.results, type)
+                    }
+                })
                 .catch((error) => console.error(error));
         }
 

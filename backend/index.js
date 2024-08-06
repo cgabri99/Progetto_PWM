@@ -219,12 +219,22 @@ async function addUser(user, res) {
  */
 async function deleteUser(res, id) {
     const pwmClient = await client.connect();
-    const result = await pwmClient.db(DB_NAME).collection("Users").deleteOne({ _id: ObjectId.createFromHexString(id) });
-    await pwmClient.close();
-    if (result.deletedCount == 0) {
-        res.send(`Nessun utente con ID: ${id} presente`);
-    } else {
-        res.send(`Eliminato utente con ID: ${id}`);
+    try {
+        const result = await pwmClient.db(DB_NAME).collection("Users").deleteOne({ _id: ObjectId.createFromHexString(id) });
+        if (result.deletedCount == 0) {
+            res.status(400).json({ error: `Nessun utente con ID: ${id} presente` });
+        } else {
+            res.status(200).json({ status: "Utente eliminato" });
+        }
+    } catch (e) {
+        console.error(e);
+        if (e instanceof BSON.BSONError) {
+            res.status(404).json({ error: "Id non presente" });
+        } else {
+            res.status(500).json({ error: "Errore server" });
+        }
+    } finally {
+        await pwmClient.close();
     }
 }
 
