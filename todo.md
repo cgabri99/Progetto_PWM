@@ -9,10 +9,6 @@
 }
 ```
 - [x] aggiungere link "indietro" nella pagina scheda personaggio
-- [ ] valutare se e dove mettere keyword "async" per gestione dei caricamenti delle pagine
-	- [ ] scheda personaggio (serie, comics e eventi)
-	- [ ] home (caricamento figurine) probabilmente non necessario
-	- [ ] album (al momento caricamento singolo delle figurine)
 - [x] controllo della mail con regexp
 - [x] controllare la validità dell'id del personaggio al momento dell'aggiunta della figurina
 - [x] post gestione figurine 
@@ -36,7 +32,7 @@
 - [x] aggiungere disabled a tutti i pulsanti quando si accetta uno scambio
 - [x] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
 - [x] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe
-- [ ] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
+- [x] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
 - [ ] aggiornare readme
 - [x] placeolder scheda personaggio
 - [ ] inserire btn group in modifica dati
