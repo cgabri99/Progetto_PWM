@@ -35,4 +35,4 @@
 - [x] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
 - [ ] aggiornare readme
 - [x] placeolder scheda personaggio
-- [ ] inserire btn group in modifica dati
+- [x] inserire btn group in modifica dati
