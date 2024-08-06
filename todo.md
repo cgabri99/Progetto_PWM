@@ -37,3 +37,4 @@
 - [x] placeolder scheda personaggio
 - [x] inserire btn group in modifica dati
 - [ ] inserisci funzione controllo isAdmin
+- [ ] riscrivi funzione deleteuser fa schifo scritta così

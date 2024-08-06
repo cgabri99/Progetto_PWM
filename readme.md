@@ -32,6 +32,7 @@ Per essere in consizione di accettare uno scambio un utente deve essere in posse
 
 #### Copie disponibili di una figurina
 Le copie disponibili di una figurina sono definite secondo la seguente formula:
+
 $$Copie_{disponibili} = Copie_{possedute} - N_{scambi} $$
 
 dove $N_{scambi}$ indica il numero di scambi creati dall'utente in cui quella figurina viene proposta come oggetto dello scambio.

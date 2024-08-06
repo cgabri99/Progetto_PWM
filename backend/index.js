@@ -98,8 +98,12 @@ async function updateUser(res, id, body) {
             .updateOne(myQuery, newValues);
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: "Id non presente" });
-        return;
+        if (e instanceof BSON.BSONError) {
+            res.status(404).json({ error: "Id non presente" });
+        }
+        else {
+            res.status(500).json({ error: "Errore server" });
+        }
     } finally {
         await pwmClient.close();
     }
@@ -122,22 +126,21 @@ async function getUserById(res, id) {
         user = await pwmClient.db(DB_NAME).collection("Users").findOne({
             _id: ObjectId.createFromHexString(id)
         });
-    } catch (e) {
-        console.error(e);
-        res.status(404).json({ error: "Id non presente" });
-        return;
-    } finally {
-        await pwmClient.close();
-    }
 
-    if (user) {
         res.json({
             nome: user.name,
             cognome: user.surname,
             email: user.email
         });
-    } else {
-        res.status(404).json({ error: "Id non presente" });
+    } catch (e) {
+        console.error(e);
+        if (e instanceof BSON.BSONError) {
+            res.status(404).json({ error: "Id non presente" });
+        } else {
+            res.status(500).json({ error: "Errore server" });
+        }
+    } finally {
+        await pwmClient.close();
     }
 }
 

@@ -20,8 +20,7 @@ const doc = {
                 surname: "Cucchi",
                 age: 18,
                 hero: "Superman",
-                psw: "password",
-                credits: 0
+                psw: "password"
             }, putFigurineSchema: {
                 $figurine: [{
                     id: 123456,

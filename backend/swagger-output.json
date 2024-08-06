@@ -520,10 +520,6 @@
           "psw": {
             "type": "string",
             "example": "password"
-          },
-          "credits": {
-            "type": "number",
-            "example": 0
           }
         }
       },
