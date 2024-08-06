@@ -23,22 +23,25 @@
                             <div id="formScambio" class="my-3">
 
                                 <h1 class="text-center">Inserisci Scambio</h1>
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text" for="selectDaCedere">Nome carta da cedere
+                                <div class="input-group my-3 row">
+                                    <label class="input-group-text col-6" for="selectDaCedere">Nome carta da cedere
                                     </label>
-                                    <select class="form-select" id="selectDaCedere">
+                                    <select class="form-select col-6" id="selectDaCedere">
                                     </select>
                                 </div>
 
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text" for="nomeSupereroe">Nome carta da
+                                <div class="input-group mb-3 row">
+                                    <label class="input-group-text col-6" for="nomeSupereroe">Nome carta da
                                         ricevere</label>
                                     <select class="form-select" id="selectDaRicevere">
                                         <option selected>Choose...</option>
                                     </select>
-                                    <input id="nomeSupereroe" class="input-group-text" type="text"
-                                        placeholder="Nome supereroe"></input>
-                                    <button class="btn btn-outline-secondary" type="button" id="buttonCerca"
+                                </div>
+                                <div class="input-group mb-3 row">
+                                    <label class="input-group-text col-4" for="nomeSupereroe">Nome supereroe
+                                    </label>
+                                    <input id="nomeSupereroe" class="input-group-text col-4" type="text"></input>
+                                    <button class="btn btn-outline-secondary col-4" type="button" id="buttonCerca"
                                         onclick="getListaDaRicevere(this)">Cerca</button>
                                 </div>
                                 <button type="button" class="btn btn-lg btn-primary" onclick="creaScambio()">Crea
@@ -100,11 +103,9 @@
 
             fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
                 .then((response) => response.text())
-                .then((result) => {
-                    result = JSON.parse(result).figurine;
-                })
-                .then((figurine) => {
-                    console.log(figurine);
+                .then((result) => JSON.parse(result))
+                .then((data) => {
+                    var figurine = data.figurine;
                     figurine.forEach((figurina) => {
                         if (figurina.disponibili > 0) {
                             var option = document.createElement('option');
