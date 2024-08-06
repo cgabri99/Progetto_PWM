@@ -30,6 +30,10 @@ Per essere in consizione di accettare uno scambio un utente deve essere in posse
 
 **N.B.** Un utente può scambiare una figurina anche se ne possiede solo una copia.
 
+### Creazione di uno scambio
+La lista delle carte che possono essere messe in scambio viene automaticamente generata a partire da quelle disponibili, mentre per la figurina desiderata la lista viene reperita da quella dei supereroi disponibili sul serve. In particolare va inserito il nome che si vuole ricercare nell'apposito input e la lista viene popolata in seguito alla rispsota del server.
+
+
 #### Copie disponibili di una figurina
 Le copie disponibili di una figurina sono definite secondo la seguente formula:
 
@@ -45,3 +49,6 @@ In particolare:
 - [index.js](backend/index.js) $\to$ contiene le istruzioni realtive al server e va eseguito tramite Node
 - [script.js](backend/script.js) $\to$ contiene le funzioni comuni a più parti del progetto
 - [swagger.js](backend/swagger.js) $\to$ contiene le istruzioni realtive alla creazione dello swagger
+
+# Considerazioni sulle prestazioni
+Si vuole sottolineare che durante la realizzazione del progetto (lugio/Agosto 2024) il server marvel incaricato della Gestione delle chiamte API è notevolmente rallenatato e al momento l'esperienza dell'utente finale è altamente compromessa, d'altraparte si è scelto di continuare a usufruire del server e non trovare altre soluzioni (per esempio "congelando" i dati in un file statico dal quale attingere) a fini didattici e per attenersi alle richieste del docente. 
