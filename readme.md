@@ -15,6 +15,41 @@ Il progetto è un'applicazione web che permette di gestire l'acquisto e scambio 
     - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
     - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
 
+### Struttura scehramata home
+Nella navbar della home abbiamo 2 sezioni principali:
+- gestione utente
+    - modifica dati
+    - elimina utente
+    - log out
+- gestione figurine 
+    - album
+    - crea scambio
+    - scambi disponibili
+    - acquista bustine
+    - maxi pacchetti
+
+
+## Scelte implementative e descrizione della realizzazione delle operazioni
+### Sign in utente
+Al momento della creazione del profilo i campi:
+- nome
+- cognome
+- email
+- password
+sono obbligatori, mentre gli altri sono facoltativi. 
+Al momento della creazione ogni account possiede 0 crediti.
+La email è utilizzata come index dal database e non è permessa la creazione di più profili con la stessa email.
+
+### Login utente
+La pagina di login prevede l'inserimento della password e email in caso non siano corrette non viene fornito l'accesso al sito e vengono segnalati gli errori
+
+### Acquisto crediti
+Nella schermata home è presente il "salvadanaio" dell'utente, cliccando sul pulsante si apre la pagina relativa all'acquisto fittizio dei crediti.
+Non è permesso acquistare un numero di crediti nullo o negativo.
+
+### Acquisto pacchetti
+Nella sezione gestione 
+
 ### Vendita figurine
 Ad ogni figurina è asseganto il valore "commerciale" di 1 credito.
 L'utente può vendere una figurina anche se ne possiede solamente 1 copia.

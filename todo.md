@@ -38,3 +38,4 @@
 - [x] inserire btn group in modifica dati
 - [ ] inserisci funzione controllo isAdmin
 - [x] riscrivi funzione deleteuser
+- [ ] aggiungi navbar a tutte le pagine
