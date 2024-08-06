@@ -39,3 +39,4 @@
 - [ ] inserisci funzione controllo isAdmin
 - [x] riscrivi funzione deleteuser
 - [ ] aggiungi navbar a tutte le pagine
+- [ ] aggiorna documentazione index.js

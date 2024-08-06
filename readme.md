@@ -1,19 +1,11 @@
 # Progetto
-Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità.
+Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consist in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
 
 ## Diagramma
 ![diagramma](images/diagramma%20progetto.excalidraw.png)
 
 ## Schema database
 ![schema database](images/schemaDatabase.png)
-
-## Descrizione
-Il progetto è un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel. L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
-- dalla sezione album ogni utente può [vendere](readme.md#vendita-figurine) le sue figurine in cambio di crediti
-- l'utente amministratore, nella sezione dedicata, può generare offerte per pacchetti di figurine maxi contenenti da 6 a 30 figurine e il prezzo può andare da 1 a 5 crediti. Nella stesssa sezione tutti gli altri utenti possono acquistare le offerte per i pacchetti di figurine. Per maggiori informazioni realtive all'utente amministratore visita la sezione [dedicata](readme.md#utente-amministratore)
-- per quanto riguarda gli [scambi](readme.md#scambi) sono gestiti i controlli di integritàin modo che:
-    - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
-    - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
 
 ### Struttura scehramata home
 Nella navbar della home abbiamo 2 sezioni principali:
@@ -27,7 +19,6 @@ Nella navbar della home abbiamo 2 sezioni principali:
     - scambi disponibili
     - acquista bustine
     - maxi pacchetti
-
 
 ## Scelte implementative e descrizione della realizzazione delle operazioni
 ### Sign in utente
@@ -47,8 +38,14 @@ La pagina di login prevede l'inserimento della password e email in caso non sian
 Nella schermata home è presente il "salvadanaio" dell'utente, cliccando sul pulsante si apre la pagina relativa all'acquisto fittizio dei crediti.
 Non è permesso acquistare un numero di crediti nullo o negativo.
 
+### Album
+in questa sezione l'utente può:
+- accedere ai dettagli della figurina
+- [vendere](readme.md#vendita-figurine) la figurina
+- monitorare il numero di copie possedute delle figurine
+
 ### Acquisto pacchetti
-Nella sezione gestione 
+Nella sezione gestione figurine l'utente può accedere alla pagina relativa all'acquisto dei pacchetti di figurine. *Ogni pacchetto base contiene 5 carte e costa 1 credito*
 
 ### Vendita figurine
 Ad ogni figurina è asseganto il valore "commerciale" di 1 credito.
@@ -81,6 +78,14 @@ Le copie disponibili di una figurina sono definite secondo la seguente formula:
 $$Copie_{disponibili} = Copie_{possedute} - N_{scambi} $$
 
 dove $N_{scambi}$ indica il numero di scambi creati dall'utente in cui quella figurina viene proposta come oggetto dello scambio.
+
+## Funzionalità aggiuntive implementate
+ L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
+- dalla sezione album ogni utente può [vendere](readme.md#vendita-figurine) le sue figurine in cambio di crediti
+- l'utente amministratore, nella sezione dedicata, può generare offerte per pacchetti di figurine maxi contenenti da 6 a 30 figurine e il prezzo può andare da 1 a 5 crediti. Nella stesssa sezione tutti gli altri utenti possono acquistare le offerte per i pacchetti di figurine. Per maggiori informazioni realtive all'utente amministratore visita la sezione [dedicata](readme.md#utente-amministratore)
+- per quanto riguarda gli [scambi](readme.md#scambi) sono gestiti i controlli di integritàin modo che:
+    - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
+    - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
 
 ## Struttura del progetto
 All'interno della cartella [frontend](frontend/) sono contenuti i file relativi all'implementazione del frontend.
