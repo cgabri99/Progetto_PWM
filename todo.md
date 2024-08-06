@@ -15,8 +15,8 @@
 - [x] put gestione figurine
 - [ ] rimuovere tutte le stampe di debug
 - [x] dare la possibilità ad admin di creare offerte per bustine **premium**
-- [ ] paginazione scheda personaggio per serie comics e events
-- [ ] setting dei timer prima dei cambi di finestra (come in album nel caso di vendita figurine)
+- [x] paginazione scheda personaggio per serie comics e events
+- [x] setting dei timer prima dei cambi di finestra (come in album nel caso di vendita figurine)
 - [x] controllo di consistenza durante la vendita di una figurina
 - [x] sistemare dispaly bottone possedute in album
 - [x] sostituire gli splice con deleteOne in index.js
@@ -33,8 +33,8 @@
 - [x] gestire i controlli di integrità negli scambi in modo che non si possano accettare scambi dove la figurina in arrivo é già presente nell’album
 - [x] aggiungi messaggio di errore in  crea scambio se non viene trovato nessun supereroe
 - [x] in album disabilitare bottoni paginazione fino alla fine del caricamento altrimenti si distrugge tutto
-- [ ] aggiornare readme
+- [x] aggiornare readme
 - [x] placeolder scheda personaggio
 - [x] inserire btn group in modifica dati
 - [ ] inserisci funzione controllo isAdmin
-- [ ] riscrivi funzione deleteuser fa schifo scritta così
+- [x] riscrivi funzione deleteuser
