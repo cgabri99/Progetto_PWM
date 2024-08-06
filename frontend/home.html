@@ -11,7 +11,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna(); clonePlaceholder(29);" class="gradient-custom">
+<body onload="aggiorna();" class="gradient-custom">
     <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand">Home portale scambio figurine</a>
@@ -60,55 +60,59 @@
     </nav>
 
     <h1 class="text-center mt-2"> Lista dei supereoi disponibili</h1>
-
-    <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
-        <div id="placeholder" class="col" aria-hidden="true">
-            <div class="card">
-                <div style="width:100%;height:0; padding-top:50%;position:relative;">
-                    <img src="">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title placeholder-glow">
-                        <span class="placeholder col-6"></span>
-                    </h5>
-                    <p class="card-text placeholder-glow">
-                        <span class="placeholder col-7"></span>
-                        <span class="placeholder col-4"></span>
-                        <span class="placeholder col-4"></span>
-                        <span class="placeholder col-6"></span>
-                        <span class="placeholder col-8"></span>
-                    </p>
-                    <a class="btn btn-primary disabled placeholder col-6" aria-disabled="true"></a>
-                </div>
+    <div id="placeholder" class="col d-none" aria-hidden="true">
+        <div class="card">
+            <div style="width:100%;height:0; padding-top:50%;position:relative;">
+                <img src="">
             </div>
-        </div>
-        <div id="heroCard" class="col d-none">
-            <div class="card h-100">
-                <img src="" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title"></h5>
-                </div>
-                <div class="card-footer">
-                    <a href="scheda_personaggio.html" class="btn btn-primary">Dettagli</a>
-                </div>
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a class="btn btn-primary disabled placeholder col-6" aria-disabled="true"></a>
             </div>
         </div>
     </div>
+    <div id="heroCard" class="col d-none">
+        <div class="card h-100">
+            <img src="" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title"></h5>
+            </div>
+            <div class="card-footer">
+                <a href="scheda_personaggio.html" class="btn btn-primary">Dettagli</a>
+            </div>
+        </div>
+    </div>
+    <div id="container" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
+
+    </div>
     <nav>
         <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
-            <li id="paginationPrev" class="page-item"><a class="page-link" href="#"
-                    onclick="aggiornaPagina(-1)">Precedente</a></li>
+            <li id="paginationPrev" class="page-item disabled"><a class="page-link" href="#"
+                    onclick="aggiornaPagina(-1); next.classList.add('disabled');">Precedente</a></li>
             <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-            <li id="paginationNext" class="page-item"><a class="page-link" href="#"
-                    onclick="aggiornaPagina(1)">Succesiva</a>
+            <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
+                    onclick="aggiornaPagina(1); next.classList.add('disabled');">Succesiva</a>
             </li>
         </ul>
     </nav>
     <script>
         const max_npagina = Math.floor(n_heroes / dim_pagina);
         var actual_page = 0;
+        var prev = document.getElementById('paginationPrev');
+        var next = document.getElementById('paginationNext');
+        var prevEnable = false;
+        var nextEnable = true;
 
         function aggiorna() {
             var login = document.getElementById('login');
@@ -146,8 +150,9 @@
         }
 
         function clonePlaceholder(n) {
-            placeholder = document.getElementById('placeholder');
-            container = document.getElementById('container');
+            var placeholder = document.getElementById('placeholder');
+            var container = document.getElementById('container');
+            container.innerHTML = "";
 
             for (i = 0; i < n; i++) {
                 clone = placeholder.cloneNode(true);
@@ -184,8 +189,8 @@
 
             fetch(`http://localhost:3000/credits/${id_utente}`, requestOptions)
                 .then((response) => response.text())
+                .then((result) => result = JSON.parse(result))
                 .then((result) => {
-                    result = JSON.parse(result);
                     salvadanaio.classList.remove('d-none');
                     salvadanaio.innerHTML += `Crediti: ${result.crediti}`;
                 })
@@ -193,9 +198,8 @@
         }
 
         function richiestaMarvel(npagina, limit) {
-            offset = npagina * dim_pagina;
-
-            query = `offset=${offset}&limit=${limit}`;
+            var offset = npagina * dim_pagina;
+            var query = `offset=${offset}&limit=${limit}`;
             //fetch portale marvel
             getFromMarvel("public/characters", query)
                 .then((result) => popolaScehde(result.data.results))
@@ -204,10 +208,8 @@
 
         function popolaScehde(dati) {
             console.log(dati)
-            heroCard = document.getElementById('heroCard');
-            container = document.getElementById('container');
-            container.innerHTML = "";
-            container.append(heroCard);
+            var heroCard = document.getElementById('heroCard');
+            var container = document.getElementById('container');
 
             for (i = 0; i < dati.length; i++) {
                 hero = dati[i];
@@ -224,26 +226,39 @@
                 button.href += `?URI=${URI}`;
 
                 clone.classList.remove('d-none');
-                heroCard.before(clone);
+                container.replaceChild(clone, document.getElementById('placeholderClone_' + i));
+            }
+
+            if (!prevEnable) {
+                prev.classList.add('disabled');
+            } else {
+                prev.classList.remove('disabled');
+            }
+
+            if (!nextEnable) {
+                next.classList.add('disabled');
+            } else {
+                next.classList.remove('disabled');
             }
         }
 
         function aggiornaPagina(offeset) {
             actual_page += offeset;
-            prev = document.getElementById('paginationPrev');
-            next = document.getElementById('paginationNext');
-
-            prev.classList.remove('disabled');
-            next.classList.remove('disabled');
 
             if (actual_page <= 0) {
                 actual_page = 0;
-                prev.classList.add('disabled');
+                prevEnable = false;
+            } else {
+                prevEnable = true;
             }
             if (actual_page >= max_npagina) {
                 actual_page = max_npagina;
-                next.classList.add('disabled');
+                nextEnable = false;
             }
+            else {
+                nextEnable = true;
+            }
+            clonePlaceholder(dim_pagina);
             richiestaMarvel(actual_page, dim_pagina);
         }
     </script>
