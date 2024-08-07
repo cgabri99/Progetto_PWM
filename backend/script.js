@@ -88,6 +88,7 @@ async function aggiornaNavbar() {
     var menuUtente = document.getElementById('menuUtente');
     var menuFigurine = document.getElementById('menuFigurine');
     var msg = document.getElementById('benvenuto');
+    var salvadanaio = document.getElementById('salvadanaio');
 
     var is_logged = getLocalStorage("logged");
 
@@ -107,34 +108,14 @@ async function aggiornaNavbar() {
                 menuUtente.classList.remove('disabled');
                 menuFigurine.classList.remove('disabled');
                 msg.innerHTML = `Benvenuto ${json.nome}`;
-                await mostra_salvadanaio(id_utente);
+                salvadanaio.classList.remove('d-none');
+                salvadanaio.innerHTML += `Crediti: ${json.crediti}`;
             }
         } catch (error) {
             console.error(error);
         }
     }
 
-}
-
-async function mostra_salvadanaio(id_utente) {
-    var salvadanaio = document.getElementById('salvadanaio');
-
-    const requestOptions = {
-        method: "GET",
-        redirect: "follow"
-    };
-
-    try {
-        const response = await fetch(`http://localhost:3000/credits/${id_utente}`, requestOptions);
-        const text = await response.text();
-        const json = await JSON.parse(text);
-
-        salvadanaio.classList.remove('d-none');
-        salvadanaio.innerHTML += `Crediti: ${json.crediti}`;
-
-    } catch (error) {
-        console.error(error);
-    }
 }
 
 // eslint-disable-next-line no-unused-vars

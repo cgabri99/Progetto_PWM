@@ -134,7 +134,7 @@ async function getUserById(res, id) {
             nome: user.name,
             cognome: user.surname,
             email: user.email,
-            credits: user.credits
+            crediti: user.credits
         });
     } catch (e) {
         console.error(e);
