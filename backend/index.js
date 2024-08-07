@@ -133,7 +133,8 @@ async function getUserById(res, id) {
         res.json({
             nome: user.name,
             cognome: user.surname,
-            email: user.email
+            email: user.email,
+            crediti: user.credits
         });
     } catch (e) {
         console.error(e);

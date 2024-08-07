@@ -11,10 +11,10 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
-<body onload="aggiorna();" class="gradient-custom">
+<body onload="aggiornaPagina(); aggiornaPaginazione(0);" class="gradient-custom">
     <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand">Home portale scambio figurine</a>
+            <a class="navbar-brand" href="home.html">Album delle Figurine dei Super Eroi (AFSE)</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -22,9 +22,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li id="login" class="nav-item">
-                        <a class="nav-link" href="login.html">Login</a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a id="menuFigurine" class="nav-link dropdown-toggle disabled" href="#" role="button"
                             data-bs-toggle="dropdown">
@@ -47,6 +44,7 @@
                             <li><a class="dropdown-item" href="modifica_utente.html">Modifica dati</a></li>
                             <li><a class="dropdown-item" href="elimina_utente.html">Elimina Utente</a></li>
                             <li><a class="dropdown-item" href="#" onclick="sign_out();">Log out</a></li>
+                            <li><a class="dropdown-item" href="login.html">Log in</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -94,12 +92,12 @@
     <nav>
         <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
             <li id="paginationPrev" class="page-item disabled"><a class="page-link" href="#"
-                    onclick="aggiornaPagina(-1); next.classList.add('disabled');">Precedente</a></li>
+                    onclick="aggiornaPaginazione(-1); next.classList.add('disabled');">Precedente</a></li>
             <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">3</a></li> -->
             <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
-                    onclick="aggiornaPagina(1); next.classList.add('disabled');">Succesiva</a>
+                    onclick="aggiornaPaginazione(1); next.classList.add('disabled');">Succesiva</a>
             </li>
         </ul>
     </nav>
@@ -110,41 +108,6 @@
         var next = document.getElementById('paginationNext');
         var prevEnable = false;
         var nextEnable = true;
-
-        function aggiorna() {
-            var login = document.getElementById('login');
-            var menuUtente = document.getElementById('menuUtente');
-            var menuFigurine = document.getElementById('menuFigurine');
-            var msg = document.getElementById('benvenuto');
-
-            var is_logged = getLocalStorage("logged");
-
-            if (is_logged) {
-                var id_utente = getLocalStorage("id_utente");
-                const requestOptions = {
-                    method: "GET",
-                    redirect: "follow"
-                };
-
-                fetch(`http://localhost:3000/users/${id_utente}`, requestOptions)
-                    .then((response) => response.text())
-                    .then((result) => {
-                        result = JSON.parse(result);
-                        if (!result.error) {
-                            msg.classList.remove('d-none');
-                            login.classList.add('d-none');
-                            menuUtente.classList.remove('disabled');
-                            menuFigurine.classList.remove('disabled');
-                            msg.innerHTML = `Benvenuto ${result.nome}`;
-                            mostra_salvadanaio(id_utente);
-                        }
-                    })
-                    .catch((error) => console.error(error));
-
-                aggiornaPagina(0);
-            }
-
-        }
 
         function clonePlaceholder(n) {
             var placeholder = document.getElementById('placeholder');
@@ -157,41 +120,6 @@
                 clone.classList.remove('d-none');
                 container.append(clone);
             }
-        }
-
-        function sign_out() {
-            var login = document.getElementById('login');
-            var menuUtente = document.getElementById('menuUtente');
-            var menuFigurine = document.getElementById('menuFigurine');
-            var msg = document.getElementById('benvenuto');
-
-            setLocalStorage("logged", false);
-            setLocalStorage("id_utente", null);
-            setLocalStorage("nome_utente", null);
-
-            msg.classList.add('d-none');
-            login.classList.remove('d-none');
-            menuUtente.classList.add('disabled');
-            menuFigurine.classList.add('disabled');
-            window.location.href = "login.html";
-        }
-
-        function mostra_salvadanaio(id_utente) {
-            salvadanaio = document.getElementById('salvadanaio');
-
-            const requestOptions = {
-                method: "GET",
-                redirect: "follow"
-            };
-
-            fetch(`http://localhost:3000/credits/${id_utente}`, requestOptions)
-                .then((response) => response.text())
-                .then((result) => result = JSON.parse(result))
-                .then((result) => {
-                    salvadanaio.classList.remove('d-none');
-                    salvadanaio.innerHTML += `Crediti: ${result.crediti}`;
-                })
-                .catch((error) => console.error(error));
         }
 
         function richiestaMarvel(npagina, limit) {
@@ -239,7 +167,7 @@
             }
         }
 
-        function aggiornaPagina(offeset) {
+        function aggiornaPaginazione(offeset) {
             actual_page += offeset;
 
             if (actual_page <= 0) {

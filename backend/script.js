@@ -2,7 +2,6 @@ const n_heroes = 1564;
 // eslint-disable-next-line no-unused-vars
 const dim_pagina = 30;
 
-// eslint-disable-next-line no-unused-vars
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
 }
@@ -79,3 +78,60 @@ function checkLoggedInUser() {
         }, 2000);
     }
 }
+
+// eslint-disable-next-line no-unused-vars
+async function aggiornaPagina() {
+    await aggiornaNavbar();
+}
+
+async function aggiornaNavbar() {
+    var menuUtente = document.getElementById('menuUtente');
+    var menuFigurine = document.getElementById('menuFigurine');
+    var msg = document.getElementById('benvenuto');
+    var salvadanaio = document.getElementById('salvadanaio');
+
+    var is_logged = getLocalStorage("logged");
+
+    if (is_logged) {
+        var id_utente = getLocalStorage("id_utente");
+        const requestOptions = {
+            method: "GET",
+            redirect: "follow"
+        };
+
+        try {
+            const response = await fetch(`http://localhost:3000/users/${id_utente}`, requestOptions);
+            const text = await response.text();
+            const json = await JSON.parse(text);
+            if (!json.error) {
+                msg.classList.remove('d-none');
+                menuUtente.classList.remove('disabled');
+                menuFigurine.classList.remove('disabled');
+                msg.innerHTML = `Benvenuto ${json.nome}`;
+                salvadanaio.classList.remove('d-none');
+                salvadanaio.innerHTML += `Crediti: ${json.crediti}`;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+}
+
+// eslint-disable-next-line no-unused-vars
+function sign_out() {
+    var menuUtente = document.getElementById('menuUtente');
+    var menuFigurine = document.getElementById('menuFigurine');
+    var msg = document.getElementById('benvenuto');
+
+    setLocalStorage("logged", false);
+    setLocalStorage("id_utente", null);
+    setLocalStorage("nome_utente", null);
+
+    msg.classList.add('d-none');
+    menuUtente.classList.add('disabled');
+    menuFigurine.classList.add('disabled');
+    window.location.href = "login.html";
+}
+
+
