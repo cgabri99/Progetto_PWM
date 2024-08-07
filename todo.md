@@ -40,3 +40,6 @@
 - [x] riscrivi funzione deleteuser
 - [ ] aggiungi navbar a tutte le pagine
 - [ ] aggiorna documentazione index.js
+- [ ] aggiungere controllo nella sezione crea scambio se l'utente non ha figurine disponibili allo scambio
+- [ ] aggiungi placeholder in dettagli personaggio per events, comics e series
+- [ ] modifica struttura navbar rimuovendo login in quanto non viene più utilizzata la home come atterraggio a seguito del logout
