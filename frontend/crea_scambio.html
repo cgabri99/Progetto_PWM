@@ -44,7 +44,8 @@
                                     <button class="btn btn-outline-secondary col-4" type="button" id="buttonCerca"
                                         onclick="getListaDaRicevere(this)">Cerca</button>
                                 </div>
-                                <button type="button" class="btn btn-lg btn-primary" onclick="creaScambio()">Crea
+                                <button id="creaScambio" type="button" class="btn btn-lg btn-primary"
+                                    onclick="creaScambio()">Crea
                                     scambio</button>
                                 <a class="btn btn-lg btn-primary m-3" type="button" href="home.html">Home</a>
 
@@ -105,6 +106,7 @@
                 .then((response) => response.text())
                 .then((result) => JSON.parse(result))
                 .then((data) => {
+                    var countDisponibili = 0;
                     var figurine = data.figurine;
                     figurine.forEach((figurina) => {
                         if (figurina.disponibili > 0) {
@@ -112,8 +114,20 @@
                             option.value = figurina.id;
                             option.innerHTML = figurina.name;
                             listaDaCedere.appendChild(option);
+                            countDisponibili++;
                         }
                     });
+                    if (countDisponibili === 0) {
+                        document.getElementById('error').classList.remove('d-none');
+                        document.getElementById('error').innerHTML = 'Nessuna carta disponibile da cedere, non puoi creare nessuno scambio al momento!';
+                        document.getElementById('creaScambio').classList.add('disabled');
+                        document.getElementById('buttonCerca').classList.add('disabled');
+                        setTimeout(() => {
+                            window.location.href = "home.html";
+                        }, 5000);
+                    } else {
+                        document.getElementById('error').classList.add('d-none');
+                    }
                 })
                 .catch((error) => console.error(error));
         }
