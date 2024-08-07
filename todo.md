@@ -42,3 +42,4 @@
 - [x] aggiungere controllo nella sezione crea scambio se l'utente non ha figurine disponibili allo scambio
 - [ ] aggiungi placeholder in dettagli personaggio per events, comics e series
 - [x] modifica struttura navbar rimuovendo login in quanto non viene più utilizzata la home come atterraggio a seguito del logout
+- [ ] aggiungi logica di controllo refresh di acqustobustine anche su accetta scambio
