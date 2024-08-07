@@ -76,12 +76,17 @@
         </div>
     </div>
     <script>
+        const beforeUnloadHandler = (event) => {
+            event.preventDefault();
+        };
 
 
         async function acquista() {
-            window.onbeforeunload = function () {
-                return "Sei sicuro di voler abbandonare la pagina? L'acquisto delle figurtine è ancora in corso!";
-            }
+            window.addEventListener("beforeunload", beforeUnloadHandler);
+
+            // window.onbeforeunload = function () {
+            //     return "Sei sicuro di voler abbandonare la pagina? L'acquisto delle figurtine è ancora in corso!";
+            // }
 
             var err = document.getElementById('error');
 
@@ -157,7 +162,8 @@
                         })
                         .catch((error) => console.error(error))
                         .finally(() => {
-                            window.onbeforeunload = null;
+                            window.removeEventListener("beforeunload", beforeUnloadHandler);
+                            // window.onbeforeunload = null;
                         });
                 });
         }
