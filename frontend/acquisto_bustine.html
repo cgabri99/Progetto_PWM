@@ -76,8 +76,14 @@
         </div>
     </div>
     <script>
+
+
         async function acquista() {
-            err = document.getElementById('error');
+            window.onbeforeunload = function () {
+                return "Sei sicuro di voler abbandonare la pagina? L'acquisto delle figurtine è ancora in corso!";
+            }
+
+            var err = document.getElementById('error');
 
             is_logged = getLocalStorage("logged");
             if (!is_logged) {
@@ -93,40 +99,36 @@
                     .then((response) => response.json())
                     .then((data) => {
                         console.log(data);
+                        // controllo che l'utente abbia abbastanza crediti
                         if (data.crediti < 1) {
                             err.classList.remove('d-none');
                             err.classList.add('alert-danger');
                             err.innerHTML = 'Non hai abbastanza crediti per acquistare bustine!';
-
-                        } else {
-                            const requestOptions = {
-                                method: "PUT",
-                                redirect: "follow"
-                            };
-
-                            fetch(`http://localhost:3000/credits/${id_utente}/-1`, requestOptions)
-                                .then((response) => response.text())
-                                .then((result) => {
-                                    console.log(result);
-                                    err.classList.remove('d-none');
-                                    err.classList.remove('d-none', 'alert-danger', 'alert-success');
-                                    err.classList.add('alert-warning');
-                                    err.innerHTML = 'Acquisto in cosro attendere...';
-                                    document.getElementsByClassName('navbar-brand')[0].href = "#";
-                                    document.getElementById('acquista').classList.add('disabled');
-
-                                    aggiungiBustine(id_utente);
-                                })
-                                .catch((error) => console.error(error));
+                            return;
                         }
-                    })
-                    .catch((error) => console.error(error));
+                        // aggiorno il messaggio di errore
+                        err.classList.remove('d-none');
+                        err.classList.remove('d-none', 'alert-danger', 'alert-success');
+                        err.classList.add('alert-warning');
+                        err.innerHTML = 'Acquisto in cosro attendere...';
+                        document.getElementsByClassName('navbar-brand')[0].href = "#";
+                        document.getElementById('acquista').classList.add('disabled');
+
+                        aggiungiBustine(id_utente, err);
+
+                        const requestOptions = {
+                            method: "PUT",
+                            redirect: "follow"
+                        };
+                    }).catch((error) => console.error(error));
+
             }
         }
 
-        async function aggiungiBustine(id_utente) {
+        async function aggiungiBustine(id_utente, err) {
             acquistaPacchetto(5)
                 .then((figurine) => {
+                    //aggiungo le figurine all'utente
                     const requestOptions = {
                         method: "PUT",
                         redirect: "follow",
@@ -138,13 +140,25 @@
                     fetch(`http://localhost:3000/figurine/${id_utente}`, requestOptions)
                         .then((response) => response.text())
                         .then(() => {
+                            //rimuovo i crediti
+                            fetch(`http://localhost:3000/credits/${id_utente}/-1`, requestOptions)
+                                .then((response) => response.text())
+                                .then((result) => {
+                                    console.log(result);
+                                })
+                                .catch((error) => console.error(error));
+                        })
+                        .then(() => {
                             err.classList.remove('d-none', 'alert-danger', 'alert-warning');
                             err.classList.add('alert-success');
                             err.innerHTML = 'Acquisto completo!';
                             document.getElementsByClassName('navbar-brand')[0].href = "home.html";
                             document.getElementById('acquista').classList.remove('disabled');
                         })
-                        .catch((error) => console.error(error));
+                        .catch((error) => console.error(error))
+                        .finally(() => {
+                            window.onbeforeunload = null;
+                        });
                 });
         }
     </script>
