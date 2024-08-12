@@ -108,6 +108,10 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        const beforeUnloadHandler = (event) => {
+            event.preventDefault();
+        };
+
         async function loadPagina() {
             checkLoggedInUser();
             await aggiornaPagina();
@@ -176,6 +180,7 @@
         }
 
         function accettaScambio(button) {
+            window.addEventListener("beforeunload", beforeUnloadHandler);
             const bottoni = document.getElementsByClassName("btn");
             for (let i = 0; i < bottoni.length; i++) {
                 bottoni[i].classList.add("disabled");
@@ -224,6 +229,7 @@
                         bottoni[i].classList.remove("disabled");
                     }
                     document.getElementsByClassName('navbar-brand')[0].href = "home.html";
+                    window.removeEventListener("beforeunload", beforeUnloadHandler);
                 });
         }
     </script>
