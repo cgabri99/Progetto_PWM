@@ -1,6 +1,12 @@
 # Progetto
 Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consist in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
 
+## Comandio di avvio
+Per avviare il server che gestisce il backend basta eseguire il seguente comando
+```bash
+npm start backend
+```
+
 ## Diagramma
 ![diagramma](images/diagramma%20progetto.excalidraw.png )
 
@@ -123,7 +129,7 @@ All'interno della cartella [frontend](frontend/) sono contenuti i file relativi 
 
 All'interno della cartella [backend](backend/) sono contenuti i file relativi all'implementazione del frontend.
 In particolare:
-- [index.js](backend/index.js) $\to$ contiene le istruzioni realtive al server e va eseguito tramite Node
+- [index.js](backend/index.js) $\to$ contiene le istruzioni realtive al server
 - [script.js](backend/script.js) $\to$ contiene le funzioni comuni a più parti del progetto
 - [swagger.js](backend/swagger.js) $\to$ contiene le istruzioni realtive alla creazione dello swagger
 
