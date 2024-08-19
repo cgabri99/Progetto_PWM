@@ -2,10 +2,22 @@ const n_heroes = 1564;
 // eslint-disable-next-line no-unused-vars
 const dim_pagina = 30;
 
+/**
+ * Imposta un valore nell'oggetto localStorage.
+ * 
+ * @param {string} item - L'elemento da impostare.
+ * @param {string} value - Il valore da assegnare all'elemento.
+ */
 function setLocalStorage(item, value) {
     localStorage.setItem(item, value);
 }
 
+/**
+ * Restituisce il valore corrispondente all'elemento specificato nell'oggetto localStorage.
+ * 
+ * @param {string} item - L'elemento da recuperare.
+ * @returns {string|boolean} - Il valore corrispondente all'elemento specificato.
+ */
 function getLocalStorage(item) {
     if (item === 'logged') {
         var string_item = localStorage.getItem(item);
@@ -28,6 +40,12 @@ function getFromMarvel(url, query = "") {
         .catch(error => console.log('error', error));
 }
 
+/**
+ * Ottiene i dati da più chiamate API Marvel in modo asincrono.
+ * 
+ * @param {Array} urls - Un array di URL delle chiamate API Marvel.
+ * @returns {Promise<Array>} - Una promessa che si risolve con un array contenente i dati ottenuti dalle chiamate API.
+ */
 // eslint-disable-next-line no-unused-vars
 async function getMultipleMarvel(urls) {
     var promises = [];
@@ -37,12 +55,27 @@ async function getMultipleMarvel(urls) {
     return Promise.all(promises);
 }
 
+
+/**
+ * Genera un numero intero casuale compreso tra un valore minimo e un valore massimo.
+ *
+ * @param {number} min - Il valore minimo (incluso) del range.
+ * @param {number} max - Il valore massimo (incluso) del range.
+ * @returns {number} Il numero intero casuale generato.
+ */
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+
+/**
+ * Funzione per acquistare un pacchetto di figurine.
+ * @param {number} dim - La dimensione del pacchetto di figurine da acquistare.
+ * @returns {Promise<Array<Object>>} Una Promise che restituisce un array di oggetti rappresentanti le figurine acquistate.
+ * @throws {Error} Se si verifica un errore durante il processo di acquisto.
+ */
 // eslint-disable-next-line no-unused-vars
 function acquistaPacchetto(dim) {
     return new Promise((resolve, reject) => {
@@ -67,6 +100,11 @@ function acquistaPacchetto(dim) {
     });
 }
 
+
+/**
+ * Controlla se l'utente è loggato.
+ * Se l'utente non è loggato, visualizza un messaggio di errore e reindirizza alla pagina di login dopo 2 secondi.
+ */
 // eslint-disable-next-line no-unused-vars
 function checkLoggedInUser() {
     if (!getLocalStorage("logged")) {
@@ -84,6 +122,9 @@ async function aggiornaPagina() {
     await aggiornaNavbar();
 }
 
+/**
+ * Aggiorna la navbar con le informazioni dell'utente loggato.
+ */
 async function aggiornaNavbar() {
     var menuUtente = document.getElementById('menuUtente');
     var menuFigurine = document.getElementById('menuFigurine');
@@ -118,6 +159,10 @@ async function aggiornaNavbar() {
 
 }
 
+
+/**
+ * Funzione per effettuare il logout dell'utente.
+*/
 // eslint-disable-next-line no-unused-vars
 function sign_out() {
     var menuUtente = document.getElementById('menuUtente');
