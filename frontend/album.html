@@ -111,7 +111,7 @@
                     ogni carta venduta rimuoverà una copia da quelle possedute e aggiungerà 1
                     credito al tuo saldo
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" id="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                     <button id="buttonVendi" type="button" class="btn btn-info" onclick="vendi(this);">Conferma
                         vendita</button>
@@ -267,13 +267,22 @@
 
             fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}/${id}`, requestOptions)
                 .then((response) => response.text())
+                .then((result) => result = JSON.parse(result))
                 .then((result) => {
-                    msg.innerHTML = "Carta venduta con successo! Verrai reindirizzato all'album";
-                    window.setTimeout(() => {
-                        window.location.href = "album.html";
-                    }, 2000);
+                    if (!result.error) {
+                        msg.innerHTML = "Carta venduta con successo! Verrai reindirizzato all'album";
+                        document.getElementById('modal-footer').classList.add('d-none');
+                        window.setTimeout(() => {
+                            window.location.href = "album.html";
+                        }, 2000);
+                    } else {
+                        msg.innerHTML = result.error;
+                    }
                 })
-                .catch((error) => console.error(error));
+                .catch((error) => {
+                    console.error(error);
+                    msg.innerHTML = "Non hai abbastanza copie disponibili della carta per venderla!";
+                });
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
