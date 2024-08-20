@@ -148,25 +148,35 @@ async function getUserById(res, id) {
     }
 }
 
-//funzione utilizzata per l'hasing delle password degli utenti
+/**
+ * Calcola l'hash di input utilizzando l'algoritmo SHA-256.
+ * 
+ * @param {string} input - L'input da hashare.
+ * @returns {string} - L'hash calcolato.
+ */
 function hash(input) {
     return crypto.createHash('sha256')
         .update(input)
         .digest('hex');
 }
 
-// Check if the email is a valid address
+/**
+ * Controlla che una stringa sia un email valida.
+ *
+ * @param {string} email - La stringa da controllare
+ * @returns {boolean} - True se l'email è valida, false altrimenti.
+ */
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
 
 /**
- * Adds a new user to the database.
+ * Aggiunge un nuovo utente al databse.
  * 
- * @param {Object} user - The user object containing the user's information.
- * @param {Object} res - The response object used to send the HTTP response.
- * @returns {Promise<void>} - A promise that resolves when the user is added to the database.
+ * @param {Object} user - L'oggetto contenete le informazioni dell'utente.
+ * @param {Object} res - L'oggetto risposta usato per mandare l'HTTP response.
+ * @returns {Promise<void>} - Una promessa che si risolve quando l'utente è stato aggiunto al database.
  */
 async function addUser(user, res) {
     // Controlla se tutti i campi obbligatori sono presenti
@@ -291,7 +301,10 @@ async function getCrediti(res, id) {
         });
     } catch (e) {
         console.error(e);
-        res.status(404).json({ error: "Id non presente" });
+        if (e instanceof BSON.BSONError)
+            res.status(404).json({ error: "Id non valido" });
+        else
+            res.status(500).json({ error: "Errore server" });
         return;
     } finally {
         await pwmClient.close();
@@ -396,15 +409,6 @@ async function getTotalFigurine(res, id) {
     }
 }
 
-// /**
-//  * @param {number} id_figurina - l'id della figurina da controllare
-//  * @returns true se l'id é valido, false se non lo é
-//  */
-// function isValid(id_figurina) {
-//     //todo controllare che l'id della figurina sia un id valido
-//     return true;
-// }
-
 /**
  * Aggiunge una o più figurine all'utente con l'id specificato
  * 
@@ -436,13 +440,7 @@ async function addFigurine(body, res, id) {
             return;
         }
     }
-    // //controllo di validità dell'input
-    // for (var figurina in figurine) {
-    //     if (!isValid(figurina.id) || figurina.count <= 0) {
-    //         res.status(400).json({ error: "L'id, il conteggio della figurina non é valido" });
-    //         return;
-    //     }
-    // }
+
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
@@ -551,7 +549,7 @@ async function vendiFigurina(utente, id_figurina) {
  * 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
  * @param {Object} body - Il body della richiesta contenente i dati relativi allo scambio.
- * @returns {Promise<number>} - Una promessa che si risolve con il codice di stato della richiesta.
+ * @returns {Promise<void>} - Una promessa che si risolve quando lo scambio è stato creato.
 */
 async function creaScambio(res, body) {
     const pwmClient = await client.connect();
@@ -796,6 +794,14 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
     }
 }
 
+/**
+ * Crea un'offerta per un pacchetto maxi.
+ * 
+ * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
+ * @param {string} id - L'ID dell'utente che crea l'offerta.
+ * @param {number} num - Il numero di figurine da includere nel pacchetto.
+ * @returns {Promise<void>} - Una promessa che si risolve quando l'offerta per il pacchetto maxi viene creata.
+ */
 async function creaOffertaMaxiPacchetto(res, body) {
     if (!body.admin) {
         res.status(400).json({ error: "Manca l'id dell'utente!" });
@@ -841,6 +847,12 @@ async function creaOffertaMaxiPacchetto(res, body) {
     }
 }
 
+/**
+ * Funzione asincrona per ottenere le offerte dei MaxiPacchetti.
+ * 
+ * @param {Object} res - L'oggetto di risposta HTTP.
+ * @returns {Promise<void>} - Una Promise che si risolve quando le offerte sono state acquisite.
+ */
 async function getOfferteMaxiPacchetti(res) {
     const pwmClient = await client.connect();
     try {
@@ -854,6 +866,13 @@ async function getOfferteMaxiPacchetti(res) {
     }
 }
 
+/**
+ * Accetta un'offerta di un MaxiPacchetto.
+ * 
+ * @param {Object} res - L'oggetto di risposta HTTP.
+ * @param {Object} body - L'oggetto contenente i dati della richiesta.
+ * @returns {Promise<void>} - Una Promise che si risolve quando l'offerta viene accettata.
+ */
 async function accettaOffertaMaxiPacchetto(res, body) {
     if (!body.id_offerta || !body.id_acquirente) {
         res.status(400).json({ error: "Richiesta errata!" });
@@ -891,7 +910,6 @@ async function accettaOffertaMaxiPacchetto(res, body) {
     } finally {
         await pwmClient.close();
     }
-
 }
 /**
  * Effettua il login di un utente.
@@ -1047,7 +1065,7 @@ app.put("/figurine/:id_utente/:id_figurina", async (req, res) => {
     }
 });
 
-// *scambio figurine
+//* Gestione scambio figurine
 app.post("/scambio", async (req, res) => {
     // #swagger.tags = ['Scambio Figurine']
     /*  #swagger.requestBody = {
@@ -1115,7 +1133,7 @@ app.delete("/maxiPacchetti", async (req, res) => {
     await accettaOffertaMaxiPacchetto(res, req.body);
 });
 
-// *login
+// *Gestione login
 app.post("/login", async (req, res) => {
     // #swagger.tags = ['Login']
     /*  #swagger.requestBody = {
