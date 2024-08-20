@@ -60,10 +60,10 @@
         <nav>
             <ul class="pagination pagination-lg d-flex justify-content-center mt-2">
                 <li id="paginationPrev" class="page-item disabled"><a class="page-link" href="#"
-                        onclick="controller.abort();paginazione(-1);">Precedente</a>
+                        onclick="paginazione(-1);">Precedente</a>
                 </li>
                 <li id="paginationNext" class="page-item disabled"><a class="page-link" href="#"
-                        onclick="controller.abort(); paginazione(1);">Succesiva</a>
+                        onclick="paginazione(1);">Succesiva</a>
                 </li>
             </ul>
         </nav>
@@ -130,12 +130,6 @@
         var prevEnabled = false;
         var nextEnabled = false;
 
-        // Create an AbortController instance
-        const controller = new AbortController();
-
-        // Obtain a reference to the AbortSignal
-        const signal = controller.signal;
-
         async function aggiornaAlbum() {
             await aggiornaNavbar();
             paginazione(0);
@@ -154,16 +148,9 @@
                     .then((response) => response.text())
                     .then((result) => result = JSON.parse(result))
                     .then((result) => {
-                        if (total_possedute === undefined) {
-                            total_possedute = result.total;
-                            max_npagina = Math.floor(total_possedute / dim_pagina);
-                            if (total_possedute > dim_pagina) {
-                                next.classList.remove('disabled');
-                            }
-                        }
                         document.getElementById('container').innerHTML = "";
                         clonaPlaceholder(result.figurine.length);
-                        mostraFigurine(result.figurine);
+                        mostraFigurine(result.figurine, result.total);
                     })
                     .catch((error) => console.error(error));
             }
@@ -180,7 +167,7 @@
             }
         }
 
-        async function mostraFigurine(dati) {
+        async function mostraFigurine(dati, n_possedute) {
             console.log(dati);
             heroCard = document.getElementById('heroCard');
             container = document.getElementById('container');
@@ -209,6 +196,15 @@
                 count.innerHTML = `Copie: ${heroData.count}`;
                 clone.classList.remove('d-none');
                 container.replaceChild(clone, placeholder);
+            }
+
+
+            if (total_possedute === undefined) {
+                total_possedute = n_possedute;
+                max_npagina = Math.floor(total_possedute / dim_pagina);
+                if (total_possedute > dim_pagina) {
+                    nextEnabled = true;
+                }
             }
 
             if (prevEnabled) {
