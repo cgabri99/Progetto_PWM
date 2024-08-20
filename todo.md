@@ -44,4 +44,4 @@
 - [x] modifica struttura navbar rimuovendo login in quanto non viene più utilizzata la home come atterraggio a seguito del logout
 - [x] aggiungi logica di controllo refresh di acqustobustine anche su accetta scambio
 - [x] screenshot esempi di utilizzo della pagina per la consegna
-- [ ] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
+- [x] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
