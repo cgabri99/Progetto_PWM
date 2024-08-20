@@ -127,6 +127,9 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        const beforeUnloadHandler = (event) => {
+            event.preventDefault();
+        };
         const error = document.getElementById("error");
         function loadPagina() {
             checkLoggedInUser();
@@ -183,6 +186,7 @@
         }
 
         function accettaOfferta(btn) {
+            window.addEventListener("beforeunload", beforeUnloadHandler);
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -246,7 +250,10 @@
                                 window.location.reload();
                             }, 1000);
                         })
-                        .catch((e) => console.error(e));
+                        .catch((e) => console.error(e))
+                        .finally(() => {
+                            window.removeEventListener("beforeunload", beforeUnloadHandler);
+                        });
                 });
 
         }
