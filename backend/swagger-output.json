@@ -1,0 +1,632 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Scambio di figurine",
+    "description": "Applicazione web che permette lo scambio, acquisto, e apertura di pacchetti di figurine Marvel",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "Gestione Utenti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserSchema"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Gestione Utenti"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "put": {
+        "tags": [
+          "Gestione Utenti"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateUserSchema"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Gestione Utenti"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Gestione Utenti"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/credits/{id}/{qty}": {
+      "put": {
+        "tags": [
+          "Gestione Crediti Utente"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "qty",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/credits/{id}": {
+      "get": {
+        "tags": [
+          "Gestione Crediti Utente"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/figurine/{id}/{dim}/{offset}": {
+      "get": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dim",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/figurine/{id}": {
+      "get": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gestione Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/putFigurineSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/figurine/{id_utente}/{id_figurina}": {
+      "put": {
+        "tags": [
+          "Vendita figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id_utente",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id_figurina",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/scambio": {
+      "post": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/creazioneScambioSchema"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/scambio/{id_utente}": {
+      "get": {
+        "tags": [
+          "Scambio Figurine"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id_utente",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "creati",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/maxiPacchetti": {
+      "post": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/creaOffertaSchema"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Offerte Maxi Pacchetti"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/accettaOffertaSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/loginSchema"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "addUserSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gabriele"
+          },
+          "surname": {
+            "type": "string",
+            "example": "Cucchi"
+          },
+          "age": {
+            "type": "number",
+            "example": 18
+          },
+          "hero": {
+            "type": "string",
+            "example": "Batman"
+          },
+          "email": {
+            "type": "string",
+            "example": "gabriele.cucchi@studenti.unimi.it"
+          },
+          "psw": {
+            "type": "string",
+            "example": "password"
+          },
+          "credits": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "name",
+          "surname",
+          "email",
+          "psw",
+          "credits"
+        ]
+      },
+      "updateUserSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gabriele"
+          },
+          "surname": {
+            "type": "string",
+            "example": "Cucchi"
+          },
+          "age": {
+            "type": "number",
+            "example": 18
+          },
+          "hero": {
+            "type": "string",
+            "example": "Superman"
+          },
+          "psw": {
+            "type": "string",
+            "example": "password"
+          }
+        }
+      },
+      "putFigurineSchema": {
+        "type": "object",
+        "properties": {
+          "figurine": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "example": 123456
+                },
+                "name": {
+                  "type": "string",
+                  "example": "figurina1"
+                },
+                "count": {
+                  "type": "number",
+                  "example": 1
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "figurine"
+        ]
+      },
+      "creazioneScambioSchema": {
+        "type": "object",
+        "properties": {
+          "venditore": {
+            "type": "string",
+            "example": "id_venditore"
+          },
+          "nome_venditore": {
+            "type": "string",
+            "example": "nome_venditore"
+          },
+          "da_scambiare": {
+            "type": "number",
+            "example": 1010831
+          },
+          "nome_da_scambiare": {
+            "type": "string",
+            "example": "figurina_da_scambiare"
+          },
+          "desiderata": {
+            "type": "number",
+            "example": 1011200
+          },
+          "nome_desiderata": {
+            "type": "string",
+            "example": "figurina_desiderata"
+          }
+        }
+      },
+      "accettaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "id_offerta": {
+            "type": "string",
+            "example": "id_offerta"
+          },
+          "id_acquirente": {
+            "type": "string",
+            "example": "id_utente"
+          }
+        }
+      },
+      "creaOffertaSchema": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "string",
+            "example": "6655c92fbfd3008190d30378"
+          },
+          "n_figurine": {
+            "type": "number",
+            "example": 6
+          },
+          "price": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      },
+      "loginSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "gabriele.cucchi@studenti.unimi.it"
+          },
+          "psw": {
+            "type": "string",
+            "example": "password"
+          }
+        },
+        "required": [
+          "email",
+          "psw"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="it" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Creazione scambio</title>
+    <script type="text/javascript" src="../backend/script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body onload="aggiornaPagina();">
+    <div class="vh-100">
+        <div class="container  py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col">
+                    <div id="error" class="d-none my-3 p-3 alert alert-danger" role="alert">
+                    </div>
+                    <div class="card" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+                            <div id="formScambio" class="my-3">
+
+                                <h1 class="text-center">Inserisci Scambio</h1>
+                                <div class="input-group my-3 row">
+                                    <label class="input-group-text col-6" for="selectDaCedere">Nome carta da cedere
+                                    </label>
+                                    <select class="form-select col-6" id="selectDaCedere">
+                                    </select>
+                                </div>
+
+                                <div class="input-group mb-3 row">
+                                    <label class="input-group-text col-6" for="nomeSupereroe">Nome carta da
+                                        ricevere</label>
+                                    <select class="form-select" id="selectDaRicevere">
+                                        <option selected>Choose...</option>
+                                    </select>
+                                </div>
+                                <div class="input-group mb-3 row">
+                                    <label class="input-group-text col-4" for="nomeSupereroe">Nome supereroe
+                                    </label>
+                                    <input id="nomeSupereroe" class="input-group-text col-4" type="text"></input>
+                                    <button class="btn btn-outline-secondary col-4" type="button" id="buttonCerca"
+                                        onclick="getListaDaRicevere(this)">Cerca</button>
+                                </div>
+                                <button id="creaScambio" type="button" class="btn btn-lg btn-primary"
+                                    onclick="creaScambio()">Crea
+                                    scambio</button>
+                                <a class="btn btn-lg btn-primary m-3" type="button" href="home.html">Home</a>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                <div id="toastScambio" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">Aggiornamento scambio</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        async function aggiornaPagina() {
+            checkLoggedInUser();
+            getListaDaCedere();
+        }
+
+        function getVenditotore(id, venditore) {
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch(`http://localhost:3000/users/${id}`, requestOptions)
+                .then((response) => response.text())
+                .then((result) => {
+                    result = JSON.parse(result);
+                    venditore.innerHTML = result.nome;
+                })
+                .catch((error) => console.error(error));
+        }
+
+        function getListaDaCedere() {
+            var listaDaCedere = document.getElementById('selectDaCedere');
+            listaDaCedere.innerHTML = "<option selected>Choose...</option>";
+
+            const requestOptions = {
+                method: "GET",
+                redirect: "follow"
+            };
+
+            fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
+                .then((response) => response.text())
+                .then((result) => JSON.parse(result))
+                .then((data) => {
+                    var countDisponibili = 0;
+                    var figurine = data.figurine;
+                    figurine.forEach((figurina) => {
+                        if (figurina.disponibili > 0) {
+                            var option = document.createElement('option');
+                            option.value = figurina.id;
+                            option.innerHTML = figurina.name;
+                            listaDaCedere.appendChild(option);
+                            countDisponibili++;
+                        }
+                    });
+                    if (countDisponibili === 0) {
+                        document.getElementById('error').classList.remove('d-none');
+                        document.getElementById('error').innerHTML = 'Nessuna carta disponibile da cedere, non puoi creare nessuno scambio al momento!';
+                        document.getElementById('creaScambio').classList.add('disabled');
+                        document.getElementById('buttonCerca').classList.add('disabled');
+                        setTimeout(() => {
+                            window.location.href = "home.html";
+                        }, 5000);
+                    } else {
+                        document.getElementById('error').classList.add('d-none');
+                    }
+                })
+                .catch((error) => console.error(error));
+        }
+
+        function getListaDaRicevere(btn) {
+
+            var nome = document.getElementById('nomeSupereroe');
+            if (!nome.value) {
+                nome.classList.add('border-danger');
+                return;
+            } else {
+                nome.classList.remove('border-danger');
+            }
+            btn.innerHTML = `<span id="caricamento"><span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+            <span role="status">Caricamento...</span></span>`;
+            btn.classList.add('disabled');
+            var listaDaRicevere = document.getElementById('selectDaRicevere');
+            listaDaRicevere.innerHTML = "<option selected>Choose...</option>";
+
+            getFromMarvel("public/characters", `nameStartsWith=${nome.value}&orderBy=name&limit=100`)
+                .then((result) => {
+                    console.log(result);
+                    data = result.data.results;
+                    if (data.length === 0) {
+                        document.getElementById('error').classList.remove('d-none');
+                        document.getElementById('error').innerHTML = 'Nessun supereroe trovato';
+                    } else {
+                        document.getElementById('error').classList.add('d-none');
+                        data.forEach((supereroe) => {
+                            var option = document.createElement('option');
+                            option.value = supereroe.id;
+                            option.innerHTML = supereroe.name;
+                            listaDaRicevere.appendChild(option);
+                        });
+                    }
+                    btn.innerHTML = 'Cerca';
+                    btn.classList.remove('disabled');
+                })
+        }
+
+        function creaScambio() {
+            var cedere = document.getElementById('selectDaCedere');
+            var ricevere = document.getElementById('selectDaRicevere');
+            if (cedere.value === 'Choose...') {
+                cedere.classList.add('border-danger');
+                return;
+            } else {
+                cedere.classList.remove('border-danger');
+            }
+            if (ricevere.value === 'Choose...') {
+                ricevere.classList.add('border-danger');
+                return;
+            } else {
+                ricevere.classList.remove('border-danger');
+            }
+
+            console.log(cedere.value, cedere[cedere.selectedIndex].text, ricevere.value, ricevere[ricevere.selectedIndex].text);
+
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({
+                "venditore": getLocalStorage("id_utente"),
+                "nome_venditore": getLocalStorage("nome_utente"),
+                "da_scambiare": parseInt(cedere.value),
+                "nome_da_scambiare": cedere[cedere.selectedIndex].text,
+                "desiderata": parseInt(ricevere.value),
+                "nome_desiderata": ricevere[ricevere.selectedIndex].text
+            });
+
+            const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow"
+            };
+
+            fetch("http://localhost:3000/scambio", requestOptions)
+                .then((response) => response.text())
+                .then((result) => {
+                    result = JSON.parse(result);
+                    console.log(result);
+                    const toastLiveExample = document.getElementById('toastScambio');
+                    if (result.error) {
+                        toastLiveExample.querySelector('.toast-body').innerHTML = result.error;
+                    } else {
+                        toastLiveExample.querySelector('.toast-body').innerHTML = 'Scambio creato con successo!';
+                    }
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+                    toastBootstrap.show();
+                }).then(() => {
+                    getListaDaCedere();
+                })
+                .catch((error) => console.error(error));
+        }
+    </script>
+</body>
+
+
+</html>

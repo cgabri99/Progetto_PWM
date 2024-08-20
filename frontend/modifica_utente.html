@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="it" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modifica dati</title>
+    <script type="text/javascript" src="../backend/script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body onload="aggiornaPagina()">
+    <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="home.html">Album delle Figurine dei Super Eroi (AFSE)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a id="menuFigurine" class="nav-link dropdown-toggle disabled" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            Gestione figurine
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="album.html">Album</a></li>
+                            <li><a class="dropdown-item" href="crea_scambio.html">Crea Scambio</a></li>
+                            <li><a class="dropdown-item" href="lista_scambi.html">Scambi disponibili</a></li>
+                            <li><a class="dropdown-item" href="acquisto_bustine.html">Acquisto bustine</a></li>
+                            <li><a class="dropdown-item" href="maxi_pacchetti.html">Maxi pacchetti</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a id="menuUtente" class="nav-link dropdown-toggle disabled" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            Gestione utente
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="modifica_utente.html">Modifica dati</a></li>
+                            <li><a class="dropdown-item" href="elimina_utente.html">Elimina Utente</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="sign_out();">Log out</a></li>
+                            <li><a class="dropdown-item" href="login.html">Log in</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <span id="benvenuto" class="navbar-text mx-3 d-none"></span>
+                <a id="salvadanaio" class="btn btn-outline-light d-none" type="button" href="acquisto_crediti.html"></a>
+            </div>
+        </div>
+    </nav>
+    <div class="vh-100">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div id="error"
+                        class="d-none my-3 p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3">
+                    </div>
+                    <div class="card" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+
+                            <div class="mt-mb-4">
+
+                                <h2 class="fw-bold mb-2 text-uppercase">Modifica dati utente</h2>
+                                <p class="text-white-50 mb-5">Immetti solo i dati che vuoi modificare, gli altri
+                                    resteranno invariati</p>
+
+                                <div class="row">
+                                    <div class="col-12 col-md-4 form-outline form-white mb-4">
+                                        <label for="name" class="form-label">Nome</label>
+                                        <input type="text" class="form-control" id="name">
+                                    </div>
+                                    <div class="col-12 col-md-4 form-outline form-white mb-4">
+                                        <label for="surname" class="form-label">Cognome</label>
+                                        <input type="text" class="form-control" id="surname">
+                                    </div>
+
+                                    <div class="col-12 col-md-4 form-outline form-white mb-4">
+                                        <label for="age" class="form-label">Età</label>
+                                        <input type="number" class="form-control" id="age">
+                                    </div>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label for="hero" class="form-label">Super eroe preferito</label>
+                                    <input type="text" class="form-control" id="hero">
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label" for="password">Password</label>
+                                    <input type="password" id="password" class="form-control form-control-lg">
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label" for="conferma_password">Conferma password</label>
+                                    <input type="password" id="conferma_password" class="form-control form-control-lg">
+                                </div>
+                                <div>
+
+                                    <button onclick="modifica()" class="btn btn-outline-light btn-lg"
+                                        type="button">Modifica dati</button>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function modifica() {
+            nome = document.getElementById('name');
+            surname = document.getElementById('surname');
+            age = document.getElementById('age');
+            hero = document.getElementById('hero');
+            psw = document.getElementById('password');
+            c_psw = document.getElementById('conferma_password');
+
+            age.classList.remove("border", "border-danger");
+            psw.classList.remove("border", "border-danger");
+            c_psw.classList.remove("border", "border-danger");
+
+
+            div = document.getElementById('error');
+
+            if (!nome.value && !surname.value && !age.value && !hero.value && !psw.value) {
+                div.classList.remove('d-none');
+                div.innerHTML = "Devi inserire almeno un valore da modificare!";
+                return;
+            }
+
+            //gestione degli errori di immissione
+            if (psw.value !== c_psw.value) {
+                div.classList.remove('d-none');
+                div.innerHTML = "I campi password e conferma password devono coinidere";
+                psw.classList.add("border", "border-danger");
+                c_psw.classList.add("border", "border-danger");
+            } else if (parseInt(age.value) < 0) {
+                div.classList.remove('d-none');
+                div.innerHTML = "L'età non può essere negativa!";
+                age.classList.add("border", "border-danger");
+            } else {
+                var dati = {};
+
+                if (nome.value)
+                    dati.name = nome.value;
+                if (surname.value)
+                    dati.surname = surname.value;
+                if (age.value)
+                    dati.age = parseInt(age.value);
+                if (hero.value)
+                    dati.hero = hero.value;
+                if (psw.value)
+                    dati.psw = psw.value;
+
+                psw.classList.remove("border", "border-danger");
+                c_psw.classList.remove("border", "border-danger");
+                update_user(dati, div);
+            }
+        }
+
+        function update_user(user, err) {
+            err.classList.add('d-none');
+
+            if (!getLocalStorage("logged")) {
+                err.classList.remove('d-none');
+                err.classList.add("border", "border-danger");
+                err.innerHTML = 'Utente non loggato! <a href="login.html" class="link-danger">login</a >';
+                return;
+            }
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify(user);
+
+            const requestOptions = {
+                method: "PUT",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow"
+            };
+
+            fetch(`http://localhost:3000/users/${getLocalStorage("id_utente")}`, requestOptions)
+                .then((response) => response.text())
+                .then((result) => gestione_errori(result, err))
+                .catch((error) => console.error(error));
+        }
+
+        function gestione_errori(res, err) {
+            nome = document.getElementById('name');
+            surname = document.getElementById('surname');
+            psw = document.getElementById('password');
+
+            resj = JSON.parse(res);
+            console.log(resj);
+
+            if (resj.error !== undefined) {
+                error = resj.error;
+                div.classList.remove('d-none');
+                div.innerHTML = err;
+
+                if (res.includes("Password")) {
+                    psw.classList.add("border", "border-danger");
+                }
+                if (res.includes("Nome")) {
+                    nome.classList.add("border", "border-danger");
+                }
+                if (res.includes("Cognome")) {
+                    surname.classList.add("border", "border-danger");
+                }
+            } else {
+                surname.classList.remove("border", "border-danger");
+                nome.classList.remove("border", "border-danger");
+                psw.classList.remove("border", "border-danger");
+                err.classList.remove("d-none", "text-danger-emphasis", "bg-danger-subtle", "border-danger-subtle");
+                err.classList.add("text-success-emphasis", "bg-success-subtle", "border-success-subtle");
+                err.innerHTML = "Modifica effettuata";
+                // Mi sposto alla schermata di home
+                window.location.replace(
+                    "home.html"
+                );
+            }
+
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+
+</html>
