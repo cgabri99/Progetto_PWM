@@ -1,5 +1,8 @@
 # Progetto
-Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consist in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
+Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consiste in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
+
+## Considerazioni sulle prestazioni
+Si vuole sottolineare che durante la realizzazione del progetto (lugio/Agosto 2024) il server marvel incaricato della Gestione delle chiamte API è notevolmente rallenatato e al momento l'esperienza dell'utente finale è altamente compromessa, d'altraparte si è scelto di continuare a usufruire del server e non trovare altre soluzioni (per esempio "congelando" i dati in un file statico dal quale attingere) a fini didattici e per attenersi alle richieste del docente. 
 
 ## Comandio di avvio
 Per avviare il server che gestisce il backend basta eseguire i seguenti comandi
@@ -33,6 +36,24 @@ Il localstorage viene utilizzto dall'applicazione per memorizzare i dati di conn
 - alla chiave *logged* $\to$ viene associato true o false in base allo stato di login
 - alla chiave *id_utente* $\to$ viene associato l'id dell'utente loggato o null
 
+
+## Funzionalità aggiuntive implementate
+L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
+- dalla sezione album ogni utente può [vendere](#vendita-figurine) le sue figurine in cambio di crediti
+- l'utente amministratore, nella sezione dedicata, può generare offerte per pacchetti di figurine maxi contenenti da 6 a 30 figurine e il prezzo può andare da 1 a 5 crediti. Nella stesssa sezione tutti gli altri utenti possono acquistare le offerte per i pacchetti di figurine. Per maggiori informazioni realtive all'utente amministratore visita la sezione [dedicata](#utente-amministratore)
+- per quanto riguarda gli [scambi](#scambi) sono gestiti i controlli di integritàin modo che:
+    - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
+    - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
+
+## Utente amministratore
+L'utente amministratore **DEVE** avere le seguenti caratteristiche:
+- nome $\to$ admin
+- cognome $\to$ admin
+- mail $\to$ admin@admin.it
+
+### Gestione utente amministratore
+La stringa esadecimale relativa all'_id legato all'amministratore è salvata nel file [index.js](backend/index.js), più precismanete nella costante adminId, in caso di ricreazione dell'utente amministratore deve essere modificato il valore della costante
+
 ## Scelte implementative e descrizione della realizzazione delle operazioni
 Per tutte le operazioni dell'applicazione prima dell'esecuzione viene controllato che l'utente sia loggato, altrimenti questo viene rimbalzato alla scghermata di login
 
@@ -63,13 +84,13 @@ Le modifiche permesse all'utente sono:
 - supereroe preferito
 - password
 
-Non èpermesso modificare l'email in quanto è utilizzata come indice del database e insisme all'id utente definisce univocvamente l'utente nel database
+Non è permesso modificare l'email in quanto è utilizzata come indice del database e insieme all'id utente definisce univocvamente l'utente nel database
 
 ### Eliminazione utente
 Al momento dell'eliminazione reperiamo dal [Localstoarge](#utilizzo-del-localstorage) l'id dell'utente loggato e in caso di conferma dell'intezione di eliminare l'account questo viene rimosso dal database e l'utente reindirizzato alla schermta di login
 
 ### Acquisto crediti
-Nella schermata home è presente il "salvadanaio" dell'utente, cliccando sul pulsante si apre la pagina relativa all'acquisto fittizio dei crediti.
+Nella navbar è presente il "salvadanaio" dell'utente, cliccando sul pulsante si apre la pagina relativa all'acquisto "fittizio" dei crediti.
 Non è permesso acquistare un numero di crediti nullo o negativo.
 
 ### Album
@@ -85,8 +106,6 @@ Nella sezione gestione figurine l'utente può accedere alla pagina relativa all'
 Ad ogni figurina è asseganto il valore "commerciale" di 1 credito.
 L'utente può vendere una figurina anche se ne possiede solamente 1 copia.
 
-La stringa esadecimale relativa all'_id legato all'amministratore è salvata nel file [index.js](backend/index.js), più precismanete nella costante adminId, in caso di ricreazione dell'utente amministratore deve essere modificato il valore della costante
-
 ### Scambi
 Nella sezione relativa alla visualizzazione degli scambi sono presenatte due liste separate:
 - **scambi creati** $\to$ la lista degli scambi creati dall'utente
@@ -95,14 +114,15 @@ Nella sezione relativa alla visualizzazione degli scambi sono presenatte due lis
 Per essere in consizione di accettare uno scambio un utente deve essere in possesso della figurina desiderata da chi ha creato lo scambio e deve averene un numero sufficiente di copie [disponibili](#copie-disponibili-di-una-figurina).
 
 **N.B.** Un utente può scambiare una figurina anche se ne possiede solo una copia.
+**N.B.** Vengono mostrati nella lista degli scambi disponibili anche gli scambi dovel'utente è già in possesso della figurina messa in scambio, ma non possono essere accettati per maggiori [dettagli](#accettazione-di-uno-scambio)
 
 ### Creazione di uno scambio
 La lista delle carte che possono essere messe in scambio viene automaticamente generata a partire da quelle disponibili, mentre per la figurina desiderata la lista viene reperita da quella dei supereroi disponibili sul server. In particolare va inserito il nome che si vuole ricercare nell'apposito input e la lista viene popolata in seguito alla rispsota del server.
 
 ### Accettazione di uno scambio
 Per accettare uno scambio l'utente può cliccare uno dei bottoni relativi alla lista degli scambi disponibili e si possono verificare due situazioni:
-- l'utente non possiede la figurina messa in scambio $\to$ lo scambio viene accettao, le figurine scambiate e la pagina aggionata
-- l'utente possiede la figurina messa in scambio $\to$ lo scambio non viene accettao, la situazione delle figurine rimane invariata e viene visualizzato un messaggio di errore
+- l'utente **non possiede la figurina messa in scambio** $\to$ **lo scambio viene accettao**, le figurine scambiate e la pagina aggionata
+- l'utente **possiede la figurina messa in scambio** $\to$ **lo scambio non viene accettao**, la situazione delle figurine rimane invariata e viene visualizzato un messaggio di errore
 
 #### Copie disponibili di una figurina
 Le copie disponibili di una figurina sono definite secondo la seguente formula:
@@ -111,28 +131,15 @@ $$Copie_{disponibili} = Copie_{possedute} - N_{scambi} $$
 
 dove $N_{scambi}$ indica il numero di scambi creati dall'utente in cui quella figurina viene proposta come oggetto dello scambio.
 
-## Funzionalità aggiuntive implementate
- L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
-- dalla sezione album ogni utente può [vendere](#vendita-figurine) le sue figurine in cambio di crediti
-- l'utente amministratore, nella sezione dedicata, può generare offerte per pacchetti di figurine maxi contenenti da 6 a 30 figurine e il prezzo può andare da 1 a 5 crediti. Nella stesssa sezione tutti gli altri utenti possono acquistare le offerte per i pacchetti di figurine. Per maggiori informazioni realtive all'utente amministratore visita la sezione [dedicata](#utente-amministratore)
-- per quanto riguarda gli [scambi](#scambi) sono gestiti i controlli di integritàin modo che:
-    - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
-    - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
-
-### Utente amministratore
-L'utente amministratore **DEVE** avere le seguenti caratteristiche:
-- nome $\to$ admin
-- cognome $\to$ admin
-- mail $\to$ admin@admin.it
 
 ## Struttura del progetto
 All'interno della cartella [frontend](frontend/) sono contenuti i file relativi all'implementazione del frontend.
 
-All'interno della cartella [backend](backend/) sono contenuti i file relativi all'implementazione del frontend.
+All'interno della cartella [backend](backend/) sono contenuti i file relativi all'implementazione del backend.
 In particolare:
 - [index.js](backend/index.js) $\to$ contiene le istruzioni realtive al server
 - [script.js](backend/script.js) $\to$ contiene le funzioni comuni a più parti del progetto
 - [swagger.js](backend/swagger.js) $\to$ contiene le istruzioni realtive alla creazione dello swagger
 
-# Considerazioni sulle prestazioni
-Si vuole sottolineare che durante la realizzazione del progetto (lugio/Agosto 2024) il server marvel incaricato della Gestione delle chiamte API è notevolmente rallenatato e al momento l'esperienza dell'utente finale è altamente compromessa, d'altraparte si è scelto di continuare a usufruire del server e non trovare altre soluzioni (per esempio "congelando" i dati in un file statico dal quale attingere) a fini didattici e per attenersi alle richieste del docente. 
+## Immagini
+Le schermate di prova del funzioanemnto dell'applicazione sono contenute nella cartella [images](images/)
