@@ -57,10 +57,10 @@
         <h1 class="text-center my-2">Descrizione personaggio</h1>
 
         <div id="placeholder" class="card m-3">
-            <div class="row g-0">
+            <div class="row">
                 <div class="col-md-4">
-                    <div style="width:100%;height: 360px;">
-                        <img class="rounded-start" src="">
+                    <div class="figure">
+                        <img class="rounded-start figure-img" src="https://placehold.co/450X750/4A4E52/4A4E52/png">
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -97,6 +97,15 @@
 
         <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
             <div id="col_comics" class="col">
+                <div id="placeholder_comics">
+                    <h1 class="placeholder-glow">
+                        <span class="placeholder col-12"></span>
+                    </h1>
+                    <figure class="figure">
+                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
+                            alt="placeholder">
+                    </figure>
+                </div>
                 <h1 id="title_comics" class="text-center my-3 d-none">Fumetti in cui appare</h1>
                 <div id="carousel_comics" class="carousel slide">
                     <div id="container_comics" class="carousel-inner">
@@ -129,6 +138,15 @@
                 </div> -->
             </div>
             <div id="col_series" class="col">
+                <div id="placeholder_series">
+                    <h1 class="placeholder-glow">
+                        <span class="placeholder col-12"></span>
+                    </h1>
+                    <figure class="figure">
+                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
+                            alt="placeholder">
+                    </figure>
+                </div>
                 <h1 id="title_series" class="text-center my-3 d-none">Serie in cui appare</h1>
                 <div id="carousel_series" class="carousel slide">
                     <div id="container_series" class="carousel-inner">
@@ -162,6 +180,15 @@
             </div>
 
             <div id="col_events" class="col">
+                <div id="placeholder_events">
+                    <h1 class="placeholder-glow">
+                        <span class="placeholder col-12"></span>
+                    </h1>
+                    <figure class="figure">
+                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
+                            alt="placeholder">
+                    </figure>
+                </div>
                 <h1 id="title_events" class="text-center my-3 d-none">Eventi in cui appare</h1>
                 <div id="carousel_events" class="carousel slide">
                     <div id="container_events" class="carousel-inner">
@@ -324,6 +351,7 @@
                 slide.before(clone);
             }
             container.removeChild(slide);
+            container.removeChild(document.getElementById('placeholder_' + type));
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -13,3 +13,11 @@
     height: 40vw;
     object-fit: scale-down;
 }
+
+.figure-img {
+    width: 100%;
+    height: 40vw;
+    object-fit: fill;
+    display: block;
+    margin: auto;
+}
