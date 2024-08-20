@@ -43,5 +43,5 @@
 - [ ] aggiungi placeholder in dettagli personaggio per events, comics e series
 - [x] modifica struttura navbar rimuovendo login in quanto non viene più utilizzata la home come atterraggio a seguito del logout
 - [x] aggiungi logica di controllo refresh di acqustobustine anche su accetta scambio
-- [ ] screenshot esempi di utilizzo della pagina per la consegna
+- [x] screenshot esempi di utilizzo della pagina per la consegna
 - [ ] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
