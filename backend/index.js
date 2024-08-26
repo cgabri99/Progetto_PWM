@@ -1,3 +1,4 @@
+const utility = require('./script');
 const express = require('express');
 
 //modulo gestione hash password
@@ -444,38 +445,7 @@ async function addFigurine(body, res, id) {
     const pwmClient = await client.connect();
     try {
         // Cerca le figurine di un utente a partire dall'id
-        var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
-            proprietario: ObjectId.createFromHexString(id)
-        }).sort({ name: 1 }).toArray();
-
-        //aggiorno la lista delle figurine possedute
-        for (let i = 0; i < figurine.length; i++) {
-            var figurina = figurine[i];
-            if (possedute.find(f => f.id === figurina.id) === undefined) {
-                await pwmClient.db(DB_NAME).collection("Figurine")
-                    .insertOne({
-                        proprietario: ObjectId.createFromHexString(id),
-                        id: figurina.id,
-                        name: figurina.name,
-                        count: figurina.count,
-                        disponibili: figurina.count
-                    });
-                possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
-                    proprietario: ObjectId.createFromHexString(id)
-                }).sort({ name: 1 }).toArray();
-            } else {
-                await pwmClient.db(DB_NAME).collection("Figurine")
-                    .updateOne({
-                        id: figurina.id,
-                        proprietario: ObjectId.createFromHexString(id)
-                    }, {
-                        $inc: {
-                            count: figurina.count,
-                            disponibili: figurina.count
-                        }
-                    });
-            }
-        }
+        var possedute = await aggiungiFigurine(pwmClient, figurine, id, undefined);
 
         possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
             proprietario: ObjectId.createFromHexString(id)
@@ -495,6 +465,66 @@ async function addFigurine(body, res, id) {
     } finally {
         await pwmClient.close();
     }
+}
+
+async function aggiungiFigurine(pwmClient, figurine, id_utente, session) {
+    var possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+        proprietario: ObjectId.createFromHexString(id_utente)
+    }).sort({ name: 1 }).toArray();
+
+    //aggiorno la lista delle figurine possedute
+    for (let i = 0; i < figurine.length; i++) {
+        var figurina = figurine[i];
+        if (possedute.find(f => f.id === figurina.id) === undefined) {
+            if (session !== undefined) {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .insertOne({
+                        proprietario: ObjectId.createFromHexString(id_utente),
+                        id: figurina.id,
+                        name: figurina.name,
+                        count: figurina.count,
+                        disponibili: figurina.count
+                    }, { session });
+            } else {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .insertOne({
+                        proprietario: ObjectId.createFromHexString(id_utente),
+                        id: figurina.id,
+                        name: figurina.name,
+                        count: figurina.count,
+                        disponibili: figurina.count
+                    });
+            }
+            possedute = await pwmClient.db(DB_NAME).collection("Figurine").find({
+                proprietario: ObjectId.createFromHexString(id_utente)
+            }).sort({ name: 1 }).toArray();
+        } else {
+            if (session !== undefined) {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .updateOne({
+                        id: figurina.id,
+                        proprietario: ObjectId.createFromHexString(id_utente)
+                    }, {
+                        $inc: {
+                            count: figurina.count,
+                            disponibili: figurina.count
+                        }
+                    }, { session });
+            } else {
+                await pwmClient.db(DB_NAME).collection("Figurine")
+                    .updateOne({
+                        id: figurina.id,
+                        proprietario: ObjectId.createFromHexString(id_utente)
+                    }, {
+                        $inc: {
+                            count: figurina.count,
+                            disponibili: figurina.count
+                        }
+                    });
+            }
+        }
+    }
+    return possedute;
 }
 /** 
  * @param {Object} res - L'oggetto di risposta utilizzato per inviare la risposta HTTP.
@@ -892,26 +922,48 @@ async function accettaOffertaMaxiPacchetto(res, body) {
     }
 
     const pwmClient = await client.connect();
+    // Inizio una client session
+    const session = client.startSession();
+    // Imposto le opzioni della transazione
+    const transactionOptions = {
+        readPreference: 'primary',
+        readConcern: { level: 'local' },
+        writeConcern: { w: 'majority' }
+    };
     try {
-        //cerca l'offerta con l'id specificato
-        const offerta = await pwmClient.db(DB_NAME).collection("MaxiPacchetti").findOne({ _id: ObjectId.createFromHexString(body.id_offerta) });
-        if (offerta === null) {
-            res.status(404).json({ error: "Offerta non presente" });
-            return;
-        }
+        await session.withTransaction(async () => {
+            //cerca l'offerta con l'id specificato
+            const offerta = await pwmClient.db(DB_NAME).collection("MaxiPacchetti").findOne({ _id: ObjectId.createFromHexString(body.id_offerta) });
+            if (offerta === null) {
+                res.status(404).json({ error: "Offerta non presente" });
+                return;
+            }
 
-        const credits = await pwmClient.db(DB_NAME).collection("Users").findOne({ _id: ObjectId.createFromHexString(body.id_acquirente) }).credits;
+            //aggiungo le figurine all'utente
+            const result = await utility.acquistaPacchetto(offerta.n_figurine);
+            var possedute = await aggiungiFigurine(pwmClient, result, body.id_acquirente, session);
 
-        if (credits < offerta.price) {
-            res.status(409).json({ error: "Crediti insufficienti" });
-            return;
-        } else {
-            await pwmClient.db(DB_NAME).collection("Users").updateOne({ _id: ObjectId.createFromHexString(body.id_acquirente) }, { $inc: { credits: -offerta.price } });
-        }
+            //aggiorno i crediti dell'utente
+            const credits = await pwmClient.db(DB_NAME).collection("Users").findOne({ _id: ObjectId.createFromHexString(body.id_acquirente) }).credits;
 
-        //elimina l'offerta con l'id specificato
-        await pwmClient.db(DB_NAME).collection("MaxiPacchetti").deleteOne({ _id: ObjectId.createFromHexString(body.id_offerta) });
-        res.status(200).json({ status: "ok", offerta: offerta });
+            if (credits < offerta.price) {
+                res.status(409).json({ error: "Crediti insufficienti" });
+                return;
+            } else {
+                await pwmClient.db(DB_NAME).collection("Users")
+                    .updateOne(
+                        { _id: ObjectId.createFromHexString(body.id_acquirente) },
+                        { $inc: { credits: -offerta.price } },
+                        { session });
+            }
+
+            //elimina l'offerta appena creata con l'id specificato
+            await pwmClient.db(DB_NAME).collection("MaxiPacchetti")
+                .deleteOne(
+                    { _id: ObjectId.createFromHexString(body.id_offerta) },
+                    { session });
+            res.status(200).json({ status: "ok", offerta_effettuata: offerta, possedute: possedute });
+        }, transactionOptions);
     } catch (e) {
         console.error(e);
         if (e instanceof BSON.BSONError)

@@ -179,4 +179,8 @@ function sign_out() {
     window.location.href = "login.html";
 }
 
+module.exports = {
+    acquistaPacchetto
+};
+
 

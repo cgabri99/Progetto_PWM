@@ -140,21 +140,28 @@
                     };
                     fetch(`http://localhost:3000/figurine/${id_utente}`, requestOptions)
                         .then((response) => response.text())
-                        .then(() => {
-                            //rimuovo i crediti
-                            fetch(`http://localhost:3000/credits/${id_utente}/-1`, requestOptions)
-                                .then((response) => response.text())
-                                .then((result) => {
-                                    console.log(result);
-                                })
-                                .catch((error) => console.error(error));
-                        })
-                        .then(() => {
-                            err.classList.remove('d-none', 'alert-danger', 'alert-warning');
-                            err.classList.add('alert-success');
-                            err.innerHTML = 'Acquisto completo!';
-                            document.getElementsByClassName('navbar-brand')[0].href = "home.html";
-                            document.getElementById('acquista').classList.remove('disabled');
+                        .then((res) => {
+                            res = JSON.parse(res);
+                            if (!res.error) {
+                                //rimuovo i crediti
+                                fetch(`http://localhost:3000/credits/${id_utente}/-1`, requestOptions)
+                                    .then((response) => response.text())
+                                    .then(() => {
+                                        err.classList.remove('d-none', 'alert-danger', 'alert-warning');
+                                        err.classList.add('alert-success');
+                                        err.innerHTML = 'Acquisto completo!';
+                                        document.getElementsByClassName('navbar-brand')[0].href = "home.html";
+                                        document.getElementById('acquista').classList.remove('disabled');
+                                    })
+                                    .catch((error) => console.error(error));
+                            } else {
+                                err.classList.remove('d-none', 'alert-success', 'alert-warning');
+                                err.classList.add('alert-danger');
+                                err.innerHTML = res.error;
+                                document.getElementsByClassName('navbar-brand')[0].href = "home.html";
+                                document.getElementById('acquista').classList.remove('disabled');
+                                return;
+                            }
                         })
                         .catch((error) => console.error(error))
                         .finally(() => {
