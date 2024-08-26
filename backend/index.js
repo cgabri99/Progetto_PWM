@@ -688,28 +688,39 @@ async function deleteScambio(res, body) {
     }
 
     const pwmClient = await client.connect();
+    // Inizio una client session
+    const session = client.startSession();
+    // Imposto le opzioni della transazione
+    const transactionOptions = {
+        readPreference: 'primary',
+        readConcern: { level: 'local' },
+        writeConcern: { w: 'majority' }
+    };
+
     try {
-        //cerca lo scambio con l'id specificato
-        const scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
-        if (scambio === null) {
-            res.status(404).json({ error: "Scambio non presente" });
-            return;
-        }
+        await session.withTransaction(async () => {
+            //cerca lo scambio con l'id specificato
+            const scambio = await pwmClient.db(DB_NAME).collection("Scambi").findOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+            if (scambio === null) {
+                res.status(404).json({ error: "Scambio non presente" });
+                return;
+            }
 
-        const posseduteAcquirente = await pwmClient.db(DB_NAME).collection("Figurine")
-            .find({ proprietario: ObjectId.createFromHexString(body.id_acquirente) }).toArray();
+            const posseduteAcquirente = await pwmClient.db(DB_NAME).collection("Figurine")
+                .find({ proprietario: ObjectId.createFromHexString(body.id_acquirente) }).toArray();
 
-        if (posseduteAcquirente.find(f => f.id === scambio.da_scambiare) !== undefined) {
-            res.status(409).json({ error: "L'acquirente possiede già la figurina messa in scambio!" });
-            return;
-        }
+            if (posseduteAcquirente.find(f => f.id === scambio.da_scambiare) !== undefined) {
+                res.status(409).json({ error: "L'acquirente possiede già la figurina messa in scambio!" });
+                return;
+            }
 
-        await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio, false);
-        await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio, true);
+            await aggiornaAcquirenti(pwmClient, scambio.venditore.toString(), scambio, false, session);
+            await aggiornaAcquirenti(pwmClient, body.id_acquirente, scambio, true, session);
 
-        //elimina lo scambio con l'id specificato
-        await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
-        res.status(200).json({ status: "ok", scambio_effettuato: scambio });
+            //elimina lo scambio con l'id specificato
+            await pwmClient.db(DB_NAME).collection("Scambi").deleteOne({ _id: ObjectId.createFromHexString(body.id_scambio) });
+            res.status(200).json({ status: "ok", scambio_effettuato: scambio });
+        }, transactionOptions);
     } catch (e) {
         console.error(e);
         if (e instanceof BSON.BSONError)
@@ -719,6 +730,7 @@ async function deleteScambio(res, body) {
         return;
     } finally {
         await pwmClient.close();
+        await session.endSession();
     }
 }
 
@@ -732,7 +744,7 @@ async function deleteScambio(res, body) {
  * @returns {Promise<void>} - Una promessa che si risolve quando l'acquirente viene aggiornato nel database.
  */
 
-async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
+async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente, session) {
     var inUsita = isAcquirente ? scambio.desiderata : scambio.da_scambiare;
     var inArrivo = isAcquirente ? scambio.da_scambiare : scambio.desiderata;
 
@@ -745,7 +757,7 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
             .deleteOne({
                 proprietario: ObjectId.createFromHexString(id_utente),
                 id: inUsita
-            });
+            }, { session });
     } else {
         var count = isAcquirente ? -1 : 0;
         //possiedo più copie della carta da scambiare
@@ -761,7 +773,7 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
                         disponibili: count,
                         count: -1
                     }
-                });
+                }, { session });
     }
 
     posseduta = await client.db(DB_NAME).collection("Figurine")
@@ -790,7 +802,7 @@ async function aggiornaAcquirenti(client, id_utente, scambio, isAcquirente) {
                         count: 1,
                         disponibili: 1
                     }
-                });
+                }, { session });
     }
 }
 
