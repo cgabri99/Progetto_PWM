@@ -47,5 +47,5 @@
 - [x] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
 - [x]inserire [transaction](https://www.mongodb.com/docs/manual/core/transactions/) per la gestione delle operazioni che lo richiedono
 - [x] aggiornare readme.m
-- [ ] gestire frontend album vuoto
+- [x] gestire frontend album vuoto
 - [x] gestire frontend placeolder comics, events, series dopo pagina 1
