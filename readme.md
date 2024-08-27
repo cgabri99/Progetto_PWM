@@ -131,6 +131,9 @@ $$Copie_{disponibili} = Copie_{possedute} - N_{scambi} $$
 
 dove $N_{scambi}$ indica il numero di scambi creati dall'utente in cui quella figurina viene proposta come oggetto dello scambio.
 
+## Utilizzo delle [transaction](https://www.mongodb.com/docs/manual/core/transactions/)
+Tuttle le operazioni che richiedono l'accettazione di un qualsisi tipo di offerta sono state implememnate tramite l'utilizzo di transaction, il che permette di rendere "atomiche" anche operazioni che coinvolgono la scrittura su due file/collection distinte. Per esempio l'accettazione di uno scambio o l'accettazione di un offerta per un pacchetto maxi di figurine
+
 
 ## Struttura del progetto
 All'interno della cartella [frontend](frontend/) sono contenuti i file relativi all'implementazione del frontend.
