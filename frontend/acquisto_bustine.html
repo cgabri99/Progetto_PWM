@@ -152,6 +152,7 @@
                                         err.innerHTML = 'Acquisto completo!';
                                         document.getElementsByClassName('navbar-brand')[0].href = "home.html";
                                         document.getElementById('acquista').classList.remove('disabled');
+                                        aggiornaPagina();
                                     })
                                     .catch((error) => console.error(error));
                             } else {

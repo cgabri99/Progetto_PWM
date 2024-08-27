@@ -150,7 +150,7 @@ async function aggiornaNavbar() {
                 menuFigurine.classList.remove('disabled');
                 msg.innerHTML = `Benvenuto ${json.nome}`;
                 salvadanaio.classList.remove('d-none');
-                salvadanaio.innerHTML += `Crediti: ${json.crediti}`;
+                salvadanaio.innerHTML = `Crediti: ${json.crediti}`;
             }
         } catch (error) {
             console.error(error);
