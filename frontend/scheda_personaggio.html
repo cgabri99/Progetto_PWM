@@ -97,15 +97,6 @@
 
         <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
             <div id="col_comics" class="col">
-                <div id="placeholder_comics">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
                 <h1 id="title_comics" class="text-center my-3 d-none">Fumetti</h1>
                 <div id="carousel_comics" class="carousel slide">
                     <div id="container_comics" class="carousel-inner">
@@ -133,15 +124,6 @@
                 </nav>
             </div>
             <div id="col_series" class="col">
-                <div id="placeholder_series">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
                 <h1 id="title_series" class="text-center my-3 d-none">Serie</h1>
                 <div id="carousel_series" class="carousel slide">
                     <div id="container_series" class="carousel-inner">
@@ -170,15 +152,6 @@
             </div>
 
             <div id="col_events" class="col">
-                <div id="placeholder_events">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
                 <h1 id="title_events" class="text-center my-3 d-none">Eventi</h1>
                 <div id="carousel_events" class="carousel slide">
                     <div id="container_events" class="carousel-inner">
@@ -209,6 +182,16 @@
         <div id="slide_carrousel" class="carousel-item d-none">
             <img src="" class="d-block img-carousel">
         </div>
+
+        <div id="placeholder_carrousel" class="d-none">
+            <h1 class="placeholder-glow">
+                <span class="placeholder col-12"></span>
+            </h1>
+            <figure class="figure">
+                <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
+                    alt="placeholder">
+            </figure>
+        </div>
     </div>
 
     <script>
@@ -236,9 +219,29 @@
             const searchParams = new URLSearchParams(location.search);
             URI = searchParams.get('URI');
 
+            addPlaceholder('comics');
+            addPlaceholder('series');
+            addPlaceholder('events');
+
             getFromMarvel(URI, "")
                 .then((result) => popolaScehda(result.data.results))
                 .catch((error) => console.error(error));
+        }
+
+        function addPlaceholder(type) {
+            const placeholder = document.getElementById('placeholder_carrousel');
+            //const col = document.getElementById('col_' + type);
+            const container = document.getElementById('container_' + type);
+            container.innerHTML = "";
+            clone = placeholder.cloneNode(true);
+            clone.id = 'placeholderClone_' + type;
+            clone.classList.remove('d-none');
+            container.append(clone);
+
+            document.getElementById('prev_' + type).classList.add('d-none');
+            document.getElementById('next_' + type).classList.add('d-none');
+
+            document.getElementById('title_' + type).classList.add('d-none');
         }
 
         function popolaScehda(dati) {
@@ -286,8 +289,6 @@
                         }
                         popolacarousel(result.data.results, type);
                     }
-                    const col = document.getElementById('col_' + type);
-                    col.removeChild(document.getElementById('placeholder_' + type));
                 })
                 .catch((error) => console.error(error));
         }
@@ -296,7 +297,7 @@
             pageNumbers.set(type, pageNumbers.get(type) + offset);
             document.getElementById('page_prev_' + type).classList.add('disabled');
             document.getElementById('page_next_' + type).classList.add('disabled');
-            //aggiungi placeolder
+            addPlaceholder(type);
             richiestaMarvelCarousel(type);
         }
 
