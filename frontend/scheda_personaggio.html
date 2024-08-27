@@ -307,20 +307,22 @@
                         title.classList.remove('d-none');
                         title.innerHTML = `Nessun ${type} trovato`;
                     } else {
-                        popolacarousel(result.data.results, type)
+                        popolacarousel(result.data.results, type);
                     }
+                    const col = document.getElementById('col_' + type);
+                    col.removeChild(document.getElementById('placeholder_' + type));
                 })
                 .catch((error) => console.error(error));
         }
 
         function popolacarousel(data, type) {
             console.log(data);
-            slide = document.getElementById('item_' + type);
-            container = document.getElementById('container_' + type);
-            header = document.getElementById('title_' + type);
-            btn_prev = document.getElementById('prev_' + type);
-            btn_next = document.getElementById('next_' + type);
-            col = document.getElementById('col_' + type);
+            const slide = document.getElementById('item_' + type);
+            const container = document.getElementById('container_' + type);
+            const header = document.getElementById('title_' + type);
+            const btn_prev = document.getElementById('prev_' + type);
+            const btn_next = document.getElementById('next_' + type);
+            const col = document.getElementById('col_' + type);
 
 
             container.innerHTML = "";
@@ -351,7 +353,6 @@
                 slide.before(clone);
             }
             container.removeChild(slide);
-            container.removeChild(document.getElementById('placeholder_' + type));
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
