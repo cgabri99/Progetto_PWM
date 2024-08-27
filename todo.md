@@ -42,8 +42,10 @@
 - [x] aggiungere controllo nella sezione crea scambio se l'utente non ha figurine disponibili allo scambio
 - [x] aggiungi placeholder in dettagli personaggio per events, comics e series
 - [x] modifica struttura navbar rimuovendo login in quanto non viene più utilizzata la home come atterraggio a seguito del logout
-- [x] aggiungi logica di controllo refresh di acqustobustine anche su accetta scambio
+- [x] aggiungi logica di controllo refresh di acquistobustine anche su accetta scambio
 - [x] screenshot esempi di utilizzo della pagina per la consegna
 - [x] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
 - [x]inserire [transaction](https://www.mongodb.com/docs/manual/core/transactions/) per la gestione delle operazioni che lo richiedono
-- [ ] aggiornare readme.m
+- [x] aggiornare readme.m
+- [x] gestire frontend album vuoto
+- [x] gestire frontend placeolder comics, events, series dopo pagina 1

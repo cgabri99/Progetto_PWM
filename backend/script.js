@@ -76,7 +76,6 @@ function getRandomInt(min, max) {
  * @returns {Promise<Array<Object>>} Una Promise che restituisce un array di oggetti rappresentanti le figurine acquistate.
  * @throws {Error} Se si verifica un errore durante il processo di acquisto.
  */
-// eslint-disable-next-line no-unused-vars
 function acquistaPacchetto(dim) {
     return new Promise((resolve, reject) => {
         var figurine = [];
@@ -150,7 +149,7 @@ async function aggiornaNavbar() {
                 menuFigurine.classList.remove('disabled');
                 msg.innerHTML = `Benvenuto ${json.nome}`;
                 salvadanaio.classList.remove('d-none');
-                salvadanaio.innerHTML += `Crediti: ${json.crediti}`;
+                salvadanaio.innerHTML = `Crediti: ${json.crediti}`;
             }
         } catch (error) {
             console.error(error);

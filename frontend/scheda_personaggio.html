@@ -12,7 +12,7 @@
 </head>
 
 <body onload="aggiorna(); aggiornaPagina()">
-    <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg">
+    <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="home.html">Album delle Figurine dei Super Eroi (AFSE)</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -54,7 +54,7 @@
         </div>
     </nav>
     <div id="container" class="container">
-        <h1 class="text-center my-2">Descrizione personaggio</h1>
+        <h1 class="text-center mb-2">Descrizione personaggio</h1>
 
         <div id="placeholder" class="card m-3">
             <div class="row">
@@ -97,21 +97,9 @@
 
         <div class="row row-cols-lg-3 row-cols-md-2 row-cols-1">
             <div id="col_comics" class="col">
-                <div id="placeholder_comics">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
-                <h1 id="title_comics" class="text-center my-3 d-none">Fumetti in cui appare</h1>
+                <h1 id="title_comics" class="text-center my-3 d-none">Fumetti</h1>
                 <div id="carousel_comics" class="carousel slide">
                     <div id="container_comics" class="carousel-inner">
-                        <div id="item_comics" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel">
-                        </div>
                     </div>
                     <button id="prev_comics" class="carousel-control-prev d-none" type="button"
                         data-bs-target="#carousel_comics" data-bs-slide="prev">
@@ -124,35 +112,21 @@
                         <span class="visually-hidden">Next</span>
                     </button>
                 </div>
-
-                <!-- <div id="containerComics" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
-                    <div id="comicCard" class="col d-none" style="max-height: 30rem;">
-                        <div class="card h-100">
-                            <img src="" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title"></h5>
-                                <p class="card-text"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+                <nav>
+                    <ul class="pagination pagination d-flex justify-content-center mt-2">
+                        <li id="page_prev_comics" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('comics', -1);">Precedente</a>
+                        </li>
+                        <li id="page_next_comics" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('comics', 1);">Succesiva</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
             <div id="col_series" class="col">
-                <div id="placeholder_series">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
-                <h1 id="title_series" class="text-center my-3 d-none">Serie in cui appare</h1>
+                <h1 id="title_series" class="text-center my-3 d-none">Serie</h1>
                 <div id="carousel_series" class="carousel slide">
                     <div id="container_series" class="carousel-inner">
-                        <div id="item_series" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel">
-                        </div>
                     </div>
                     <button id="prev_series" class="carousel-control-prev d-none" type="button"
                         data-bs-target="#carousel_series" data-bs-slide="prev">
@@ -165,36 +139,22 @@
                         <span class="visually-hidden">Next</span>
                     </button>
                 </div>
-
-                <!-- <div id="containerSeries" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
-                    <div id="serieCard" class="col d-none" style="max-height: 30rem;">
-                        <div class="card h-100">
-                            <img src="" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title"></h5>
-                                <p class="card-text"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+                <nav>
+                    <ul class="pagination pagination d-flex justify-content-center mt-2">
+                        <li id="page_prev_series" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('series', -1);">Precedente</a>
+                        </li>
+                        <li id="page_next_series" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('series', 1);">Succesiva</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
 
             <div id="col_events" class="col">
-                <div id="placeholder_events">
-                    <h1 class="placeholder-glow">
-                        <span class="placeholder col-12"></span>
-                    </h1>
-                    <figure class="figure">
-                        <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
-                            alt="placeholder">
-                    </figure>
-                </div>
-                <h1 id="title_events" class="text-center my-3 d-none">Eventi in cui appare</h1>
+                <h1 id="title_events" class="text-center my-3 d-none">Eventi</h1>
                 <div id="carousel_events" class="carousel slide">
                     <div id="container_events" class="carousel-inner">
-                        <div id="item_events" class="carousel-item d-none">
-                            <img src="" class="d-block img-carousel">
-                        </div>
                     </div>
                     <button id="prev_events" class="carousel-control-prev d-none" type="button"
                         data-bs-target="#carousel_events" data-bs-slide="prev">
@@ -207,32 +167,81 @@
                         <span class="visually-hidden">Next</span>
                     </button>
                 </div>
-
-                <!-- <div id="containerEvents" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mt-2 mx-1">
-                    <div id="eventCard" class="col d-none" style="max-height: 30rem;">
-                        <div class="card h-100">
-                            <img src="" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title"></h5>
-                                <p class="card-text"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+                <nav>
+                    <ul class="pagination pagination d-flex justify-content-center mt-2">
+                        <li id="page_prev_events" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('events', -1);">Precedente</a>
+                        </li>
+                        <li id="page_next_events" class="page-item disabled"><a class="page-link" href="#"
+                                onclick="paginazioneCarousel('events', 1);">Succesiva</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+        </div>
+        <div id="slide_carrousel" class="carousel-item d-none">
+            <img src="" class="d-block img-carousel">
+        </div>
 
-
+        <div id="placeholder_carrousel" class="d-none">
+            <h1 class="placeholder-glow">
+                <span class="placeholder col-12"></span>
+            </h1>
+            <figure class="figure">
+                <img src="https://placehold.co/450X600/4A4E52/4A4E52/png" class="figure-img img-fluid rounded"
+                    alt="placeholder">
+            </figure>
         </div>
     </div>
 
     <script>
+        //variabili per la paginazione dei dati del carrousel
+        const dimCarrousel = 5;
+        //numero di pagina per ogni tipo di carrousel
+        const pageNumbers = new Map();
+        pageNumbers.set('comics', 0);
+        pageNumbers.set('series', 0);
+        pageNumbers.set('events', 0);
+
+        //numero di item nel server per ogni tipo di carrousel
+        const maxNumber = new Map();
+        maxNumber.set('comics', undefined);
+        maxNumber.set('series', undefined);
+        maxNumber.set('events', undefined);
+
+        //mappa per la gestione delle URI
+        const URIMap = new Map();
+        URIMap.set('comics', '');
+        URIMap.set('series', '');
+        URIMap.set('events', '');
+
         function aggiorna() {
             const searchParams = new URLSearchParams(location.search);
             URI = searchParams.get('URI');
 
+            addPlaceholder('comics');
+            addPlaceholder('series');
+            addPlaceholder('events');
+
             getFromMarvel(URI, "")
                 .then((result) => popolaScehda(result.data.results))
                 .catch((error) => console.error(error));
+        }
+
+        function addPlaceholder(type) {
+            const placeholder = document.getElementById('placeholder_carrousel');
+            //const col = document.getElementById('col_' + type);
+            const container = document.getElementById('container_' + type);
+            container.innerHTML = "";
+            clone = placeholder.cloneNode(true);
+            clone.id = 'placeholderClone_' + type;
+            clone.classList.remove('d-none');
+            container.append(clone);
+
+            document.getElementById('prev_' + type).classList.add('d-none');
+            document.getElementById('next_' + type).classList.add('d-none');
+
+            document.getElementById('title_' + type).classList.add('d-none');
         }
 
         function popolaScehda(dati) {
@@ -251,73 +260,50 @@
             description.innerHTML = hero.description;
             document.getElementById('container').replaceChild(heroCard, document.getElementById('placeholder'));
 
-            // richiestaMarvel(hero.comics.collectionURI, 'comicCard', 'containerComics', 'titleComics');
+            URIMap.set('comics', hero.comics.collectionURI);
+            URIMap.set('series', hero.series.collectionURI);
+            URIMap.set('events', hero.events.collectionURI);
 
-            // richiestaMarvel(hero.series.collectionURI, 'serieCard', 'containerSeries', 'titleSeries');
-
-            // richiestaMarvel(hero.events.collectionURI, 'eventCard', 'containerEvents', 'titleEvents');
-
-            richiestaMarvelCarousel(hero.comics.collectionURI, 'comics');
-            richiestaMarvelCarousel(hero.series.collectionURI, 'series');
-            richiestaMarvelCarousel(hero.events.collectionURI, 'events');
+            richiestaMarvelCarousel('comics');
+            richiestaMarvelCarousel('series');
+            richiestaMarvelCarousel('events');
         }
 
-        // function popolaMenu(data, nomeCard, nomeContainer, nomeTitolo) {
-        //     //console.log(series);
-        //     card = document.getElementById(nomeCard);
-        //     container = document.getElementById(nomeContainer);
-        //     header = document.getElementById(nomeTitolo);
-        //     container.innerHTML = "";
-        //     container.append(card);
+        function richiestaMarvelCarousel(type) {
+            var orderBy = type !== 'events' ? 'title' : 'name';
+            var page = pageNumbers.get(type);
+            var max = maxNumber.get(type);
 
-        //     for (i = 0; i < data.length; i++) {
-        //         element = data[i];
-        //         clone = card.cloneNode(true);
-        //         clone.id = 'serieClone_' + i;
-
-        //         title = clone.getElementsByClassName('card-title')[0];
-        //         // description = clone.getElementsByClassName('card-text')[0];
-        //         image = clone.getElementsByClassName('card-img-top')[0];
-
-        //         title.innerHTML = element.title;
-        //         image.src = element.thumbnail.path + "." + element.thumbnail.extension;
-        //         // description.innerHTML = serie.description;
-
-        //         header.classList.remove('d-none');
-        //         clone.classList.remove('d-none');
-        //         card.before(clone);
-        //     }
-        // }
-
-        // function richiestaMarvel(URI, nomeCard, nomeContainer, nomeTitolo) {
-        //     URI = URI.slice(URI.indexOf(1) + 2);
-        //     //fetch portale marvel
-        //     getFromMarvel(URI, "")
-        //         .then((result) => popolaMenu(result.data.results, nomeCard, nomeContainer, nomeTitolo))
-        //         .catch((error) => console.error(error));
-        // }
-
-        function richiestaMarvelCarousel(URI, type) {
+            var URI = URIMap.get(type);
             URI = URI.slice(URI.indexOf(1) + 2);
             //fetch portale marvel
-            getFromMarvel(URI, "")
+            getFromMarvel(URI, `orderBy=${orderBy}&limit=${dimCarrousel}&offset=${page * dimCarrousel}`)
                 .then((result) => {
                     if (result.data.results.length === 0) {
                         var title = document.getElementById('title_' + type);
                         title.classList.remove('d-none');
                         title.innerHTML = `Nessun ${type} trovato`;
                     } else {
+                        if (max === undefined) {
+                            maxNumber.set(type, result.data.total);
+                        }
                         popolacarousel(result.data.results, type);
                     }
-                    const col = document.getElementById('col_' + type);
-                    col.removeChild(document.getElementById('placeholder_' + type));
                 })
                 .catch((error) => console.error(error));
         }
 
+        function paginazioneCarousel(type, offset) {
+            pageNumbers.set(type, pageNumbers.get(type) + offset);
+            document.getElementById('page_prev_' + type).classList.add('disabled');
+            document.getElementById('page_next_' + type).classList.add('disabled');
+            addPlaceholder(type);
+            richiestaMarvelCarousel(type);
+        }
+
         function popolacarousel(data, type) {
             console.log(data);
-            const slide = document.getElementById('item_' + type);
+            const slide = document.getElementById('slide_carrousel');
             const container = document.getElementById('container_' + type);
             const header = document.getElementById('title_' + type);
             const btn_prev = document.getElementById('prev_' + type);
@@ -326,19 +312,14 @@
 
 
             container.innerHTML = "";
-            container.append(slide);
             for (i = 0; i < data.length; i++) {
                 element = data[i];
                 clone = slide.cloneNode(true);
                 clone.id = 'slideClone_' + i;
 
-                // title = clone.getElementsByClassName('carouselHeader')[0];
-                // description = clone.getElementsByClassName('card-text')[0];
                 image = clone.getElementsByClassName('img-carousel')[0];
 
-                // title.innerHTML = element.title;
                 image.src = element.thumbnail.path + "." + element.thumbnail.extension;
-                // description.innerHTML = serie.description;
 
                 header.classList.remove('d-none');
                 clone.classList.remove('d-none');
@@ -350,9 +331,20 @@
                 if (i === 0) {
                     clone.classList.add('active');
                 }
-                slide.before(clone);
+                container.appendChild(clone);
             }
-            container.removeChild(slide);
+
+            //aggiorna paginazione
+            const page_prev = document.getElementById('page_prev_' + type);
+            const page_next = document.getElementById('page_next_' + type);
+
+            if (pageNumbers.get(type) !== 0) {
+                page_prev.classList.remove('disabled');
+            }
+
+            if (pageNumbers.get(type) * dimCarrousel + dimCarrousel < maxNumber.get(type)) {
+                page_next.classList.remove('disabled');
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
