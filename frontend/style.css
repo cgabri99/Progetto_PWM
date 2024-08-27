@@ -21,3 +21,11 @@
     display: block;
     margin: auto;
 }
+
+nav+h1 {
+    margin-top: 75px;
+}
+
+nav+div.container {
+    margin-top: 75px;
+}
