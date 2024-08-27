@@ -76,7 +76,6 @@ function getRandomInt(min, max) {
  * @returns {Promise<Array<Object>>} Una Promise che restituisce un array di oggetti rappresentanti le figurine acquistate.
  * @throws {Error} Se si verifica un errore durante il processo di acquisto.
  */
-// eslint-disable-next-line no-unused-vars
 function acquistaPacchetto(dim) {
     return new Promise((resolve, reject) => {
         var figurine = [];
