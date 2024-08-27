@@ -49,3 +49,6 @@
 - [x] aggiornare readme.m
 - [x] gestire frontend album vuoto
 - [x] gestire frontend placeolder comics, events, series dopo pagina 1
+- [ ] rivedere questione login e sign-out
+- [ ] aggiungere tasto mostra password (opzionale)
+- [ ] fare in modo che se premo invio in login venga inviata la risposta
