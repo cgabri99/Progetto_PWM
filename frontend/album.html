@@ -148,9 +148,15 @@
                     .then((response) => response.text())
                     .then((result) => result = JSON.parse(result))
                     .then((result) => {
-                        document.getElementById('container').innerHTML = "";
-                        clonaPlaceholder(result.figurine.length);
-                        mostraFigurine(result.figurine, result.total);
+                        console.log(result);
+                        if (result.figurine.length === 0) {
+                            document.querySelector('h1').innerHTML = "Non possiedi ancora nessuna figurina!";
+                            document.querySelector('ul.pagination').classList.add('d-none');
+                        } else {
+                            document.getElementById('container').innerHTML = "";
+                            clonaPlaceholder(result.figurine.length);
+                            mostraFigurine(result.figurine, result.total);
+                        }
                     })
                     .catch((error) => console.error(error));
             }
