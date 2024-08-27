@@ -187,6 +187,13 @@
 
         function accettaOfferta(btn) {
             window.addEventListener("beforeunload", beforeUnloadHandler);
+            const bottoni = document.getElementsByClassName("btn");
+            for (let i = 0; i < bottoni.length; i++) {
+                bottoni[i].classList.add("disabled");
+            }
+            error.classList.remove("d-none", "alert-danger", "alert-success");
+            error.classList.add("alert-warning");
+            error.innerHTML = "Acquisto in corso attendere...";
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -206,56 +213,26 @@
                 .then((response) => response.text())
                 .then((result) => JSON.parse(result))
                 .then((offerta) => {
-                    const bottoni = document.getElementsByClassName("btn");
-                    for (let i = 0; i < bottoni.length; i++) {
-                        bottoni[i].classList.add("disabled");
-                    }
-                    error.classList.remove("d-none", "alert-danger", "alert-success");
-                    error.classList.add("alert-warning");
-                    error.innerHTML = "Acquisto in corso attendere...";
                     console.log(offerta);
-                    aggiungiFigurine(offerta.offerta.n_figurine);
+                    error.classList.remove('d-none', 'alert-danger', 'alert-warning');
+                    error.classList.add('alert-success');
+                    error.innerHTML = 'Acquisto completato!';
+                    for (let i = 0; i < bottoni.length; i++) {
+                        bottoni[i].classList.remove("disabled");
+                    }
+
+                    window.setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 })
                 .catch((e) => {
                     console.error(e);
                     error.classList.remove("d-none");
                     error.classList.add("alert-danger");
                     error.innerHTML = "Non hai abbastanza crediti per acquistare questa bustina!";
+                }).finally(() => {
+                    window.removeEventListener("beforeunload", beforeUnloadHandler);
                 });
-        }
-
-        function aggiungiFigurine(nFigurine) {
-            acquistaPacchetto(nFigurine)
-                .then((figurine) => {
-                    const requestOptions = {
-                        method: "PUT",
-                        redirect: "follow",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: `{"figurine": ${JSON.stringify(figurine)}}`
-                    };
-                    fetch(`http://localhost:3000/figurine/${getLocalStorage("id_utente")}`, requestOptions)
-                        .then((response) => response.text())
-                        .then(() => {
-                            error.classList.remove('d-none', 'alert-danger', 'alert-warning');
-                            error.classList.add('alert-success');
-                            error.innerHTML = 'Acquisto completato!';
-                            const bottoni = document.getElementsByClassName("btn");
-                            for (let i = 0; i < bottoni.length; i++) {
-                                bottoni[i].classList.remove("disabled");
-                            }
-
-                            window.setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        })
-                        .catch((e) => console.error(e))
-                        .finally(() => {
-                            window.removeEventListener("beforeunload", beforeUnloadHandler);
-                        });
-                });
-
         }
 
         function creaOfferta() {

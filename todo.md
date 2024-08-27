@@ -45,3 +45,5 @@
 - [x] aggiungi logica di controllo refresh di acqustobustine anche su accetta scambio
 - [x] screenshot esempi di utilizzo della pagina per la consegna
 - [x] impedire all'utente la possibilità di cambiare pagina in album durante il caricamento
+- [x]inserire [transaction](https://www.mongodb.com/docs/manual/core/transactions/) per la gestione delle operazioni che lo richiedono
+- [ ] aggiornare readme.m
