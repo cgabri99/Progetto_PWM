@@ -240,7 +240,6 @@
 
             document.getElementById('prev_' + type).classList.add('d-none');
             document.getElementById('next_' + type).classList.add('d-none');
-
             document.getElementById('title_' + type).classList.add('d-none');
         }
 
@@ -283,6 +282,10 @@
                         var title = document.getElementById('title_' + type);
                         title.classList.remove('d-none');
                         title.innerHTML = `Nessun ${type} trovato`;
+                        var container = document.getElementById('container_' + type);
+                        container.innerHTML = "";
+                        var col = document.getElementById('col_' + type);
+                        col.querySelector('nav').classList.add('d-none');
                     } else {
                         if (max === undefined) {
                             maxNumber.set(type, result.data.total);

@@ -15,7 +15,6 @@ const cors = require('cors');
 //moduli swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
-// const { count } = require('console');
 
 const app = express();
 const port = 3000;
