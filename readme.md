@@ -1,5 +1,6 @@
 # Progetto
-Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file README fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e delle istruzioni su come utilizzare le funzionalità. Il progetto consiste in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
+Benvenuti nel progetto di Gabriele Cucchi 962790! Questo file fornisce una panoramica del progetto **Album delle Figurine dei Super Eroi (AFSE)** e istruzioni su come utilizzarne le funzionalità. Il progetto consiste in un'applicazione web che permette di gestire l'acquisto e scambio di figurine di supereroi Marvel.
+Le release di maggiore importanza sono "taggate" (es v1.3), nonostante questo sul ramo develop sono comunque presenti piccoli cambiamenti da considerare in fase di valutazione del progetto.
 
 ## Considerazioni sulle prestazioni
 Si vuole sottolineare che durante la realizzazione del progetto (lugio/Agosto 2024) il server marvel incaricato della Gestione delle chiamte API è notevolmente rallenatato e al momento l'esperienza dell'utente finale è altamente compromessa, d'altraparte si è scelto di continuare a usufruire del server e non trovare altre soluzioni (per esempio "congelando" i dati in un file statico dal quale attingere) a fini didattici e per attenersi alle richieste del docente. 
@@ -41,7 +42,7 @@ Il localstorage viene utilizzto dall'applicazione per memorizzare i dati di conn
 L'applicazione, oltre alle funzionalità base, offre le seguenti operazioni aggiuntive:
 - dalla sezione album ogni utente può [vendere](#vendita-figurine) le sue figurine in cambio di crediti
 - l'utente amministratore, nella sezione dedicata, può generare offerte per pacchetti di figurine maxi contenenti da 6 a 30 figurine e il prezzo può andare da 1 a 5 crediti. Nella stesssa sezione tutti gli altri utenti possono acquistare le offerte per i pacchetti di figurine. Per maggiori informazioni realtive all'utente amministratore visita la sezione [dedicata](#utente-amministratore)
-- per quanto riguarda gli [scambi](#scambi) sono gestiti i controlli di integritàin modo che:
+- per quanto riguarda gli [scambi](#scambi) sono gestiti i controlli di integrità in modo che:
     - non si possano accettare scambi dove la figurina in arrivo è già presente nell’album
     - non si possono creare scambi dove la figurina in arrivo e in uscita coincidono
 
